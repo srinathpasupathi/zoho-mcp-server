@@ -97,7 +97,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 					let output = "";
 
 					if (issues.length === 0) {
-						output = `# No issues found\nCould not find any errors for file \`${filename}\` in project \`${project_slug}\`.`;
+						output = `# No issues found\nCould not find any errors for file \`${filename}\`.`;
 
 						return {
 							content: [{ type: "text", text: output }],
@@ -132,7 +132,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 						}
 					}
 
-					output = `# Using this information\n\nYou can reference the ID in commit messages (e.g. \`Fixes #${issue.shortId}\`) to automatically close the issue when the commit is merged.`;
+					output = `# Using this information\n\nYou can reference the ID in commit messages (e.g. \`Fixes ${issues[0].shortId}\`) to automatically close the issue when the commit is merged.`;
 
 					return {
 						content: [
