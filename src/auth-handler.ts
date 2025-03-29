@@ -3,6 +3,9 @@ import { Hono } from "hono";
 import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "./utils";
 import type { Props } from "./types";
 
+const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
+const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
+
 export default new Hono<{
 	Bindings: Env & {
 		OAUTH_PROVIDER: OAuthHelpers;
@@ -27,7 +30,7 @@ export default new Hono<{
 
 		return Response.redirect(
 			getUpstreamAuthorizeUrl({
-				upstream_url: "https://sentry.io/oauth/authorize/",
+				upstream_url: SENTRY_AUTH_URL,
 				scope: "org:read project:read event:read",
 				client_id: c.env.SENTRY_CLIENT_ID,
 				redirect_uri: new URL("/callback", c.req.url).href,
@@ -53,7 +56,7 @@ export default new Hono<{
 
 		// Exchange the code for an access token
 		const [payload, errResponse] = await exchangeCodeForAccessToken({
-			upstream_url: "https://sentry.io/oauth/access_token",
+			upstream_url: SENTRY_TOKEN_URL,
 			client_id: c.env.SENTRY_CLIENT_ID,
 			client_secret: c.env.SENTRY_CLIENT_SECRET,
 			code: c.req.query("code"),
@@ -62,6 +65,7 @@ export default new Hono<{
 		if (errResponse) return errResponse;
 
 		// Return back to the MCP client a new token
+
 		const { redirectTo } = await c.env.OAUTH_PROVIDER.completeAuthorization({
 			request: oauthReqInfo,
 			userId: payload.user.id,

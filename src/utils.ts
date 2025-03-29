@@ -73,16 +73,22 @@ export async function exchangeCodeForAccessToken({
 			client_id,
 			client_secret,
 			code,
-			redirect_uri,
+			// redirect_uri,
 		}).toString(),
 	});
 	if (!resp.ok) {
 		console.log(await resp.text());
 		return [null, new Response("Failed to fetch access token", { status: 500 })];
 	}
-	const body = await resp.json();
 
-	const output = TokenResponseSchema.parse(body);
+	try {
+		const body = await resp.json();
 
-	return [output, null];
+		const output = TokenResponseSchema.parse(body);
+
+		return [output, null];
+	} catch (e) {
+		console.error("Failed to parse token response", e);
+		return [null, new Response("Failed to parse token response", { status: 500 })];
+	}
 }
