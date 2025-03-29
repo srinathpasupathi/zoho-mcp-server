@@ -1,31 +1,31 @@
 {
-	"name": "mcp-github-oauth",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"format": "biome format --write",
-		"lint:fix": "biome lint --fix",
-		"inspector": "pnpx @modelcontextprotocol/inspector@latest",
-		"start": "wrangler dev",
-		"cf-typegen": "wrangler types"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
-		"@types/node": "^22.13.14",
-		"typescript": "^5.8.2",
-		"wrangler": "^4.2.0"
-	},
-	"dependencies": {
-		"@cloudflare/workers-oauth-provider": "^0.0.2",
-		"@modelcontextprotocol/sdk": "^1.8.0",
-		"@sentry/cloudflare": "^9.10.1",
-		"agents": "^0.0.45",
-		"hono": "^4.7.5",
-		"just-pick": "^4.2.0",
-		"marked": "^15.0.7",
-		"workers-mcp": "0.1.0-3",
-		"zod": "^3.24.2"
-	}
+  "name": "mcp-github-oauth",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "format": "biome format --write",
+    "lint:fix": "biome lint --fix",
+    "inspector": "pnpx @modelcontextprotocol/inspector@latest",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.13.14",
+    "typescript": "^5.8.2",
+    "wrangler": "^4.2.0"
+  },
+  "dependencies": {
+    "@cloudflare/workers-oauth-provider": "^0.0.2",
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "@sentry/cloudflare": "^9.10.1",
+    "agents": "^0.0.45",
+    "hono": "^4.7.5",
+    "just-pick": "^4.2.0",
+    "marked": "^15.0.7",
+    "workers-mcp": "0.1.0-3",
+    "zod": "^3.24.2"
+  }
 }
