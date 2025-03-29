@@ -28,7 +28,7 @@ export default new Hono<{
 		return Response.redirect(
 			getUpstreamAuthorizeUrl({
 				upstream_url: "https://sentry.io/oauth/authorize/",
-				scope: "read:user",
+				scope: "org:read project:read event:read",
 				client_id: c.env.SENTRY_CLIENT_ID,
 				redirect_uri: new URL("/callback", c.req.url).href,
 				state: btoa(JSON.stringify(oauthReqInfo)),
