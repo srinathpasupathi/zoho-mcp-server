@@ -3,7 +3,7 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Props } from "./types";
 import { z } from "zod";
-import type app from "./app";
+import app from "./app";
 import { SentryEventSchema, SentryIssueSchema } from "./schema";
 
 const API_BASE_URL = "https://sentry.io/api/0";
