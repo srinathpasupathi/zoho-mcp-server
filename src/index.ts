@@ -3,10 +3,30 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Props } from "./types";
 import { z } from "zod";
-import app from "./app";
+import type app from "./app";
 import { SentryEventSchema, SentryIssueSchema } from "./schema";
 
 const API_BASE_URL = "https://sentry.io/api/0";
+
+function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
+	let output = "";
+	for (const entry of event.entries) {
+		if (entry.type === "exception") {
+			const firstError = entry.data.values[0];
+			output += `Error:\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
+			output += `Stacktrace:\n${"```"}\n${firstError.stacktrace.frames
+				.map(
+					(frame) =>
+						`${frame.filename} (line ${frame.lineno})\n${frame.context
+							.filter(([lineno, _]) => lineno === frame.lineno)
+							.map(([_, code]) => `${code}`)
+							.join("\n")}`,
+				)
+				.join("\n")}\n${"```"}\n\n`;
+		}
+	}
+	return output;
+}
 
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the DurableMCP as this.props
@@ -42,7 +62,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 					const organization_slug = "sentry"; // TODO: move this to onboarding
 
 					// Construct the URL for the Sentry API
-					const apiUrl: string = `${API_BASE_URL}/projects/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;
+					const apiUrl: string = `${API_BASE_URL}/organizations/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;
 
 					// Make the API request
 					const response = await fetch(apiUrl, {
@@ -94,31 +114,21 @@ export class SentryMCP extends McpAgent<Props, Env> {
 						output += `- **Link**: [View in Sentry](${issue.permalink})\n\n`;
 
 						// CRINGE
-						const eventResponse = await fetch(
-							`${API_BASE_URL}/projects/${organization_slug}/issues/${issue.id}/events/latest/`,
-							{
-								method: "GET",
-								headers: {
-									Authorization: `Bearer ${this.props.accessToken}`,
-									"Content-Type": "application/json",
+						try {
+							const eventResponse = await fetch(
+								`${API_BASE_URL}/projects/${organization_slug}/issues/${issue.id}/events/latest/`,
+								{
+									method: "GET",
+									headers: {
+										Authorization: `Bearer ${this.props.accessToken}`,
+										"Content-Type": "application/json",
+									},
 								},
-							},
-						);
-						const event = SentryEventSchema.parse(await eventResponse.json());
-						for (const entry of event.entries) {
-							if (entry.type === "exception") {
-								const firstError = entry.data.values[0];
-								output += `Error:\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
-								output += `Stacktrace:\n${"```"}\n${firstError.stacktrace.frames
-									.map(
-										(frame) =>
-											`${frame.filename} (line ${frame.lineno})\n${frame.context
-												.filter(([lineno, _]) => lineno === frame.lineno)
-												.map(([_, code]) => `${code}`)
-												.join("\n")}`,
-									)
-									.join("\n")}\n${"```"}\n\n`;
-							}
+							);
+							const event = SentryEventSchema.parse(await eventResponse.json());
+							output += formatEventOutput(event);
+						} catch (err) {
+							console.error("DEBUG: error querying event for issue", issue.id, err);
 						}
 					}
 
