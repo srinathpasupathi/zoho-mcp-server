@@ -113,7 +113,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
             // CRINGE
             try {
               const eventResponse = await fetch(
-                `${API_BASE_URL}/organizations/${organization_slug}/issues/${eventSummary.issue}/events/${eventSummary.id}/`,
+                `${API_BASE_URL}/organizations/${organization_slug}/issues/${eventSummary.issue}/events/latest/`,
                 {
                   method: "GET",
                   headers: {
@@ -126,7 +126,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
               output += formatEventOutput(event);
             } catch (err) {
               captureException(err);
-              console.error("DEBUG: error querying details for event", eventSummary.id, err);
+              console.error("DEBUG: error querying details for issue", eventSummary.issue, err);
             }
           }
 
