@@ -99,7 +99,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
       }) => {
         try {
           // Construct the query based on identifier type
-          const query = `stack.filename:"*/${filename}"`;
+          const query = `stack.filename:"*${filename.replace(/"/g, '\\"')}"`;
           const limit = 10;
 
           const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
