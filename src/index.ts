@@ -87,8 +87,8 @@ export class SentryMCP extends McpAgent<Props, Env> {
           }
 
           // Parse the response
-          const listBody = await listResponse.json<unknown[]>();
-          const eventList: z.infer<typeof SentryDiscoverEventSchema>[] = listBody.map((i) =>
+          const listBody = await listResponse.json<{ data: unknown[] }>();
+          const eventList: z.infer<typeof SentryDiscoverEventSchema>[] = listBody.data.map((i) =>
             SentryDiscoverEventSchema.parse(i),
           );
 
