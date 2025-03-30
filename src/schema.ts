@@ -14,6 +14,11 @@ export const TokenResponseSchema = z.object({
   scope: z.string(),
 });
 
+export const SentryOrgSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+});
+
 export const SentryIssueSchema = z.object({
   id: z.string(),
   shortId: z.string(),

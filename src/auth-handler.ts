@@ -2,6 +2,7 @@ import type { AuthRequest, OAuthHelpers } from "@cloudflare/workers-oauth-provid
 import { Hono } from "hono";
 import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "./utils";
 import type { Props } from "./types";
+import { SentryOrgSchema } from "./schema";
 
 const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
 const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
@@ -65,8 +66,22 @@ export default new Hono<{
     });
     if (errResponse) return errResponse;
 
-    // Return back to the MCP client a new token
+    // I see you judging me - need to figure out how to inject a stateful step here and this is lazy hack
+    // TODO: ask the user to select from this list
+    const orgsResponse = await fetch("https://sentry.io/api/0/organizations/", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${payload.access_token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    const orgsBody = await orgsResponse.json<{ id: string; slug: string }[]>();
+    const orgsList = orgsBody.map((i) => SentryOrgSchema.parse(i));
+    if (!orgsList.length) {
+      return c.text("No organizations found", 400);
+    }
 
+    // Return back to the MCP client a new token
     const { redirectTo } = await c.env.OAUTH_PROVIDER.completeAuthorization({
       request: oauthReqInfo,
       userId: payload.user.id,
@@ -79,7 +94,7 @@ export default new Hono<{
         id: payload.user.id,
         name: payload.user.name,
         accessToken: payload.access_token,
-        organizationSlug: "sentry", // TODO: ask the user to select this first
+        organizationSlug: orgsList[0].slug,
       } as Props,
     });
 
