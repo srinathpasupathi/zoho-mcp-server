@@ -56,8 +56,8 @@ export class SentryMCP extends McpAgent<Props, Env> {
       async ({ issue_id }) => {
         try {
           const apiService = new SentryApiService(
-            this.props.accessToken,
-            this.props.organizationSlug,
+            this.props.accessToken as string,
+            this.props.organizationSlug as string,
           );
           const event = await apiService.getLatestEvent(issue_id);
 
@@ -110,8 +110,8 @@ export class SentryMCP extends McpAgent<Props, Env> {
       async ({ filename, sortBy }) => {
         try {
           const apiService = new SentryApiService(
-            this.props.accessToken,
-            this.props.organizationSlug,
+            this.props.accessToken as string,
+            this.props.organizationSlug as string,
           );
           const eventList = await apiService.searchErrorsInFile(filename, sortBy);
 
