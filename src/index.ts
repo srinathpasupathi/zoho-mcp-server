@@ -74,9 +74,9 @@ export class SentryMCP extends McpAgent<Props, Env> {
         output += formatEventOutput(event);
 
         output += "# Using this information\n\n";
-        output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.`;
+        output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.\n`;
         output +=
-          "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.";
+          "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
 
         return {
           content: [
