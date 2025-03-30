@@ -152,7 +152,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
           for (const eventSummary of eventList) {
             output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
             output += `- **Issue ID**: ${eventSummary.issue}\n`;
-            output += `- **Project**: ${eventSummary.project}\n`;
+            output += `- **Project**: ${eventSummary.project}\n\n`;
           }
 
           output += "# Using this information\n\n";
