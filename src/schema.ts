@@ -65,3 +65,11 @@ export const SentryEventSchema = z.object({
     ]),
   ),
 });
+
+// https://us.sentry.io/api/0/organizations/sentry/events/?dataset=errors&field=issue&field=title&field=project&field=timestamp&field=trace&per_page=5&query=event.type%3Aerror&referrer=sentry-mcp&sort=-timestamp&statsPeriod=1w
+export const SentryDiscoverEventSchema = z.object({
+  id: z.string(),
+  issue: z.string(),
+  "issue.id": z.string(),
+  title: z.string(),
+});

@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Props } from "./types";
 import { z } from "zod";
 import app from "./app";
-import { SentryEventSchema, SentryIssueSchema } from "./schema";
+import { SentryDiscoverEventSchema, SentryEventSchema, SentryIssueSchema } from "./schema";
 
 const API_BASE_URL = "https://sentry.io/api/0";
 
@@ -44,7 +44,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
     this.server.tool(
       "search_errors_in_file",
-      "Search Sentry for errors occurring in a specific file. A maximum of 3 results will be returned.",
+      "Search Sentry for errors occurring in a specific file. A maximum of 5 results will be returned.",
       {
         filename: z.string().describe("The path or name of the file to search for errors in"),
       },
@@ -55,16 +55,15 @@ export class SentryMCP extends McpAgent<Props, Env> {
       }) => {
         try {
           // Construct the query based on identifier type
-          const query = `stack.filename:"*/${filename}" status:unresolved issue.category:error`;
-          const limit = 3;
+          const query = `stack.filename:"*/${filename}"`;
+          const limit = 5;
 
           const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
 
-          // Construct the URL for the Sentry API
-          const apiUrl: string = `${API_BASE_URL}/organizations/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=unhandled&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;
+          const apiUrl = `${API_BASE_URL}/organizations/${organization_slug}/events/?dataset=errors&field=issue&field=title&field=project&field=timestamp&field=trace&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-timestamp&statsPeriod=1w`;
 
           // Make the API request
-          const issuesResponse = await fetch(apiUrl, {
+          const listResponse = await fetch(apiUrl, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${this.props.accessToken}`,
@@ -73,14 +72,14 @@ export class SentryMCP extends McpAgent<Props, Env> {
           });
 
           // Check if the request was successful
-          if (!issuesResponse.ok) {
-            const errorText: string = await issuesResponse.text();
-            console.error("DEBUG: API request failed:", issuesResponse.status, errorText);
+          if (!listResponse.ok) {
+            const errorText: string = await listResponse.text();
+            console.error("DEBUG: API request failed:", listResponse.status, errorText);
             return {
               content: [
                 {
                   type: "text",
-                  text: `Failed to search for errors: ${issuesResponse.status} ${issuesResponse.statusText}\n${errorText}`,
+                  text: `Failed to search for errors: ${listResponse.status} ${listResponse.statusText}\n${errorText}`,
                 },
               ],
               isError: true,
@@ -88,16 +87,16 @@ export class SentryMCP extends McpAgent<Props, Env> {
           }
 
           // Parse the response
-          const issuesBody = await issuesResponse.json<unknown[]>();
-          const issues: z.infer<typeof SentryIssueSchema>[] = issuesBody.map((i) =>
-            SentryIssueSchema.parse(i),
+          const listBody = await listResponse.json<unknown[]>();
+          const eventList: z.infer<typeof SentryDiscoverEventSchema>[] = listBody.map((i) =>
+            SentryDiscoverEventSchema.parse(i),
           );
 
           // Format the output based on the view type and format
           let output = "";
 
-          if (issues.length === 0) {
-            output = `# No issues found\nCould not find any errors for file \`${filename}\`.`;
+          if (eventList.length === 0) {
+            output = `# No errors found\nCould not find any errors affecting file \`${filename}\`.`;
 
             return {
               content: [{ type: "text", text: output }],
@@ -106,17 +105,14 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
           output = `# Errors in \`${filename}\`\n\n`;
 
-          for (const issue of issues) {
-            output += `## ${issue.shortId}: ${issue.title}\n`;
-            output += `- **ID**: ${issue.shortId}\n`;
-            output += `- **Last Seen**: ${issue.lastSeen}\n`;
-            output += `- **Occurences**: ${issue.count}\n`;
-            output += `- **Link**: [View in Sentry](${issue.permalink})\n\n`;
+          for (const eventSummary of eventList) {
+            output += `## ${eventSummary.issue}: ${eventSummary.title}\n`;
+            output += `- **Issue ID**: ${eventSummary.issue}\n`;
 
             // CRINGE
             try {
               const eventResponse = await fetch(
-                `${API_BASE_URL}/projects/${organization_slug}/issues/${issue.id}/events/latest/`,
+                `${API_BASE_URL}/organizations/${organization_slug}/issues/${eventSummary.issue}/events/${eventSummary.id}/`,
                 {
                   method: "GET",
                   headers: {
@@ -128,11 +124,11 @@ export class SentryMCP extends McpAgent<Props, Env> {
               const event = SentryEventSchema.parse(await eventResponse.json());
               output += formatEventOutput(event);
             } catch (err) {
-              console.error("DEBUG: error querying event for issue", issue.id, err);
+              console.error("DEBUG: error querying details for event", eventSummary.id, err);
             }
           }
 
-          output = `# Using this information\n\nYou can reference the ID in commit messages (e.g. \`Fixes ${issues[0].shortId}\`) to automatically close the issue when the commit is merged.`;
+          output = `# Using this information\n\nYou can reference the ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.`;
 
           return {
             content: [
