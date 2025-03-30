@@ -20,11 +20,11 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
           const context = frame.context.length
             ? frame.context
                 .filter(([lineno, _]) => lineno === frame.lineNo)
-                .map(([_, code]) => `${code}`)
-                .join("\n")
+                .map(([_, code]) => `\n${code}`)
+                .join("")
             : "";
 
-          return `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}\n${context}`;
+          return `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}${context}`;
         })
         .join("\n")}\n${"```"}\n\n`;
     }
@@ -65,14 +65,15 @@ export class SentryMCP extends McpAgent<Props, Env> {
         );
         const event = SentryEventSchema.parse(await eventResponse.json());
 
-        let output = `# ${issue_id}: ${event.title}\n`;
+        let output = `# ${issue_id}: ${event.title}\n\n`;
         output += `**Issue ID**:\n${issue_id}\n\n`;
 
         output += formatEventOutput(event);
 
         output += "# Using this information\n\n";
         output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.`;
-        output += `- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code..`;
+        output +=
+          "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.";
 
         return {
           content: [
@@ -149,7 +150,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
           output = `# Errors in \`${filename}\`\n\n`;
 
           for (const eventSummary of eventList) {
-            output += `## ${eventSummary.issue}: ${eventSummary.title}\n`;
+            output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
             output += `- **Issue ID**: ${eventSummary.issue}\n`;
             output += `- **Project**: ${eventSummary.project}\n`;
           }
