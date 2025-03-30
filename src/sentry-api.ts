@@ -47,7 +47,7 @@ export class SentryApiService {
 
   async searchErrorsInFile(
     filename: string,
-    sortBy: "last_seen" | "frequency" = "last_seen",
+    sortBy: "last_seen" | "count" = "last_seen",
   ): Promise<ReturnType<typeof SentryDiscoverEventSchema.parse>[]> {
     const query = `stack.filename:"*${filename.replace(/"/g, '\\"')}"`;
     const limit = 10;
