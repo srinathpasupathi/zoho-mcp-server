@@ -61,7 +61,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
           const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
 
-          const apiUrl = `${API_BASE_URL}/organizations/${organization_slug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&field=trace&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-last_seen&statsPeriod=1w`;
+          const apiUrl = `${API_BASE_URL}/organizations/${organization_slug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-last_seen&statsPeriod=1w`;
 
           // Make the API request
           const listResponse = await fetch(apiUrl, {
