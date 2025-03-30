@@ -14,12 +14,12 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   for (const entry of event.entries) {
     if (entry.type === "exception") {
       const firstError = entry.data.values[0];
-      output += `Error:\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
-      output += `Stacktrace:\n${"```"}\n${firstError.stacktrace.frames
+      output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
+      output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
         .map(
           (frame) =>
-            `${frame.filename} (line ${frame.lineno})\n${frame.context
-              .filter(([lineno, _]) => lineno === frame.lineno)
+            `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}\n${frame.context
+              .filter(([lineno, _]) => lineno === frame.lineNo)
               .map(([_, code]) => `${code}`)
               .join("\n")}`,
         )
@@ -63,7 +63,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
         const event = SentryEventSchema.parse(await eventResponse.json());
 
         let output = `# ${issue_id}: ${event.title}\n`;
-        output += `- **Issue ID**: ${event.issue}\n`;
+        output += `- **Issue ID**: ${issue_id}\n\n`;
 
         output += formatEventOutput(event);
 
