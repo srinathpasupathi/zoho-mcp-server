@@ -16,13 +16,16 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
       const firstError = entry.data.values[0];
       output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
       output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
-        .map(
-          (frame) =>
-            `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}\n${frame.context
-              .filter(([lineno, _]) => lineno === frame.lineNo)
-              .map(([_, code]) => `${code}`)
-              .join("\n")}`,
-        )
+        .map((frame) => {
+          const context = frame.context.length
+            ? frame.context
+                .filter(([lineno, _]) => lineno === frame.lineNo)
+                .map(([_, code]) => `${code}`)
+                .join("\n")
+            : "";
+
+          return `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}\n${context}`;
+        })
         .join("\n")}\n${"```"}\n\n`;
     }
   }
@@ -67,7 +70,9 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
         output += formatEventOutput(event);
 
-        output += `# Using this information\n\nYou can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.`;
+        output += "# Using this information\n\n";
+        output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.`;
+        output += `- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code..`;
 
         return {
           content: [
