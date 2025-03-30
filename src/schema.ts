@@ -35,12 +35,12 @@ export const SentryErrorEntrySchema = z.object({
       stacktrace: z.object({
         frames: z.array(
           z.object({
-            filename: z.string(),
-            function: z.string(),
-            lineNo: z.number(),
-            colNo: z.number(),
-            absPath: z.string(),
-            module: z.string(),
+            filename: z.string().nullable(),
+            function: z.string().nullable(),
+            lineNo: z.number().nullable(),
+            colNo: z.number().nullable(),
+            absPath: z.string().nullable(),
+            module: z.string().nullable(),
             // lineno, source code
             context: z.array(z.tuple([z.number(), z.string()])),
           }),
