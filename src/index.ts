@@ -38,15 +38,10 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
 export class SentryMCP extends McpAgent<Props, Env> {
   server = new McpServer({
     name: "Sentry MCP",
-    version: "1.0.0",
+    version: "0.1.0",
   });
 
   async init() {
-    // Hello, world!
-    this.server.tool("echo", "Echo a message", { message: z.string() }, async ({ message }) => ({
-      content: [{ type: "text", text: message }],
-    }));
-
     this.server.tool(
       "get_error_details",
       "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
