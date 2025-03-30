@@ -132,8 +132,8 @@ export class SentryMCP extends McpAgent<Props, Env> {
             output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
             output += `- **Issue ID**: ${eventSummary.issue}\n`;
             output += `- **Project**: ${eventSummary.project}\n`;
-            output += `- **Last Seen**: ${eventSummary.last_seen}\n`;
-            output += `- **Occurrences**: ${eventSummary.count}\n\n`;
+            output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
+            output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;
           }
 
           output += "# Using this information\n\n";
