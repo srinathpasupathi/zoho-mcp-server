@@ -15,7 +15,7 @@ export default withSentry(
   (env) => ({
     // @ts-ignore
     dsn: env.SENTRY_DSN,
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1,
   }),
   app,
 );

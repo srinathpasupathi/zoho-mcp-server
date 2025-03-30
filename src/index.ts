@@ -62,7 +62,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
           const organization_slug = "sentry"; // TODO: move this to onboarding
 
           // Construct the URL for the Sentry API
-          const apiUrl: string = `${API_BASE_URL}/organizations/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;
+          const apiUrl: string = `${API_BASE_URL}/organizations/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=unhandled&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;
 
           // Make the API request
           const issuesResponse = await fetch(apiUrl, {
@@ -89,9 +89,10 @@ export class SentryMCP extends McpAgent<Props, Env> {
           }
 
           // Parse the response
-          const issues: z.infer<typeof SentryIssueSchema>[] = (
-            await issuesResponse.json<unknown[]>()
-          ).map((i) => SentryIssueSchema.parse(i));
+          const issuesBody = await issuesResponse.json<unknown[]>();
+          const issues: z.infer<typeof SentryIssueSchema>[] = issuesBody.map((i) =>
+            SentryIssueSchema.parse(i),
+          );
 
           // Format the output based on the view type and format
           let output = "";
