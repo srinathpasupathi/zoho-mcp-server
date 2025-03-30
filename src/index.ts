@@ -63,7 +63,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
         const event = SentryEventSchema.parse(await eventResponse.json());
 
         let output = `# ${issue_id}: ${event.title}\n`;
-        output += `- **Issue ID**: ${issue_id}\n\n`;
+        output += `**Issue ID**:\n${issue_id}\n\n`;
 
         output += formatEventOutput(event);
 
