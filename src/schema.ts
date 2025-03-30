@@ -37,8 +37,8 @@ export const SentryErrorEntrySchema = z.object({
           z.object({
             filename: z.string(),
             function: z.string(),
-            lineno: z.number(),
-            colno: z.number(),
+            lineNo: z.number(),
+            colNo: z.number(),
             absPath: z.string(),
             module: z.string(),
             // lineno, source code
