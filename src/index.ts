@@ -96,7 +96,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
     this.server.tool(
       "search_errors_in_file",
-      "Search Sentry for errors recently occurring in a specific file.",
+      "Search for errors recently occurring in a specific file.",
       {
         filename: z.string().describe("The path or name of the file to search for errors in"),
         sortBy: z
@@ -104,7 +104,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
           .optional()
           .default("last_seen")
           .describe(
-            "Sort the results either by the last time they were seen (most recent first) or the frequency (most occurences first).",
+            "Sort the results either by the last time they were seen (most recent first) or the frequency (most occurrences first).",
           ),
       },
       async ({ filename, sortBy }) => {
@@ -131,7 +131,9 @@ export class SentryMCP extends McpAgent<Props, Env> {
           for (const eventSummary of eventList) {
             output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
             output += `- **Issue ID**: ${eventSummary.issue}\n`;
-            output += `- **Project**: ${eventSummary.project}\n\n`;
+            output += `- **Project**: ${eventSummary.project}\n`;
+            output += `- **Last Seen**: ${eventSummary.last_seen}\n`;
+            output += `- **Occurrences**: ${eventSummary.count}\n\n`;
           }
 
           output += "# Using this information\n\n";

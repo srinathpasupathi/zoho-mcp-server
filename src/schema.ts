@@ -83,4 +83,6 @@ export const SentryDiscoverEventSchema = z.object({
   "issue.id": z.union([z.string(), z.number()]),
   project: z.string(),
   title: z.string(),
+  count: z.number(),
+  last_seen: z.string().datetime(),
 });

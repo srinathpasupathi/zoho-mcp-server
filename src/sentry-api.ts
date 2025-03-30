@@ -52,7 +52,7 @@ export class SentryApiService {
     const query = `stack.filename:"*${filename.replace(/"/g, '\\"')}"`;
     const limit = 10;
 
-    const apiUrl = `${API_BASE_URL}/organizations/${this.organizationSlug}/events/?dataset=errors&field=issue&field=title&field=project&field=${sortBy === "last_seen" ? "last_seen" : "count"}%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-${sortBy === "last_seen" ? "last_seen" : "count"}&statsPeriod=1w`;
+    const apiUrl = `${API_BASE_URL}/organizations/${this.organizationSlug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-${sortBy === "last_seen" ? "last_seen" : "count"}&statsPeriod=1w`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
