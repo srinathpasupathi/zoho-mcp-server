@@ -23,31 +23,32 @@ export const SentryIssueSchema = z.object({
   permalink: z.string().url(),
 });
 
+const ExceptionInterface = z.object({
+  mechanism: z.object({
+    type: z.string(),
+    handled: z.boolean(),
+  }),
+  type: z.string(),
+  value: z.string(),
+  stacktrace: z.object({
+    frames: z.array(
+      z.object({
+        filename: z.string().nullable(),
+        function: z.string().nullable(),
+        lineNo: z.number().nullable(),
+        colNo: z.number().nullable(),
+        absPath: z.string().nullable(),
+        module: z.string().nullable(),
+        // lineno, source code
+        context: z.array(z.tuple([z.number(), z.string()])),
+      }),
+    ),
+  }),
+});
+
 export const SentryErrorEntrySchema = z.object({
-  values: z.array(
-    z.object({
-      mechanism: z.object({
-        type: z.string(),
-        handled: z.boolean(),
-      }),
-      type: z.string(),
-      value: z.string(),
-      stacktrace: z.object({
-        frames: z.array(
-          z.object({
-            filename: z.string().nullable(),
-            function: z.string().nullable(),
-            lineNo: z.number().nullable(),
-            colNo: z.number().nullable(),
-            absPath: z.string().nullable(),
-            module: z.string().nullable(),
-            // lineno, source code
-            context: z.array(z.tuple([z.number(), z.string()])),
-          }),
-        ),
-      }),
-    }),
-  ),
+  values: z.array(ExceptionInterface.optional()),
+  value: ExceptionInterface.optional(),
 });
 
 export const SentryEventSchema = z.object({
@@ -61,6 +62,10 @@ export const SentryEventSchema = z.object({
       }),
       z.object({
         type: z.literal("breadcrumbs"),
+        data: z.unknown(),
+      }),
+      z.object({
+        type: z.literal("message"),
         data: z.unknown(),
       }),
     ]),

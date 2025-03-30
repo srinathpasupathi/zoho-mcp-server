@@ -13,7 +13,10 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
   for (const entry of event.entries) {
     if (entry.type === "exception") {
-      const firstError = entry.data.values[0];
+      const firstError = entry.data.value ?? entry.data.values[0];
+      if (!firstError) {
+        continue;
+      }
       output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
       output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
         .map((frame) => {
