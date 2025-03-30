@@ -58,7 +58,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
           const query = `stack.filename:"*/${filename}" status:unresolved issue.category:error`;
           const limit = 3;
 
-          const organization_slug = this.props.organizationSlug;
+          const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
 
           // Construct the URL for the Sentry API
           const apiUrl: string = `${API_BASE_URL}/organizations/${organization_slug}/issues/?query=${encodeURIComponent(query)}&collapse=stats&collapse=unhandled&collapse=lifetime&collapse=base&collapse=filtered&limit=${limit}`;

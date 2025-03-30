@@ -22,6 +22,7 @@ export default new Hono<{
    * Then it redirects the user to GitHub's authorization page with the appropriate
    * parameters so the user can authenticate and grant permissions.
    */
+  // TODO: this needs to deauthorize if props are not correct
   .get("/authorize", async (c) => {
     const oauthReqInfo = await c.env.OAUTH_PROVIDER.parseAuthRequest(c.req.raw);
     if (!oauthReqInfo.clientId) {
