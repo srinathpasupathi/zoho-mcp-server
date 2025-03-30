@@ -91,11 +91,20 @@ export class SentryMCP extends McpAgent<Props, Env> {
       "Search Sentry for errors recently occurring in a specific file.",
       {
         filename: z.string().describe("The path or name of the file to search for errors in"),
+        sortBy: z
+          .enum(["last_seen", "frequency"])
+          .optional()
+          .default("last_seen")
+          .describe(
+            "Sort the results either by the last time they were seen (most recent first) or the frequency (most occurences first).",
+          ),
       },
       async ({
         filename,
+        sortBy,
       }: {
         filename: string;
+        sortBy: "last_seen" | "frequency";
       }) => {
         try {
           // Construct the query based on identifier type
@@ -104,7 +113,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
 
           const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
 
-          const apiUrl = `${API_BASE_URL}/organizations/${organization_slug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-last_seen&statsPeriod=1w`;
+          const apiUrl = `${API_BASE_URL}/organizations/${organization_slug}/events/?dataset=errors&field=issue&field=title&field=project&field=${sortBy === "last_seen" ? "last_seen" : "count"}%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-${sortBy === "last_seen" ? "last_seen" : "count"}&statsPeriod=1w`;
 
           // Make the API request
           const listResponse = await fetch(apiUrl, {
@@ -147,7 +156,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
             };
           }
 
-          output = `# Errors in \`${filename}\`\n\n`;
+          output = `# Errors related to \`${filename}\`\n\n`;
 
           for (const eventSummary of eventList) {
             output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
