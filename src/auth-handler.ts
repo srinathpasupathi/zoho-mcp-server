@@ -78,6 +78,7 @@ export default new Hono<{
         id: payload.user.id,
         name: payload.user.name,
         accessToken: payload.access_token,
+        organizationSlug: "sentry", // TODO: ask the user to select this first
       } as Props,
     });
 
