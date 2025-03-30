@@ -52,6 +52,7 @@ export const SentryErrorEntrySchema = z.object({
 
 export const SentryEventSchema = z.object({
   id: z.string(),
+  title: z.string(),
   entries: z.array(
     z.union([
       z.object({

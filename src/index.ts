@@ -44,8 +44,45 @@ export class SentryMCP extends McpAgent<Props, Env> {
     }));
 
     this.server.tool(
+      "get_error_details",
+      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
+      {
+        issue_id: z.string().describe("The Issue ID to retrieve details for"),
+      },
+      async ({ issue_id }) => {
+        const eventResponse = await fetch(
+          `${API_BASE_URL}/organizations/${this.props.organizationSlug || "sentry"}/issues/${issue_id}/events/latest/`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${this.props.accessToken}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        const event = SentryEventSchema.parse(await eventResponse.json());
+
+        let output = `# ${issue_id}: ${event.title}\n`;
+        output += `- **Issue ID**: ${event.issue}\n`;
+
+        output += formatEventOutput(event);
+
+        output += `# Using this information\n\nYou can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.`;
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: output,
+            },
+          ],
+        };
+      },
+    );
+
+    this.server.tool(
       "search_errors_in_file",
-      "Search Sentry for errors occurring in a specific file. A maximum of 5 results will be returned.",
+      "Search Sentry for errors recently occurring in a specific file.",
       {
         filename: z.string().describe("The path or name of the file to search for errors in"),
       },
@@ -57,7 +94,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
         try {
           // Construct the query based on identifier type
           const query = `stack.filename:"*/${filename}"`;
-          const limit = 3;
+          const limit = 10;
 
           const organization_slug = this.props.organizationSlug || "sentry"; // TODO: remove this
 
@@ -109,28 +146,12 @@ export class SentryMCP extends McpAgent<Props, Env> {
           for (const eventSummary of eventList) {
             output += `## ${eventSummary.issue}: ${eventSummary.title}\n`;
             output += `- **Issue ID**: ${eventSummary.issue}\n`;
-
-            // CRINGE
-            try {
-              const eventResponse = await fetch(
-                `${API_BASE_URL}/organizations/${organization_slug}/issues/${eventSummary.issue}/events/latest/`,
-                {
-                  method: "GET",
-                  headers: {
-                    Authorization: `Bearer ${this.props.accessToken}`,
-                    "Content-Type": "application/json",
-                  },
-                },
-              );
-              const event = SentryEventSchema.parse(await eventResponse.json());
-              output += formatEventOutput(event);
-            } catch (err) {
-              captureException(err);
-              console.error("DEBUG: error querying details for issue", eventSummary.issue, err);
-            }
+            output += `- **Project**: ${eventSummary.project}\n`;
           }
 
-          output = `# Using this information\n\nYou can reference the IssueID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.`;
+          output += "# Using this information\n\n";
+          output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
+          output += `- You can get more detailsa bout this error by using the "get_error_details" tool.\n`;
 
           return {
             content: [
