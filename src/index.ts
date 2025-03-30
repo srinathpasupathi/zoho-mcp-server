@@ -100,11 +100,11 @@ export class SentryMCP extends McpAgent<Props, Env> {
       {
         filename: z.string().describe("The path or name of the file to search for errors in"),
         sortBy: z
-          .enum(["last_seen", "frequency"])
+          .enum(["last_seen", "count"])
           .optional()
           .default("last_seen")
           .describe(
-            "Sort the results either by the last time they were seen (most recent first) or the frequency (most occurrences first).",
+            "Sort the results either by the last time they occurred or the count of occurrences.",
           ),
       },
       async ({ filename, sortBy }) => {
