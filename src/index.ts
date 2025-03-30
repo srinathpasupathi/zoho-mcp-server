@@ -5,6 +5,7 @@ import type { Props } from "./types";
 import { z } from "zod";
 import app from "./app";
 import { SentryDiscoverEventSchema, SentryEventSchema, SentryIssueSchema } from "./schema";
+import { captureException } from "@sentry/cloudflare";
 
 const API_BASE_URL = "https://sentry.io/api/0";
 
@@ -124,6 +125,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
               const event = SentryEventSchema.parse(await eventResponse.json());
               output += formatEventOutput(event);
             } catch (err) {
+              captureException(err);
               console.error("DEBUG: error querying details for event", eventSummary.id, err);
             }
           }
