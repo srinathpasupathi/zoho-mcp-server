@@ -19,13 +19,13 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
       output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
         .map((frame) => {
           const context = frame.context.length
-            ? frame.context
+            ? `:${frame.context
                 .filter(([lineno, _]) => lineno === frame.lineNo)
                 .map(([_, code]) => `\n${code}`)
-                .join("")
+                .join("")}`
             : "";
 
-          return `${frame.filename}${frame.lineNo ? ` (line ${frame.lineNo})` : ""}${context}`;
+          return `in "${frame.filename || frame.module}"${frame.lineNo ? ` at line ${frame.lineNo}` : ""}${context}`;
         })
         .join("\n")}\n${"```"}\n\n`;
     }
