@@ -10,7 +10,7 @@ const app = new Hono<{
     return c.text("User-agent: *\nDisallow: /");
   })
   .get("/", async (c) => {
-    return c.html('<a href="/authorize">Auth</a>');
+    return c.text("https://github.com/getsentry/sentry-mcp");
   })
   .route("/", authHandler);
 
