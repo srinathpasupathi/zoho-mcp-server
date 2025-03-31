@@ -6,6 +6,9 @@ import authHandler from "./auth-handler";
 const app = new Hono<{
   Bindings: Env & { OAUTH_PROVIDER: OAuthHelpers; SENTRY_DSN: string };
 }>()
+  .get("/robots.txt", (c) => {
+    return c.text("User-agent: *\nDisallow: /");
+  })
   .get("/", async (c) => {
     return c.html('<a href="/authorize">Auth</a>');
   })
