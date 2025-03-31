@@ -10,6 +10,7 @@ const app = new Hono<{
     return c.text("User-agent: *\nDisallow: /");
   })
   .get("/", async (c) => {
+    console.log();
     return c.text("https://github.com/getsentry/sentry-mcp");
   })
   .route("/", authHandler);
@@ -20,5 +21,5 @@ export default withSentry(
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1,
   }),
-  app,
+  app
 );

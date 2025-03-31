@@ -42,7 +42,7 @@ Once the Tools (under 🔨) show up in the interface, you can ask Claude to use 
 
 ### For Local Development
 
-If you'd like to iterate and test your MCP server, you can do so in local development. This will require you to create another OAuth App in Sentry (Settings => API => Applications):
+If you'd like to iterate and test your MCP server, you can do so in local development. This will require you to create another OAuth App in Sentry (Settings => API => [Applications](https://sentry.io/settings/account/api/applications/)):
 
 - For the Homepage URL, specify `http://localhost:8788`
 - For the Authorization callback URL, specify `http://localhost:8788/callback`
