@@ -2,27 +2,21 @@
 
 This is a prototype of a remote MCP sever, acting as a middleware to the upstream Sentry API provider.
 
+It is based on [Cloudflare's work towards remote MCPs](https://blog.cloudflare.com/remote-model-context-protocol-servers-mcp/).
+
 ## Getting Started
 
-### Deploy & Test
+### MCP Inspector
 
-Deploy the MCP server to make it available on your workers.dev domain
-
-```shell
-wrangler deploy
-```
-
-Test the remote server using [Inspector](https://modelcontextprotocol.io/docs/tools/inspector):
+MCP includes an [Inspector](https://modelcontextprotocol.io/docs/tools/inspector), to easily test the service:
 
 ```shell
 pnpm inspector
 ```
 
-Enter `https://mcp-github-oauth.<your-subdomain>.workers.dev/sse` and hit connect. Once you go through the authentication flow, you'll see the Tools working:
+Enter `https://[domain].workers.dev/sse` (TODO) and hit connect. Once you go through the authentication flow, you'll see the Tools working:
 
 <img width="640" alt="image" src="https://github.com/user-attachments/assets/7973f392-0a9d-4712-b679-6dd23f824287" />
-
-You now have a remote MCP server deployed!
 
 ### Access the remote MCP server from Claude Desktop
 
@@ -48,7 +42,7 @@ Once the Tools (under 🔨) show up in the interface, you can ask Claude to use 
 
 ### For Local Development
 
-If you'd like to iterate and test your MCP server, you can do so in local development. This will require you to create another OAuth App on GitHub:
+If you'd like to iterate and test your MCP server, you can do so in local development. This will require you to create another OAuth App in Sentry (Settings => API => Applications):
 
 - For the Homepage URL, specify `http://localhost:8788`
 - For the Authorization callback URL, specify `http://localhost:8788/callback`
@@ -56,8 +50,8 @@ If you'd like to iterate and test your MCP server, you can do so in local develo
 - Create a `.dev.vars` file in your project root with:
 
 ```shell
-GITHUB_CLIENT_ID=your_development_github_client_id
-GITHUB_CLIENT_SECRET=your_development_github_client_secret
+SENTRY_CLIENT_ID=your_development_github_client_id
+SENTRY_CLIENT_SECRET=your_development_github_client_secret
 ```
 
 #### Develop & Test
@@ -65,7 +59,7 @@ GITHUB_CLIENT_SECRET=your_development_github_client_secret
 Run the server locally to make it available at `http://localhost:8788`
 
 ```shell
-wrangler dev
+pnpm dev
 ```
 
 To test the local server, enter `http://localhost:8788/sse` into Inspector and hit connect. Once you follow the prompts, you'll be able to "List Tools".
