@@ -6,19 +6,7 @@
   "files.trimTrailingWhitespace": false,
   "files.trimFinalNewlines": false,
   "files.insertFinalNewline": true,
-  "[json]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.tabSize": 2
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.tabSize": 2
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.tabSize": 2
-  },
-  "[typescript]": {
+  "[json][jsonc][javascript][typescript]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.tabSize": 2
   },
