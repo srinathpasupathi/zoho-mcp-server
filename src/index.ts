@@ -15,17 +15,24 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
       if (!firstError) {
         continue;
       }
-      output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
+      output += `**Error:**\n${"```"}\n${firstError.type}: ${
+        firstError.value
+      }\n${"```"}\n\n`;
+      if (!firstError.stacktrace || !firstError.stacktrace.frames) {
+        continue;
+      }
       output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
         .map((frame) => {
-          const context = frame.context.length
+          const context = frame.context?.length
             ? `:${frame.context
                 .filter(([lineno, _]) => lineno === frame.lineNo)
                 .map(([_, code]) => `\n${code}`)
                 .join("")}`
             : "";
 
-          return `in "${frame.filename || frame.module}"${frame.lineNo ? ` at line ${frame.lineNo}` : ""}${context}`;
+          return `in "${frame.filename || frame.module}"${
+            frame.lineNo ? ` at line ${frame.lineNo}` : ""
+          }${context}`;
         })
         .join("\n")}\n${"```"}\n\n`;
     }
@@ -52,7 +59,7 @@ export class SentryMCP extends McpAgent<Props, Env> {
         try {
           const apiService = new SentryApiService(
             this.props.accessToken as string,
-            this.props.organizationSlug as string,
+            this.props.organizationSlug as string
           );
           const event = await apiService.getLatestEvent(issue_id);
 
@@ -80,35 +87,43 @@ export class SentryMCP extends McpAgent<Props, Env> {
             content: [
               {
                 type: "text",
-                text: `Failed to fetch error details: ${error instanceof Error ? error.message : String(error)}`,
+                text: `Failed to fetch error details: ${
+                  error instanceof Error ? error.message : String(error)
+                }`,
               },
             ],
             isError: true,
           };
         }
-      },
+      }
     );
 
     this.server.tool(
       "search_errors_in_file",
       "Search for errors recently occurring in a specific file.",
       {
-        filename: z.string().describe("The path or name of the file to search for errors in"),
+        filename: z
+          .string()
+          .describe("The path or name of the file to search for errors in"),
         sortBy: z
           .enum(["last_seen", "count"])
           .optional()
           .default("last_seen")
           .describe(
-            "Sort the results either by the last time they occurred or the count of occurrences.",
+            "Sort the results either by the last time they occurred or the count of occurrences."
           ),
       },
       async ({ filename, sortBy }) => {
         try {
           const apiService = new SentryApiService(
             this.props.accessToken as string,
-            this.props.organizationSlug as string,
+            this.props.organizationSlug as string
           );
-          const eventList = await apiService.searchErrorsInFile(filename, sortBy);
+
+          const eventList = await apiService.searchErrorsInFile(
+            filename,
+            sortBy
+          );
 
           if (eventList.length === 0) {
             return {
@@ -149,13 +164,15 @@ export class SentryMCP extends McpAgent<Props, Env> {
             content: [
               {
                 type: "text",
-                text: `Error searching for file:\n${error instanceof Error ? error.message : String(error)}`,
+                text: `Error searching for file:\n${
+                  error instanceof Error ? error.message : String(error)
+                }`,
               },
             ],
             isError: true,
           };
         }
-      },
+      }
     );
   }
 }

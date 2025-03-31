@@ -28,32 +28,41 @@ export const SentryIssueSchema = z.object({
   permalink: z.string().url(),
 });
 
-const ExceptionInterface = z.object({
-  mechanism: z.object({
-    type: z.string(),
-    handled: z.boolean(),
-  }),
-  type: z.string(),
-  value: z.string(),
-  stacktrace: z.object({
-    frames: z.array(
-      z.object({
-        filename: z.string().nullable(),
-        function: z.string().nullable(),
-        lineNo: z.number().nullable(),
-        colNo: z.number().nullable(),
-        absPath: z.string().nullable(),
-        module: z.string().nullable(),
-        // lineno, source code
-        context: z.array(z.tuple([z.number(), z.string()])),
-      }),
-    ),
-  }),
-});
+// XXX: Sentry's schema generally speaking is "assume all user input is missing"
+// so we need to handle effectively every field being optional or nullable.
+const ExceptionInterface = z
+  .object({
+    mechanism: z
+      .object({
+        type: z.string().nullable(),
+        handled: z.boolean().nullable(),
+      })
+      .partial(),
+    type: z.string().nullable(),
+    value: z.string().nullable(),
+    stacktrace: z.object({
+      frames: z.array(
+        z
+          .object({
+            filename: z.string().nullable(),
+            function: z.string().nullable(),
+            lineNo: z.number().nullable(),
+            colNo: z.number().nullable(),
+            absPath: z.string().nullable(),
+            module: z.string().nullable(),
+            // lineno, source code
+            context: z.array(z.tuple([z.number(), z.string()])),
+          })
+          .partial()
+      ),
+    }),
+  })
+  .partial();
 
 export const SentryErrorEntrySchema = z.object({
+  // XXX: Sentry can return either of these. Not sure why we never normalized it.
   values: z.array(ExceptionInterface.optional()),
-  value: ExceptionInterface.optional(),
+  value: ExceptionInterface.nullable().optional(),
 });
 
 export const SentryEventSchema = z.object({
@@ -61,6 +70,7 @@ export const SentryEventSchema = z.object({
   title: z.string(),
   entries: z.array(
     z.union([
+      // TODO: there are other types
       z.object({
         type: z.literal("exception"),
         data: SentryErrorEntrySchema,
@@ -73,7 +83,7 @@ export const SentryEventSchema = z.object({
         type: z.literal("message"),
         data: z.unknown(),
       }),
-    ]),
+    ])
   ),
 });
 
