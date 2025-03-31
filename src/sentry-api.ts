@@ -1,4 +1,8 @@
-import { SentryDiscoverEventSchema, SentryEventSchema, SentryOrgSchema } from "./schema";
+import {
+  SentryDiscoverEventSchema,
+  SentryEventSchema,
+  SentryOrgSchema,
+} from "./schema";
 
 const API_BASE_URL = "https://sentry.io/api/0";
 
@@ -11,7 +15,9 @@ export class SentryApiService {
     this.organizationSlug = organizationSlug;
   }
 
-  async getOrganizations(): Promise<ReturnType<typeof SentryOrgSchema.parse>[]> {
+  async getOrganizations(): Promise<
+    ReturnType<typeof SentryOrgSchema.parse>[]
+  > {
     const response = await fetch(`${API_BASE_URL}/organizations/`, {
       method: "GET",
       headers: {
@@ -23,7 +29,7 @@ export class SentryApiService {
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `API request failed: ${response.status} ${response.statusText}\n${errorText}`,
+        `API request failed: ${response.status} ${response.statusText}\n${errorText}`
       );
     }
 
@@ -31,7 +37,9 @@ export class SentryApiService {
     return orgsBody.map((i) => SentryOrgSchema.parse(i));
   }
 
-  async getLatestEvent(issueId: string): Promise<ReturnType<typeof SentryEventSchema.parse>> {
+  async getLatestEvent(
+    issueId: string
+  ): Promise<ReturnType<typeof SentryEventSchema.parse>> {
     const response = await fetch(
       `${API_BASE_URL}/organizations/${this.organizationSlug}/issues/${issueId}/events/latest/`,
       {
@@ -40,19 +48,33 @@ export class SentryApiService {
           Authorization: `Bearer ${this.accessToken}`,
           "Content-Type": "application/json",
         },
-      },
+      }
     );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `API request failed: ${response.status} ${response.statusText}\n${errorText}`
+      );
+    }
+
     return SentryEventSchema.parse(await response.json());
   }
 
   async searchErrorsInFile(
     filename: string,
-    sortBy: "last_seen" | "count" = "last_seen",
+    sortBy: "last_seen" | "count" = "last_seen"
   ): Promise<ReturnType<typeof SentryDiscoverEventSchema.parse>[]> {
     const query = `stack.filename:"*${filename.replace(/"/g, '\\"')}"`;
     const limit = 10;
 
-    const apiUrl = `${API_BASE_URL}/organizations/${this.organizationSlug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&per_page=${limit}&query=${encodeURIComponent(query)}&referrer=sentry-mcp&sort=-${sortBy === "last_seen" ? "last_seen" : "count"}&statsPeriod=1w`;
+    const apiUrl = `${API_BASE_URL}/organizations/${
+      this.organizationSlug
+    }/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&per_page=${limit}&query=${encodeURIComponent(
+      query
+    )}&referrer=sentry-mcp&sort=-${
+      sortBy === "last_seen" ? "last_seen" : "count"
+    }&statsPeriod=1w`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -65,7 +87,7 @@ export class SentryApiService {
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `API request failed: ${response.status} ${response.statusText}\n${errorText}`,
+        `API request failed: ${response.status} ${response.statusText}\n${errorText}`
       );
     }
 
