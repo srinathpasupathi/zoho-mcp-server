@@ -48,16 +48,63 @@ export default class SentryMCP extends McpAgent<Props, Env> {
 
   async init() {
     this.server.tool(
-      "get_error_details",
-      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
-      {
-        issue_id: z.string().describe("The Issue ID to retrieve details for"),
-      },
-      async ({ issue_id }) => {
+      "list_organizations",
+      "List all organizations that the user has access to in Sentry.",
+      {},
+      async () => {
         try {
           const apiService = new SentryApiService(
             this.props.accessToken as string,
             this.props.organizationSlug as string
+          );
+          const organizations = await apiService.getOrganizations();
+
+          let output = `# Organizations\n\n`;
+          output += organizations.map((org) => `- ${org.slug}\n`).join("");
+
+          output += "# Using this information\n\n";
+          output += `- You can pin an organization using the \'set_organization\' tool. This will make it the default organization for all subsequent requests.\n`;
+
+          return {
+            content: [
+              {
+                type: "text",
+                text: output,
+              },
+            ],
+          };
+        } catch (error) {
+          console.error("Error fetching error details:", error);
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Failed to fetch error details: ${
+                  error instanceof Error ? error.message : String(error)
+                }`,
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+    );
+
+    this.server.tool(
+      "get_error_details",
+      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
+      {
+        organization_slug: z
+          .string()
+          .describe("The organization to search in. This will default to ")
+          .optional(),
+        issue_id: z.string().describe("The Issue ID to retrieve details for"),
+      },
+      async ({ issue_id, organization_slug }) => {
+        try {
+          const apiService = new SentryApiService(
+            this.props.accessToken as string,
+            organization_slug ?? (this.props.organizationSlug as string)
           );
           const event = await apiService.getLatestEvent(issue_id);
 
@@ -100,9 +147,15 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "search_errors_in_file",
       "Search for errors recently occurring in a specific file.",
       {
+        organization_slug: z
+          .string()
+          .describe("The organization to search in. This will default to ")
+          .optional(),
         filename: z
           .string()
-          .describe("The path or name of the file to search for errors in"),
+          .describe(
+            "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename."
+          ),
         sortBy: z
           .enum(["last_seen", "count"])
           .optional()
@@ -111,11 +164,11 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             "Sort the results either by the last time they occurred or the count of occurrences."
           ),
       },
-      async ({ filename, sortBy }) => {
+      async ({ filename, sortBy, organization_slug }) => {
         try {
           const apiService = new SentryApiService(
             this.props.accessToken as string,
-            this.props.organizationSlug as string
+            organization_slug ?? (this.props.organizationSlug as string)
           );
 
           const eventList = await apiService.searchErrorsInFile(
@@ -128,7 +181,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
               content: [
                 {
                   type: "text",
-                  text: `# No errors found\nCould not find any errors affecting file \`${filename}\`.`,
+                  text: `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${this.props.organizationSlug} organization.`,
                 },
               ],
             };
