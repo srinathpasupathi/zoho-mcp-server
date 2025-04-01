@@ -145,17 +145,13 @@ export default class SentryMCP extends McpAgent<Props, Env> {
 
     this.server.tool(
       "search_errors_in_file",
-      "Search for errors recently occurring in a specific file.",
+      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
       {
         organization_slug: z
           .string()
           .describe("The organization to search in. This will default to ")
           .optional(),
-        filename: z
-          .string()
-          .describe(
-            "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename."
-          ),
+        filename: z.string().describe("The filename to search for errors in."),
         sortBy: z
           .enum(["last_seen", "count"])
           .optional()
