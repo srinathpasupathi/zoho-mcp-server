@@ -6,6 +6,7 @@ import {
   SentryProjectSchema,
   SentryTeamSchema,
 } from "./schema";
+import { logError } from "./utils";
 
 const API_BASE_URL = "https://sentry.io/api/0";
 
@@ -88,7 +89,7 @@ export class SentryApiService {
       const clientKey = SentryClientKeySchema.parse(await keysResponse.json());
       return [project, clientKey];
     } catch (err) {
-      console.error(err);
+      logError(err);
     }
     return [project, null];
   }

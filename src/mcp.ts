@@ -10,6 +10,7 @@ import {
   type SentryEventSchema,
 } from "./schema";
 import { SentryApiService } from "./sentry-api";
+import { logError } from "./utils";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
@@ -76,7 +77,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             ],
           };
         } catch (error) {
-          console.error("Error fetching error details:", error);
+          logError(error);
           return {
             content: [
               {
@@ -128,7 +129,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             ],
           };
         } catch (error) {
-          console.error("Error fetching error details:", error);
+          logError(error);
           return {
             content: [
               {
@@ -204,7 +205,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             ],
           };
         } catch (error) {
-          console.error("Error searching for file:", error);
+          logError(error);
           return {
             content: [
               {
@@ -246,7 +247,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             ],
           };
         } catch (error) {
-          console.error("Error fetching error details:", error);
+          logError(error);
           return {
             content: [
               {
@@ -311,7 +312,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             ],
           };
         } catch (error) {
-          console.error("Error fetching error details:", error);
+          logError(error);
           return {
             content: [
               {
