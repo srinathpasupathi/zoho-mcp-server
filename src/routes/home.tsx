@@ -32,6 +32,10 @@ export default new Hono<{
           )}
         </pre>
         <h2>Available Tools</h2>
+        <p>TODO:</p>
+        <footer>
+          <a href="https://github.com/getsentry/sentry-mcp">GitHub</a>
+        </footer>
       </body>
     </html>
   );
