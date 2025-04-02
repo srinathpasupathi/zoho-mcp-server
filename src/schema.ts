@@ -1,5 +1,27 @@
 import { z } from "zod";
 
+export const ParamOrganizationSlug = z
+  .string()
+  .describe(
+    "The organization's slug. This will default to the first org you have access to."
+  );
+
+export const ParamTeamSlug = z
+  .string()
+  .describe(
+    "The team's slug. This will default to the first team you have access to."
+  );
+
+export const ParamIssueShortId = z
+  .string()
+  .describe("The Issue ID. e.g. `PROJECT-1Z43`");
+
+export const ParamPlatform = z
+  .string()
+  .describe(
+    "The platform for the project (e.g., python, javascript, react, etc.)"
+  );
+
 export const TokenResponseSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string(),
@@ -17,6 +39,26 @@ export const TokenResponseSchema = z.object({
 export const SentryOrgSchema = z.object({
   id: z.string(),
   slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryTeamSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryProjectSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryClientKeySchema = z.object({
+  id: z.string(),
+  dsn: z.object({
+    public: z.string(),
+  }),
 });
 
 export const SentryIssueSchema = z.object({
