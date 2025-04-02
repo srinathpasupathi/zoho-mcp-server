@@ -222,7 +222,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
 
     this.server.tool(
       "list_teams",
-      "Retrive a list of teams in Sentry.",
+      "Retrieve a list of teams in Sentry.",
       {
         organization_slug: ParamOrganizationSlug,
       },
