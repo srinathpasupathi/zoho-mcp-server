@@ -129,7 +129,58 @@ const globalStyles = css`
       background-color: var(--color-gray-500);
     }
   }
+
+  section.tools {
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    h3 {
+      font-family: var(
+        --default-mono-font-family,
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        "Liberation Mono",
+        "Courier New",
+        monospace
+      );
+      font-size: 0.95rem;
+    }
+  }
 `;
+
+// This is generated from the list of tools defined in `mcp.ts` in the MCP server itself.
+const TOOLS: {
+  name: string;
+  description: string;
+}[] = [
+  {
+    name: "list_organizations",
+    description: "List all organizations that the user has access to in Sentry.",
+  },
+  {
+    name: "get_error_details",
+    description:
+      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
+  },
+  {
+    name: "search_errors_in_file",
+    description:
+      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file.",
+  },
+  {
+    name: "list_teams",
+    description: "Retrieve a list of teams in Sentry.",
+  },
+  {
+    name: "create_project",
+    description: "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
+  },
+];
 
 export default new Hono<{
   Bindings: Env & {
@@ -196,12 +247,24 @@ export default new Hono<{
           </p>
 
           <h2>Available Tools</h2>
-          <p>TODO:</p>
+          <section className="tools">
+            <ul>
+              {TOOLS.map((tool) => (
+                <li key={tool.name}>
+                  <h3>{tool.name}</h3>
+                  <p>{tool.description}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
         </article>
-        <footer>
-          <a href="https://github.com/getsentry/sentry-mcp">GitHub</a>
-        </footer>
 
+        <h2>Additional Resources</h2>
+        <ul>
+          <li>
+            <a href="https://github.com/getsentry/sentry-mcp">sentry-mcp on GitHub</a>
+          </li>
+        </ul>
         <script dangerouslySetInnerHTML={{ __html: copyPasteHelper }} />
       </body>
     </html>,
