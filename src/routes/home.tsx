@@ -75,7 +75,8 @@ const globalStyles = css`
   h3,
   ul,
   ol,
-  pre {
+  pre,
+  blockquote {
     margin: 1.25rem 0;
   }
 
@@ -83,6 +84,23 @@ const globalStyles = css`
     color: var(--tw-prose-links);
     text-decoration: underline;
     font-weight: 500;
+  }
+
+  blockquote {
+    font-family: var(
+      --default-mono-font-family,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-weight: 600;
+    font-size: 0.95rem;
+    font-style: italic;
   }
 
   pre {
@@ -130,7 +148,8 @@ const globalStyles = css`
     }
   }
 
-  section.tools {
+  section.tools,
+  section.workflows {
     ul {
       list-style: none;
       padding: 0;
@@ -245,6 +264,32 @@ export default new Hono<{
           <p>
             <small>Note: Windsurf requires an enterprise account to utilize MCP. 😕</small>
           </p>
+
+          <h2>Workflows</h2>
+          <section className="workflows">
+            <p>
+              Here's a few sample workflows (prompts) that we've tried to design around within the
+              provider:
+            </p>
+            <ul>
+              <li>
+                <blockquote>
+                  Check Sentry for errors in <code>@file.tsx</code> and propose solutions.
+                </blockquote>
+              </li>
+              <li>
+                <blockquote>
+                  Diagnose issue <code>ISSUE-SHORTID</code> in Sentry and propose solutions.
+                </blockquote>
+              </li>
+              <li>
+                <blockquote>
+                  Create a new project in Sentry for 'service-name' and add the setup local
+                  instrumentation using it.
+                </blockquote>
+              </li>
+            </ul>
+          </section>
 
           <h2>Available Tools</h2>
           <section className="tools">
