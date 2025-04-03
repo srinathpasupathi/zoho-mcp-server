@@ -26,7 +26,7 @@ const globalStyles = css`
     --tw-prose-headings: oklch(21% 0.034 264.665);
     --tw-prose-links: oklch(21% 0.034 264.665);
     --tw-prose-bold: oklch(21% 0.034 264.665);
-    --tw-prose-code: oklch(21% 0.034 264.665);
+    --tw-prose-code: oklch(51% 0.034 264.665);
     --tw-prose-pre-code: oklch(92.8% 0.006 264.531);
     --tw-prose-pre-bg: oklch(27.8% 0.033 256.848);
 
@@ -101,6 +101,22 @@ const globalStyles = css`
     font-weight: 600;
     font-size: 0.95rem;
     font-style: italic;
+  }
+
+  code {
+    font-family: var(
+      --default-mono-font-family,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 0.85em;
+    color: var(--tw-prose-code);
   }
 
   pre {
@@ -293,6 +309,12 @@ export default new Hono<{
 
           <h2>Available Tools</h2>
           <section className="tools">
+            <p>
+              <small>
+                Note: Any tool that takes an <code>organization_slug</code> parameter will try to
+                infer a default organization, otherwise you should mention it in the prompt.
+              </small>
+            </p>
             <ul>
               {TOOLS.map((tool) => (
                 <li key={tool.name}>
