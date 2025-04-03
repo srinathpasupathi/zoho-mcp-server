@@ -93,24 +93,29 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "get_error_details",
       "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
       {
-        organization_slug: ParamOrganizationSlug.optional(),
-        issue_id: ParamIssueShortId,
+        organizationSlug: ParamOrganizationSlug.optional(),
+        issueId: ParamIssueShortId,
       },
-      async ({ issue_id, organization_slug }) => {
+      async ({ issueId, organizationSlug }) => {
         try {
           const apiService = new SentryApiService(this.props.accessToken as string);
-          const event = await apiService.getLatestEventForIssue(
-            organization_slug ?? (this.props.organizationSlug as string),
-            issue_id,
-          );
 
-          let output = `# ${issue_id}: ${event.title}\n\n`;
-          output += `**Issue ID**:\n${issue_id}\n\n`;
+          if (!organizationSlug) {
+            organizationSlug = this.props.organizationSlug as string;
+          }
+
+          const event = await apiService.getLatestEventForIssue({
+            organizationSlug,
+            issueId,
+          });
+
+          let output = `# ${issueId}: ${event.title}\n\n`;
+          output += `**Issue ID**:\n${issueId}\n\n`;
 
           output += formatEventOutput(event);
 
           output += "# Using this information\n\n";
-          output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issue_id}\`) to automatically close the issue when the commit is merged.\n`;
+          output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issueId}\`) to automatically close the issue when the commit is merged.\n`;
           output +=
             "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
 
@@ -143,7 +148,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "search_errors_in_file",
       "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
       {
-        organization_slug: ParamOrganizationSlug.optional(),
+        organizationSlug: ParamOrganizationSlug.optional(),
         filename: z.string().describe("The filename to search for errors in."),
         sortBy: z
           .enum(["last_seen", "count"])
@@ -153,22 +158,26 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             "Sort the results either by the last time they occurred or the count of occurrences.",
           ),
       },
-      async ({ filename, sortBy, organization_slug }) => {
+      async ({ filename, sortBy, organizationSlug }) => {
         try {
           const apiService = new SentryApiService(this.props.accessToken as string);
 
-          const eventList = await apiService.searchErrorsInFile(
-            organization_slug ?? (this.props.organizationSlug as string),
+          if (!organizationSlug) {
+            organizationSlug = this.props.organizationSlug as string;
+          }
+
+          const eventList = await apiService.searchErrors({
+            organizationSlug,
             filename,
             sortBy,
-          );
+          });
 
           if (eventList.length === 0) {
             return {
               content: [
                 {
                   type: "text",
-                  text: `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${this.props.organizationSlug} organization.`,
+                  text: `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${organizationSlug} organization.`,
                 },
               ],
             };
@@ -217,15 +226,19 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "list_teams",
       "Retrieve a list of teams in Sentry.",
       {
-        organization_slug: ParamOrganizationSlug,
+        organizationSlug: ParamOrganizationSlug,
       },
-      async ({ organization_slug }) => {
+      async ({ organizationSlug }) => {
         const apiService = new SentryApiService(this.props.accessToken as string);
 
-        try {
-          const teams = await apiService.listTeams(organization_slug);
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
+        }
 
-          let output = `# Teams in **${organization_slug}**\n\n`;
+        try {
+          const teams = await apiService.listTeams(organizationSlug);
+
+          let output = `# Teams in **${organizationSlug}**\n\n`;
           output += teams.map((team) => `- ${team.slug}\n`).join("");
 
           return {
@@ -257,8 +270,8 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "create_project",
       "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
       {
-        organization_slug: ParamOrganizationSlug.optional(),
-        team_slug: ParamTeamSlug,
+        organizationSlug: ParamOrganizationSlug.optional(),
+        teamSlug: ParamTeamSlug,
         name: z
           .string()
           .describe(
@@ -266,16 +279,20 @@ export default class SentryMCP extends McpAgent<Props, Env> {
           ),
         platform: ParamPlatform.optional(),
       },
-      async ({ organization_slug, team_slug, name, platform }) => {
+      async ({ organizationSlug, teamSlug, name, platform }) => {
         const apiService = new SentryApiService(this.props.accessToken as string);
 
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
+        }
+
         try {
-          const [project, clientKey] = await apiService.createProject(
-            organization_slug ?? (this.props.organizationSlug as string),
-            team_slug,
+          const [project, clientKey] = await apiService.createProject({
+            organizationSlug,
+            teamSlug,
             name,
             platform,
-          );
+          });
 
           let output = "# New Project";
           output += `- **ID**: ${project.id}\n`;

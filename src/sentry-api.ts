@@ -50,12 +50,17 @@ export class SentryApiService {
     return teamsBody.map((i) => SentryTeamSchema.parse(i));
   }
 
-  async createProject(
-    organizationSlug: string,
-    teamSlug: string,
-    name: string,
-    platform?: string,
-  ): Promise<
+  async createProject({
+    organizationSlug,
+    teamSlug,
+    name,
+    platform,
+  }: {
+    organizationSlug: string;
+    teamSlug: string;
+    name: string;
+    platform?: string;
+  }): Promise<
     [
       ReturnType<typeof SentryProjectSchema.parse>,
       ReturnType<typeof SentryClientKeySchema.parse> | null,
@@ -82,10 +87,13 @@ export class SentryApiService {
     return [project, null];
   }
 
-  async getLatestEventForIssue(
-    organizationSlug: string,
-    issueId: string,
-  ): Promise<ReturnType<typeof SentryEventSchema.parse>> {
+  async getLatestEventForIssue({
+    organizationSlug,
+    issueId,
+  }: {
+    organizationSlug: string;
+    issueId: string;
+  }): Promise<ReturnType<typeof SentryEventSchema.parse>> {
     const response = await this.request(
       `/organizations/${organizationSlug}/issues/${issueId}/events/latest/`,
     );
@@ -93,17 +101,29 @@ export class SentryApiService {
     return SentryEventSchema.parse(await response.json());
   }
 
-  async searchErrorsInFile(
-    organizationSlug: string,
-    filename: string,
-    sortBy: "last_seen" | "count" = "last_seen",
-  ): Promise<ReturnType<typeof SentryDiscoverEventSchema.parse>[]> {
-    const query = `stack.filename:"*${filename.replace(/"/g, '\\"')}"`;
-    const limit = 10;
+  async searchErrors({
+    organizationSlug,
+    filename,
+    sortBy = "last_seen",
+  }: {
+    organizationSlug: string;
+    filename?: string;
+    sortBy?: "last_seen" | "count";
+  }): Promise<ReturnType<typeof SentryDiscoverEventSchema.parse>[]> {
+    const query = new URLSearchParams([
+      ["dataset", "errors"],
+      ["per_page", "10"],
+      ["query", filename ? `stack.filename:"*${filename.replace(/"/g, '\\"')}"` : ""],
+      ["referrer", "sentry-mcp"],
+      ["sort", `-${sortBy === "last_seen" ? "last_seen" : "count"}`],
+      ["statsPeriod", "1w"],
+      ...["issue", "title", "project", "last_seen()", "count()"].map<[string, string]>((n) => [
+        "field",
+        n,
+      ]),
+    ]);
 
-    const apiUrl = `/organizations/${organizationSlug}/events/?dataset=errors&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&per_page=${limit}&query=${encodeURIComponent(
-      query,
-    )}&referrer=sentry-mcp&sort=-${sortBy === "last_seen" ? "last_seen" : "count"}&statsPeriod=1w`;
+    const apiUrl = `/organizations/${organizationSlug}/events/?${query.toString()}`;
 
     const response = await this.request(apiUrl);
 
