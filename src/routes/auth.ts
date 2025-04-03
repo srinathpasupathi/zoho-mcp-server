@@ -6,6 +6,8 @@ import { SentryApiService } from "../sentry-api";
 
 const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
 const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
+// https://docs.sentry.io/api/permissions/
+const SCOPES = "org:read project:read project:write event:read";
 
 export default new Hono<{
   Bindings: Env & {
@@ -33,7 +35,7 @@ export default new Hono<{
     return Response.redirect(
       getUpstreamAuthorizeUrl({
         upstream_url: SENTRY_AUTH_URL,
-        scope: "org:read project:read event:read",
+        scope: SCOPES,
         client_id: c.env.SENTRY_CLIENT_ID,
         redirect_uri: new URL("/callback", c.req.url).href,
         state: btoa(JSON.stringify(oauthReqInfo)),
