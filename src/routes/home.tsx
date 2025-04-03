@@ -103,6 +103,10 @@ const globalStyles = css`
     padding: 0.85em 1.15em;
   }
 
+  article {
+    max-width: 600px;
+  }
+
   button {
     border-radius: 0.25rem;
     border: 0;
@@ -145,19 +149,21 @@ export default new Hono<{
         <Style>{globalStyles}</Style>
       </head>
       <body>
-        <h1>Sentry MCP</h1>
-        <p>
-          This service provides a Model Context Provider for interacting with{" "}
-          <a href="https://docs.sentry.io/api/">Sentry's API</a>.
-        </p>
-        <div>
-          <button type="button" data-copy={mcpSnippet}>
-            Copy Configuration
-          </button>
-          <pre>{mcpSnippet}</pre>
-        </div>
-        <h2>Available Tools</h2>
-        <p>TODO:</p>
+        <article>
+          <h1>Sentry MCP</h1>
+          <p>
+            This service provides a Model Context Provider for interacting with{" "}
+            <a href="https://docs.sentry.io/api/">Sentry's API</a>.
+          </p>
+          <div>
+            <button type="button" data-copy={mcpSnippet}>
+              Copy Configuration
+            </button>
+            <pre>{mcpSnippet}</pre>
+          </div>
+          <h2>Available Tools</h2>
+          <p>TODO:</p>
+        </article>
         <footer>
           <a href="https://github.com/getsentry/sentry-mcp">GitHub</a>
         </footer>
