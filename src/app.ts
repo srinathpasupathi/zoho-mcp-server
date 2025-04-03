@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { withSentry } from "@sentry/cloudflare";
 import authHandler from "./routes/auth";
 import homeHandler from "./routes/home";
 
-const app = new Hono<{
+export default new Hono<{
   Bindings: Env & { SENTRY_DSN: string };
 }>()
   .get("/robots.txt", (c) => {
@@ -11,12 +10,3 @@ const app = new Hono<{
   })
   .route("/", homeHandler)
   .route("/", authHandler);
-
-export default withSentry(
-  (env) => ({
-    // @ts-ignore
-    dsn: env.SENTRY_DSN,
-    tracesSampleRate: 1,
-  }),
-  app
-);
