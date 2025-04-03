@@ -73,7 +73,7 @@ export default new Hono<{
 
     // Get organizations using the SentryApiService
     const apiService = new SentryApiService(payload.access_token);
-    const orgsList = await apiService.getOrganizations();
+    const orgsList = await apiService.listOrganizations();
     if (!orgsList.length) {
       return c.text("No organizations found", 400);
     }
