@@ -20,7 +20,7 @@ Enter `https://[domain].workers.dev/sse` (TODO) and hit connect. Once you go thr
 
 ### Access the remote MCP server from Claude Desktop
 
-Open Claude Desktop and navigate to Settings -> Developer -> Edit Config. This opens the configuration file that controls which MCP servers Claude can access.
+Open Claude Desktop and navigate to Settings, press `⌘ + ,` (comma) -> Developer -> Edit Config. This opens the configuration file that controls which MCP servers Claude can access.
 
 Replace the content with the following configuration. Once you restart Claude Desktop, a browser window will open showing your OAuth login page. Complete the authentication flow to grant Claude access to your MCP server. After you grant access, the tools will become available for you to use.
 
@@ -45,13 +45,13 @@ Once the Tools (under 🔨) show up in the interface, you can ask Claude to use 
 If you'd like to iterate and test your MCP server, you can do so in local development. This will require you to create another OAuth App in Sentry (Settings => API => [Applications](https://sentry.io/settings/account/api/applications/)):
 
 - For the Homepage URL, specify `http://localhost:8788`
-- For the Authorization callback URL, specify `http://localhost:8788/callback`
+- For the Authorized Redirect URIs, specify `http://localhost:8788/callback`
 - Note your Client ID and generate a Client secret.
 - Create a `.dev.vars` file in your project root with:
 
 ```shell
-SENTRY_CLIENT_ID=your_development_github_client_id
-SENTRY_CLIENT_SECRET=your_development_github_client_secret
+SENTRY_CLIENT_ID=your_development_sentry_client_id
+SENTRY_CLIENT_SECRET=your_development_sentry_client_secret
 ```
 
 #### Develop & Test
