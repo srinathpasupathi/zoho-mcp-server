@@ -300,8 +300,8 @@ export default new Hono<{
               </li>
               <li>
                 <blockquote>
-                  Create a new project in Sentry for 'service-name' and add the setup local
-                  instrumentation using it.
+                  Create a new project in Sentry for <code>service-name</code> and add the setup
+                  local instrumentation using it.
                 </blockquote>
               </li>
             </ul>
