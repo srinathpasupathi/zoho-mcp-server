@@ -18,13 +18,13 @@
     "lint-staged": "^15.5.0",
     "simple-git-hooks": "^2.12.1",
     "typescript": "^5.8.2",
-    "wrangler": "^4.2.0"
+    "wrangler": "^4.7.0"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.0.2",
     "@modelcontextprotocol/sdk": "^1.8.0",
-    "@sentry/cloudflare": "^9.10.1",
-    "agents": "^0.0.45",
+    "@sentry/cloudflare": "^9.11.0",
+    "agents": "^0.0.50",
     "hono": "^4.7.5",
     "just-pick": "^4.2.0",
     "marked": "^15.0.7",

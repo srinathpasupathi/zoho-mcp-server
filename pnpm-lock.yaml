@@ -15,11 +15,11 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@sentry/cloudflare':
-        specifier: ^9.10.1
-        version: 9.10.1(@cloudflare/workers-types@4.20250327.0)
+        specifier: ^9.11.0
+        version: 9.11.0(@cloudflare/workers-types@4.20250327.0)
       agents:
-        specifier: ^0.0.45
-        version: 0.0.45(@cloudflare/workers-types@4.20250327.0)
+        specifier: ^0.0.50
+        version: 0.0.50(@cloudflare/workers-types@4.20250327.0)
       hono:
         specifier: ^4.7.5
         version: 4.7.5
@@ -52,8 +52,8 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
       wrangler:
-        specifier: ^4.2.0
-        version: 4.6.0(@cloudflare/workers-types@4.20250327.0)
+        specifier: ^4.7.0
+        version: 4.7.0(@cloudflare/workers-types@4.20250327.0)
 
 packages:
 
@@ -628,8 +628,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@sentry/cloudflare@9.10.1':
-    resolution: {integrity: sha512-JFfrQQIPufKEl3BCvGqDl5YfaplkpvYTtbfApkba0B7epiYZVS8u6pK6Fn/+12eg5ObP9BqoAZQRt7g+9HmAeQ==}
+  '@sentry/cloudflare@9.11.0':
+    resolution: {integrity: sha512-FrqEilMsLEMuqoLsk9bLGEdgo7uwDyOjQfRwlfCm7YOX29vcVxYmQMs1qWW76Bwml3tE5ccspuOpJ9YnPm1Dfg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cloudflare/workers-types': ^4.x
@@ -637,8 +637,8 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
-  '@sentry/core@9.10.1':
-    resolution: {integrity: sha512-TE2zZV3Od4131mZNgFo2Mv4aKU8FXxL0s96yqRvmV+8AU57mJoycMXBnmNSYfWuDICbPJTVAp+3bYMXwX7N5YA==}
+  '@sentry/core@9.11.0':
+    resolution: {integrity: sha512-qfb4ahGZubbrNh1MnbEqyHFp87rIwQIZapyQLCaYpudXrP1biEpLOV3mMDvDJWCdX460hoOwQ3SkwipV3We/7w==}
     engines: {node: '>=18'}
 
   '@silvia-odwyer/photon-node@0.3.3':
@@ -669,8 +669,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  agents@0.0.45:
-    resolution: {integrity: sha512-HWVs2McC1DNCQ5V54Lplbx/VmIf84FYjJZTDVwB00YHnM7Yh6TlmAM5uBOd77MW7WyRZKGIo1D4R/sAPkz10/w==}
+  agents@0.0.50:
+    resolution: {integrity: sha512-IaKgKNWP0z8GKBjRtFZz3OsYn0Y3U4G7xtlhSJw9i/9l8LoVWR9AOSHYF6K/BBoBxoT0hrHcyhngWEl9G9nvkA==}
 
   ansi-escapes@7.0.0:
     resolution: {integrity: sha512-GdYO7a61mR0fOlAsvC9/rIHf7L96sBc6dEWzeOu+KAea5bZyQRPIpojrVoI4AXGJS/ycu/fBTdLrUkA4ODrvjw==}
@@ -892,9 +892,8 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
-  event-target-shim@6.0.2:
-    resolution: {integrity: sha512-8q3LsZjRezbFZ2PN+uP+Q7pnHUMmAOziU2vA2OwoFaKIXxlxl38IylhSSgUorWu/rf4er67w0ikBqjBFk/pomA==}
-    engines: {node: '>=10.13.0'}
+  event-target-polyfill@0.0.4:
+    resolution: {integrity: sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==}
 
   eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
@@ -1280,8 +1279,8 @@ packages:
     peerDependencies:
       '@cloudflare/workers-types': ^4.20240729.0
 
-  partysocket@1.1.2:
-    resolution: {integrity: sha512-vWyxg0dYJewBsT6BaYkq+DEavYw+N/8J0jUXYSuZRRJdnmMJY+rkCg19t/8c3pTSyg8FjJH8VzIaHBhFMQRDIw==}
+  partysocket@1.1.3:
+    resolution: {integrity: sha512-87Jd/nqPoWnVfzHE6Z12WLWTJ+TAgxs0b7i2S163HfQSrVDUK5tW/FC64T5N8L5ss+gqF+EV0BwjZMWggMY3UA==}
 
   path-key@3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
@@ -1577,8 +1576,8 @@ packages:
     engines: {node: '>=16.17.0'}
     hasBin: true
 
-  wrangler@4.6.0:
-    resolution: {integrity: sha512-2a2ZD0adlvxQ1H+nRKkuuD0dkgaYTOPlC7gBolItk5TfqOSliEV4m6DtZtKtJp33ioM+Uy6TlEWPpA2TrDveEQ==}
+  wrangler@4.7.0:
+    resolution: {integrity: sha512-5LoyNxpPG8K0kcU43Ossyj7+Hq78v8BNtu7ZNNSxDOUcairMEDwcbrbUOqzu/iM4yHiri5wCjl4Ja57fKED/Sg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
     peerDependencies:
@@ -1996,13 +1995,13 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@sentry/cloudflare@9.10.1(@cloudflare/workers-types@4.20250327.0)':
+  '@sentry/cloudflare@9.11.0(@cloudflare/workers-types@4.20250327.0)':
     dependencies:
-      '@sentry/core': 9.10.1
+      '@sentry/core': 9.11.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250327.0
 
-  '@sentry/core@9.10.1': {}
+  '@sentry/core@9.11.0': {}
 
   '@silvia-odwyer/photon-node@0.3.3': {}
 
@@ -2028,14 +2027,16 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  agents@0.0.45(@cloudflare/workers-types@4.20250327.0):
+  agents@0.0.50(@cloudflare/workers-types@4.20250327.0):
     dependencies:
+      '@modelcontextprotocol/sdk': 1.8.0
       cron-schedule: 5.0.4
       nanoid: 5.1.5
       partyserver: 0.0.66(@cloudflare/workers-types@4.20250327.0)
-      partysocket: 1.1.2
+      partysocket: 1.1.3
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
+      - supports-color
 
   ansi-escapes@7.0.0:
     dependencies:
@@ -2262,7 +2263,7 @@ snapshots:
 
   etag@1.8.1: {}
 
-  event-target-shim@6.0.2: {}
+  event-target-polyfill@0.0.4: {}
 
   eventemitter3@5.0.1: {}
 
@@ -2677,9 +2678,9 @@ snapshots:
       '@cloudflare/workers-types': 4.20250327.0
       nanoid: 5.1.5
 
-  partysocket@1.1.2:
+  partysocket@1.1.3:
     dependencies:
-      event-target-shim: 6.0.2
+      event-target-polyfill: 0.0.4
 
   path-key@3.1.1: {}
 
@@ -3000,7 +3001,7 @@ snapshots:
       - '@75lb/nature'
       - supports-color
 
-  wrangler@4.6.0(@cloudflare/workers-types@4.20250327.0):
+  wrangler@4.7.0(@cloudflare/workers-types@4.20250327.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@cloudflare/unenv-preset': 2.3.1(unenv@2.0.0-rc.15)(workerd@1.20250321.0)
