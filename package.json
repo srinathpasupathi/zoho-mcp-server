@@ -6,6 +6,7 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "format": "biome format --write",
+    "lint": "biome lint",
     "lint:fix": "biome lint --fix",
     "inspector": "pnpx @modelcontextprotocol/inspector@latest",
     "start": "wrangler dev",

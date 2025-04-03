@@ -110,11 +110,7 @@ export const SentryEventSchema = z.object({
         data: SentryErrorEntrySchema,
       }),
       z.object({
-        type: z.literal("breadcrumbs"),
-        data: z.unknown(),
-      }),
-      z.object({
-        type: z.literal("message"),
+        type: z.string(),
         data: z.unknown(),
       }),
     ]),

@@ -7,6 +7,7 @@ import {
   ParamOrganizationSlug,
   ParamPlatform,
   ParamTeamSlug,
+  type SentryErrorEntrySchema,
   type SentryEventSchema,
 } from "./schema";
 import { SentryApiService } from "./sentry-api";
@@ -16,7 +17,8 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
   for (const entry of event.entries) {
     if (entry.type === "exception") {
-      const firstError = entry.data.value ?? entry.data.values[0];
+      const data = entry.data as z.infer<typeof SentryErrorEntrySchema>;
+      const firstError = data.value ?? data.values[0];
       if (!firstError) {
         continue;
       }
