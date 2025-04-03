@@ -2,25 +2,17 @@ import { z } from "zod";
 
 export const ParamOrganizationSlug = z
   .string()
-  .describe(
-    "The organization's slug. This will default to the first org you have access to."
-  );
+  .describe("The organization's slug. This will default to the first org you have access to.");
 
 export const ParamTeamSlug = z
   .string()
-  .describe(
-    "The team's slug. This will default to the first team you have access to."
-  );
+  .describe("The team's slug. This will default to the first team you have access to.");
 
-export const ParamIssueShortId = z
-  .string()
-  .describe("The Issue ID. e.g. `PROJECT-1Z43`");
+export const ParamIssueShortId = z.string().describe("The Issue ID. e.g. `PROJECT-1Z43`");
 
 export const ParamPlatform = z
   .string()
-  .describe(
-    "The platform for the project (e.g., python, javascript, react, etc.)"
-  );
+  .describe("The platform for the project (e.g., python, javascript, react, etc.)");
 
 export const TokenResponseSchema = z.object({
   access_token: z.string(),
@@ -95,7 +87,7 @@ const ExceptionInterface = z
             // lineno, source code
             context: z.array(z.tuple([z.number(), z.string()])),
           })
-          .partial()
+          .partial(),
       ),
     }),
   })
@@ -125,7 +117,7 @@ export const SentryEventSchema = z.object({
         type: z.literal("message"),
         data: z.unknown(),
       }),
-    ])
+    ]),
   ),
 });
 

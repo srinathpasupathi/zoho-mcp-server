@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import SentryMCP from "../mcp";
+import type SentryMCP from "../mcp";
 
 const copyPasteHelper = `
 const nodes = document.querySelectorAll("[data-copy]");
@@ -26,7 +26,7 @@ export default new Hono<{
       },
     },
     undefined,
-    2
+    2,
   );
 
   return c.html(
@@ -54,6 +54,6 @@ export default new Hono<{
 
         <script dangerouslySetInnerHTML={{ __html: copyPasteHelper }} />
       </body>
-    </html>
+    </html>,
   );
 });

@@ -20,9 +20,7 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
       if (!firstError) {
         continue;
       }
-      output += `**Error:**\n${"```"}\n${firstError.type}: ${
-        firstError.value
-      }\n${"```"}\n\n`;
+      output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
       if (!firstError.stacktrace || !firstError.stacktrace.frames) {
         continue;
       }
@@ -60,9 +58,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       {},
       async () => {
         try {
-          const apiService = new SentryApiService(
-            this.props.accessToken as string
-          );
+          const apiService = new SentryApiService(this.props.accessToken as string);
           const organizations = await apiService.listOrganizations();
 
           let output = `# Organizations\n\n`;
@@ -90,7 +86,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             isError: true,
           };
         }
-      }
+      },
     );
 
     this.server.tool(
@@ -102,12 +98,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       },
       async ({ issue_id, organization_slug }) => {
         try {
-          const apiService = new SentryApiService(
-            this.props.accessToken as string
-          );
+          const apiService = new SentryApiService(this.props.accessToken as string);
           const event = await apiService.getLatestEventForIssue(
             organization_slug ?? (this.props.organizationSlug as string),
-            issue_id
+            issue_id,
           );
 
           let output = `# ${issue_id}: ${event.title}\n\n`;
@@ -142,7 +136,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             isError: true,
           };
         }
-      }
+      },
     );
 
     this.server.tool(
@@ -156,19 +150,17 @@ export default class SentryMCP extends McpAgent<Props, Env> {
           .optional()
           .default("last_seen")
           .describe(
-            "Sort the results either by the last time they occurred or the count of occurrences."
+            "Sort the results either by the last time they occurred or the count of occurrences.",
           ),
       },
       async ({ filename, sortBy, organization_slug }) => {
         try {
-          const apiService = new SentryApiService(
-            this.props.accessToken as string
-          );
+          const apiService = new SentryApiService(this.props.accessToken as string);
 
           const eventList = await apiService.searchErrorsInFile(
             organization_slug ?? (this.props.organizationSlug as string),
             filename,
-            sortBy
+            sortBy,
           );
 
           if (eventList.length === 0) {
@@ -218,7 +210,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             isError: true,
           };
         }
-      }
+      },
     );
 
     this.server.tool(
@@ -228,9 +220,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         organization_slug: ParamOrganizationSlug,
       },
       async ({ organization_slug }) => {
-        const apiService = new SentryApiService(
-          this.props.accessToken as string
-        );
+        const apiService = new SentryApiService(this.props.accessToken as string);
 
         try {
           const teams = await apiService.listTeams(organization_slug);
@@ -260,7 +250,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             isError: true,
           };
         }
-      }
+      },
     );
 
     this.server.tool(
@@ -272,21 +262,19 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         name: z
           .string()
           .describe(
-            "The name of the project to create. Typically this is commonly the name of the repository or service. It is only used as a visual label in Sentry."
+            "The name of the project to create. Typically this is commonly the name of the repository or service. It is only used as a visual label in Sentry.",
           ),
         platform: ParamPlatform.optional(),
       },
       async ({ organization_slug, team_slug, name, platform }) => {
-        const apiService = new SentryApiService(
-          this.props.accessToken as string
-        );
+        const apiService = new SentryApiService(this.props.accessToken as string);
 
         try {
           const [project, clientKey] = await apiService.createProject(
             organization_slug ?? (this.props.organizationSlug as string),
             team_slug,
             name,
-            platform
+            platform,
           );
 
           let output = "# New Project";
@@ -325,7 +313,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             isError: true,
           };
         }
-      }
+      },
     );
   }
 }

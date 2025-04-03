@@ -9,11 +9,14 @@
     "lint:fix": "biome lint --fix",
     "inspector": "pnpx @modelcontextprotocol/inspector@latest",
     "start": "wrangler dev",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "postinstall": "simple-git-hooks"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.13.14",
+    "lint-staged": "^15.5.0",
+    "simple-git-hooks": "^2.12.1",
     "typescript": "^5.8.2",
     "wrangler": "^4.2.0"
   },
@@ -27,5 +30,12 @@
     "marked": "^15.0.7",
     "workers-mcp": "0.1.0-3",
     "zod": "^3.24.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "*": ["biome format --write"],
+    "**/*.{ts,tsx}": ["biome lint --fix"]
   }
 }

@@ -1,7 +1,4 @@
-import type {
-  AuthRequest,
-  OAuthHelpers,
-} from "@cloudflare/workers-oauth-provider";
+import type { AuthRequest, OAuthHelpers } from "@cloudflare/workers-oauth-provider";
 import { Hono } from "hono";
 import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../utils";
 import type { Props } from "../types";
@@ -40,7 +37,7 @@ export default new Hono<{
         client_id: c.env.SENTRY_CLIENT_ID,
         redirect_uri: new URL("/callback", c.req.url).href,
         state: btoa(JSON.stringify(oauthReqInfo)),
-      })
+      }),
     );
   })
 
@@ -54,9 +51,7 @@ export default new Hono<{
    */
   .get("/callback", async (c) => {
     // Get the oathReqInfo out of KV
-    const oauthReqInfo = JSON.parse(
-      atob(c.req.query("state") as string)
-    ) as AuthRequest;
+    const oauthReqInfo = JSON.parse(atob(c.req.query("state") as string)) as AuthRequest;
     if (!oauthReqInfo.clientId) {
       return c.text("Invalid state", 400);
     }

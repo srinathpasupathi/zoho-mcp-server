@@ -23,5 +23,5 @@ export default withSentry(
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1,
   }),
-  oAuthProvider
+  oAuthProvider,
 );
