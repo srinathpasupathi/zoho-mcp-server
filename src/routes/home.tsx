@@ -248,6 +248,10 @@ export default new Hono<{
             This service provides a Model Context Provider for interacting with{" "}
             <a href="https://docs.sentry.io/api/">Sentry's API</a>.
           </p>
+          <p>
+            While this service is maintained by Sentry, it is very much still a proof-of-concept as
+            the protocol is still in development (as is our own thinking around its usage).
+          </p>
           <div>
             <button type="button" data-copy={mcpSnippet}>
               Copy Configuration
