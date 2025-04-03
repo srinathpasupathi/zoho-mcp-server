@@ -72,6 +72,9 @@ const globalStyles = css`
   p,
   h1,
   h2,
+  h3,
+  ul,
+  ol,
   pre {
     margin: 1.25rem 0;
   }
@@ -101,6 +104,10 @@ const globalStyles = css`
     font-size: 0.875em;
     border-radius: 0.375rem;
     padding: 0.85em 1.15em;
+  }
+
+  small {
+    font-size: 0.85rem;
   }
 
   article {
@@ -161,6 +168,33 @@ export default new Hono<{
             </button>
             <pre>{mcpSnippet}</pre>
           </div>
+          <h3>With Cursor</h3>
+          <ol>
+            <li>
+              <strong>Cmd + Shift + J</strong> to open Cursor Settings.
+            </li>
+            <li>
+              Select <strong>MCP</strong>.
+            </li>
+            <li>
+              Select <strong>Add new global MCP server</strong>.
+            </li>
+          </ol>
+          <h3>With Windsurf</h3>
+          <ol>
+            <li>Open Windsurf Settings.</li>
+            <li>
+              Under <strong>Cascade</strong>, you'll find{" "}
+              <strong>Model Context Provider Servers</strong>.
+            </li>
+            <li>
+              Select <strong>Add Server</strong>.
+            </li>
+          </ol>
+          <p>
+            <small>Note: Windsurf requires an enterprise account to utilize MCP. 😕</small>
+          </p>
+
           <h2>Available Tools</h2>
           <p>TODO:</p>
         </article>
