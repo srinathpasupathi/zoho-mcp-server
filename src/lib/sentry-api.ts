@@ -51,6 +51,28 @@ export class SentryApiService {
     return teamsBody.map((i) => SentryTeamSchema.parse(i));
   }
 
+  async createTeam({
+    organizationSlug,
+    name,
+  }: {
+    organizationSlug: string;
+    name: string;
+  }): Promise<z.infer<typeof SentryTeamSchema>> {
+    const response = await this.request(`/organizations/${organizationSlug}/teams/`, {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+
+    return SentryTeamSchema.parse(await response.json());
+  }
+
+  async listProjects(organizationSlug: string): Promise<z.infer<typeof SentryProjectSchema>[]> {
+    const response = await this.request(`/organizations/${organizationSlug}/projects/`);
+
+    const projectsBody = await response.json<{ id: string; slug: string }[]>();
+    return projectsBody.map((i) => SentryProjectSchema.parse(i));
+  }
+
   async createProject({
     organizationSlug,
     teamSlug,
