@@ -103,6 +103,50 @@ export default class SentryMCP extends McpAgent<Props, Env> {
     );
 
     this.server.tool(
+      "list_teams",
+      "Retrieve a list of teams in Sentry.",
+      {
+        organizationSlug: ParamOrganizationSlug,
+      },
+      makeTool(async ({ organizationSlug }) => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
+
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
+        }
+
+        const teams = await apiService.listTeams(organizationSlug);
+
+        let output = `# Teams in **${organizationSlug}**\n\n`;
+        output += teams.map((team) => `- ${team.slug}\n`).join("");
+
+        return output;
+      }),
+    );
+
+    this.server.tool(
+      "list_projects",
+      "Retrieve a list of projects in Sentry.",
+      {
+        organizationSlug: ParamOrganizationSlug,
+      },
+      makeTool(async ({ organizationSlug }) => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
+
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
+        }
+
+        const projects = await apiService.listProjects(organizationSlug);
+
+        let output = `# Projects in **${organizationSlug}**\n\n`;
+        output += projects.map((project) => `- ${project.slug}\n`).join("");
+
+        return output;
+      }),
+    );
+
+    this.server.tool(
       "get_error_details",
       "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
       {
@@ -179,28 +223,6 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         output += "# Using this information\n\n";
         output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
         output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
-
-        return output;
-      }),
-    );
-
-    this.server.tool(
-      "list_teams",
-      "Retrieve a list of teams in Sentry.",
-      {
-        organizationSlug: ParamOrganizationSlug,
-      },
-      makeTool(async ({ organizationSlug }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
-
-        if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
-        }
-
-        const teams = await apiService.listTeams(organizationSlug);
-
-        let output = `# Teams in **${organizationSlug}**\n\n`;
-        output += teams.map((team) => `- ${team.slug}\n`).join("");
 
         return output;
       }),
