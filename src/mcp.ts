@@ -12,6 +12,7 @@ import {
 } from "./schema";
 import { SentryApiService } from "./lib/sentry-api";
 import { logError } from "./lib/logging";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
@@ -45,6 +46,38 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   return output;
 }
 
+function makeTool(
+  cb: (...args: any[]) => Promise<string>,
+): (...args: any[]) => Promise<CallToolResult> {
+  return async (...args: any[]) => {
+    try {
+      const output = await cb(...args);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: output,
+          },
+        ],
+      };
+    } catch (error) {
+      logError(error);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API:\n\n${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  };
+}
+
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the DurableMCP as this.props
 export default class SentryMCP extends McpAgent<Props, Env> {
@@ -58,37 +91,15 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "list_organizations",
       "List all organizations that the user has access to in Sentry.",
       {},
-      async () => {
-        try {
-          const apiService = new SentryApiService(this.props.accessToken as string);
-          const organizations = await apiService.listOrganizations();
+      makeTool(async () => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
+        const organizations = await apiService.listOrganizations();
 
-          let output = "# Organizations\n\n";
-          output += organizations.map((org) => `- ${org.slug}\n`).join("");
+        let output = "# Organizations\n\n";
+        output += organizations.map((org) => `- ${org.slug}\n`).join("");
 
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to fetch error details: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
-        }
-      },
+        return output;
+      }),
     );
 
     this.server.tool(
@@ -98,52 +109,30 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         organizationSlug: ParamOrganizationSlug.optional(),
         issueId: ParamIssueShortId,
       },
-      async ({ issueId, organizationSlug }) => {
-        try {
-          const apiService = new SentryApiService(this.props.accessToken as string);
+      makeTool(async ({ issueId, organizationSlug }) => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
 
-          if (!organizationSlug) {
-            organizationSlug = this.props.organizationSlug as string;
-          }
-
-          const event = await apiService.getLatestEventForIssue({
-            organizationSlug,
-            issueId,
-          });
-
-          let output = `# ${issueId}: ${event.title}\n\n`;
-          output += `**Issue ID**:\n${issueId}\n\n`;
-
-          output += formatEventOutput(event);
-
-          output += "# Using this information\n\n";
-          output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issueId}\`) to automatically close the issue when the commit is merged.\n`;
-          output +=
-            "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to fetch error details: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
         }
-      },
+
+        const event = await apiService.getLatestEventForIssue({
+          organizationSlug,
+          issueId,
+        });
+
+        let output = `# ${issueId}: ${event.title}\n\n`;
+        output += `**Issue ID**:\n${issueId}\n\n`;
+
+        output += formatEventOutput(event);
+
+        output += "# Using this information\n\n";
+        output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issueId}\`) to automatically close the issue when the commit is merged.\n`;
+        output +=
+          "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
+
+        return output;
+      }),
     );
 
     this.server.tool(
@@ -160,68 +149,39 @@ export default class SentryMCP extends McpAgent<Props, Env> {
             "Sort the results either by the last time they occurred or the count of occurrences.",
           ),
       },
-      async ({ filename, sortBy, organizationSlug }) => {
-        try {
-          const apiService = new SentryApiService(this.props.accessToken as string);
+      makeTool(async ({ filename, sortBy, organizationSlug }) => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
 
-          if (!organizationSlug) {
-            organizationSlug = this.props.organizationSlug as string;
-          }
-
-          const eventList = await apiService.searchErrors({
-            organizationSlug,
-            filename,
-            sortBy,
-          });
-
-          if (eventList.length === 0) {
-            return {
-              content: [
-                {
-                  type: "text",
-                  text: `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${organizationSlug} organization.`,
-                },
-              ],
-            };
-          }
-
-          let output = `# Errors related to \`${filename}\`\n\n`;
-
-          for (const eventSummary of eventList) {
-            output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
-            output += `- **Issue ID**: ${eventSummary.issue}\n`;
-            output += `- **Project**: ${eventSummary.project}\n`;
-            output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
-            output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;
-          }
-
-          output += "# Using this information\n\n";
-          output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
-          output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Error searching for file:\n${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
         }
-      },
+
+        const eventList = await apiService.searchErrors({
+          organizationSlug,
+          filename,
+          sortBy,
+        });
+
+        if (eventList.length === 0) {
+          return `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${organizationSlug} organization.`;
+        }
+
+        let output = `# Errors related to \`${filename}\`\n\n`;
+
+        for (const eventSummary of eventList) {
+          output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
+          output += `- **Issue ID**: ${eventSummary.issue}\n`;
+          output += `- **Project**: ${eventSummary.project}\n`;
+          output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
+          output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;
+        }
+
+        output += "# Using this information\n\n";
+        output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
+        output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
+
+        return output;
+      }),
     );
 
     this.server.tool(
@@ -230,42 +190,20 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       {
         organizationSlug: ParamOrganizationSlug,
       },
-      async ({ organizationSlug }) => {
+      makeTool(async ({ organizationSlug }) => {
         const apiService = new SentryApiService(this.props.accessToken as string);
 
         if (!organizationSlug) {
           organizationSlug = this.props.organizationSlug as string;
         }
 
-        try {
-          const teams = await apiService.listTeams(organizationSlug);
+        const teams = await apiService.listTeams(organizationSlug);
 
-          let output = `# Teams in **${organizationSlug}**\n\n`;
-          output += teams.map((team) => `- ${team.slug}\n`).join("");
+        let output = `# Teams in **${organizationSlug}**\n\n`;
+        output += teams.map((team) => `- ${team.slug}\n`).join("");
 
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to fetch error details: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
-        }
-      },
+        return output;
+      }),
     );
 
     this.server.tool(
@@ -281,58 +219,36 @@ export default class SentryMCP extends McpAgent<Props, Env> {
           ),
         platform: ParamPlatform.optional(),
       },
-      async ({ organizationSlug, teamSlug, name, platform }) => {
+      makeTool(async ({ organizationSlug, teamSlug, name, platform }) => {
         const apiService = new SentryApiService(this.props.accessToken as string);
 
         if (!organizationSlug) {
           organizationSlug = this.props.organizationSlug as string;
         }
 
-        try {
-          const [project, clientKey] = await apiService.createProject({
-            organizationSlug,
-            teamSlug,
-            name,
-            platform,
-          });
+        const [project, clientKey] = await apiService.createProject({
+          organizationSlug,
+          teamSlug,
+          name,
+          platform,
+        });
 
-          let output = "# New Project";
-          output += `- **ID**: ${project.id}\n`;
-          output += `- **Slug**: ${project.slug}\n`;
-          output += `- **Name**: ${project.name}\n`;
+        let output = "# New Project";
+        output += `- **ID**: ${project.id}\n`;
+        output += `- **Slug**: ${project.slug}\n`;
+        output += `- **Name**: ${project.name}\n`;
 
-          if (clientKey) {
-            output += `- **SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
-          } else {
-            output += "- **SENTRY_DSN**: There was an error fetching this value.\n\n";
-          }
-
-          output += "# Using this information\n\n";
-          output += `- You can reference the **SENTRY_DSN** value to initialize Sentry's SDKs.\n`;
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to fetch error details: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
+        if (clientKey) {
+          output += `- **SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
+        } else {
+          output += "- **SENTRY_DSN**: There was an error fetching this value.\n\n";
         }
-      },
+
+        output += "# Using this information\n\n";
+        output += `- You can reference the **SENTRY_DSN** value to initialize Sentry's SDKs.\n`;
+
+        return output;
+      }),
     );
   }
 }
