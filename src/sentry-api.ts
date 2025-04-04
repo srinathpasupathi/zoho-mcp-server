@@ -78,6 +78,12 @@ export class SentryApiService {
     try {
       const keysResponse = await this.request(
         `/projects/${organizationSlug}/${project.slug}/keys/`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: "Default",
+          }),
+        },
       );
       const clientKey = SentryClientKeySchema.parse(await keysResponse.json());
       return [project, clientKey];
