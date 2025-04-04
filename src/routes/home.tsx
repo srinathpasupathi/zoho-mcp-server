@@ -294,9 +294,6 @@ export default new Hono<{
           </p>
 
           <h3>With VSCode</h3>
-          <p>
-            <small>You need VSCode 1.99 for MCP support.</small>
-          </p>
           <ol>
             <li>CMD+P</li>
             <li>
@@ -319,6 +316,9 @@ export default new Hono<{
               to specific project)
             </li>
           </ol>
+          <p>
+            <small>Note: MCP is supported in VSCode 1.99 and above.</small>
+          </p>
 
           <h2>Workflows</h2>
           <section className="workflows">
