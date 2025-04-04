@@ -302,9 +302,9 @@ export default class SentryMCP extends McpAgent<Props, Env> {
           output += `- **Name**: ${project.name}\n`;
 
           if (clientKey) {
-            output += `**SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
+            output += `- **SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
           } else {
-            output += "**SENTRY_DSN**: There was an error fetching this value.\n\n";
+            output += -"**SENTRY_DSN**: There was an error fetching this value.\n\n";
           }
 
           output += "# Using this information\n\n";
