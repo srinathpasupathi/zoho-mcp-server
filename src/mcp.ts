@@ -80,7 +80,7 @@ function makeTool(
 
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the DurableMCP as this.props
-export default class SentryMCP extends McpAgent<Props, Env> {
+export default class SentryMCP extends McpAgent<Env, unknown, Props> {
   server = new McpServer({
     name: "Sentry MCP",
     version: "0.1.0",
@@ -92,7 +92,7 @@ export default class SentryMCP extends McpAgent<Props, Env> {
       "List all organizations that the user has access to in Sentry.",
       {},
       makeTool(async () => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
         const organizations = await apiService.listOrganizations();
 
         let output = "# Organizations\n\n";
@@ -109,10 +109,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         organizationSlug: ParamOrganizationSlug,
       },
       makeTool(async ({ organizationSlug }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const teams = await apiService.listTeams(organizationSlug);
@@ -131,10 +131,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         organizationSlug: ParamOrganizationSlug,
       },
       makeTool(async ({ organizationSlug }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const projects = await apiService.listProjects(organizationSlug);
@@ -154,10 +154,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         issueId: ParamIssueShortId,
       },
       makeTool(async ({ issueId, organizationSlug }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const event = await apiService.getLatestEventForIssue({
@@ -194,10 +194,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
           ),
       },
       makeTool(async ({ filename, sortBy, organizationSlug }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const eventList = await apiService.searchErrors({
@@ -236,10 +236,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         name: z.string().describe("The name of the team to create."),
       },
       makeTool(async ({ organizationSlug, name }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const team = await apiService.createTeam({
@@ -270,10 +270,10 @@ export default class SentryMCP extends McpAgent<Props, Env> {
         platform: ParamPlatform.optional(),
       },
       makeTool(async ({ organizationSlug, teamSlug, name, platform }) => {
-        const apiService = new SentryApiService(this.props.accessToken as string);
+        const apiService = new SentryApiService(this.props.accessToken);
 
         if (!organizationSlug) {
-          organizationSlug = this.props.organizationSlug as string;
+          organizationSlug = this.props.organizationSlug;
         }
 
         const [project, clientKey] = await apiService.createProject({
