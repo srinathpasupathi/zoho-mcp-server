@@ -198,6 +198,14 @@ const TOOLS: {
     description: "List all organizations that the user has access to in Sentry.",
   },
   {
+    name: "list_teams",
+    description: "Retrieve a list of teams in Sentry.",
+  },
+  {
+    name: "list_projects",
+    description: "Retrieve a list of projects in Sentry.",
+  },
+  {
     name: "get_error_details",
     description:
       "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
@@ -205,11 +213,11 @@ const TOOLS: {
   {
     name: "search_errors_in_file",
     description:
-      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file.",
+      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
   },
   {
-    name: "list_teams",
-    description: "Retrieve a list of teams in Sentry.",
+    name: "create_team",
+    description: "Create a new team in Sentry.",
   },
   {
     name: "create_project",
