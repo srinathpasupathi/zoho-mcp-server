@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import {
   SentryClientKeySchema,
   SentryDiscoverEventSchema,
@@ -36,14 +37,14 @@ export class SentryApiService {
     return response;
   }
 
-  async listOrganizations(): Promise<ReturnType<typeof SentryOrgSchema.parse>[]> {
+  async listOrganizations(): Promise<z.infer<typeof SentryOrgSchema>[]> {
     const response = await this.request("/organizations/");
 
     const orgsBody = await response.json<{ id: string; slug: string }[]>();
     return orgsBody.map((i) => SentryOrgSchema.parse(i));
   }
 
-  async listTeams(organizationSlug: string): Promise<ReturnType<typeof SentryTeamSchema.parse>[]> {
+  async listTeams(organizationSlug: string): Promise<z.infer<typeof SentryTeamSchema>[]> {
     const response = await this.request(`/organizations/${organizationSlug}/teams/`);
 
     const teamsBody = await response.json<{ id: string; slug: string }[]>();
@@ -60,12 +61,7 @@ export class SentryApiService {
     teamSlug: string;
     name: string;
     platform?: string;
-  }): Promise<
-    [
-      ReturnType<typeof SentryProjectSchema.parse>,
-      ReturnType<typeof SentryClientKeySchema.parse> | null,
-    ]
-  > {
+  }): Promise<[z.infer<typeof SentryProjectSchema>, z.infer<typeof SentryClientKeySchema> | null]> {
     const response = await this.request(`/teams/${organizationSlug}/${teamSlug}/projects/`, {
       method: "POST",
       body: JSON.stringify({
@@ -99,7 +95,7 @@ export class SentryApiService {
   }: {
     organizationSlug: string;
     issueId: string;
-  }): Promise<ReturnType<typeof SentryEventSchema.parse>> {
+  }): Promise<z.infer<typeof SentryEventSchema>> {
     const response = await this.request(
       `/organizations/${organizationSlug}/issues/${issueId}/events/latest/`,
     );
@@ -110,15 +106,19 @@ export class SentryApiService {
   async searchErrors({
     organizationSlug,
     filename,
+    projectSlug,
     sortBy = "last_seen",
   }: {
     organizationSlug: string;
     filename?: string;
+    projectSlug?: string;
     sortBy?: "last_seen" | "count";
-  }): Promise<ReturnType<typeof SentryDiscoverEventSchema.parse>[]> {
+  }): Promise<z.infer<typeof SentryDiscoverEventSchema>[]> {
     const query = new URLSearchParams([
       ["dataset", "errors"],
       ["per_page", "10"],
+      // TODO: https://github.com/getsentry/sentry-mcp/issues/19
+      ["project", projectSlug ?? ""],
       ["query", filename ? `stack.filename:"*${filename.replace(/"/g, '\\"')}"` : ""],
       ["referrer", "sentry-mcp"],
       ["sort", `-${sortBy === "last_seen" ? "last_seen" : "count"}`],
