@@ -307,7 +307,7 @@ export default new Hono<{
               Enter <code>Sentry</code>
             </li>
             <li>
-              Select <strong>User settings</strong> or <strong>Workspace settings</strong>(to limit
+              Select <strong>User settings</strong> or <strong>Workspace settings</strong> (to limit
               to specific project)
             </li>
           </ol>
