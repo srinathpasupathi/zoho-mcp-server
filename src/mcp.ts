@@ -229,6 +229,34 @@ export default class SentryMCP extends McpAgent<Props, Env> {
     );
 
     this.server.tool(
+      "create_team",
+      "Create a new team in Sentry.",
+      {
+        organizationSlug: ParamOrganizationSlug,
+        name: z.string().describe("The name of the team to create."),
+      },
+      makeTool(async ({ organizationSlug, name }) => {
+        const apiService = new SentryApiService(this.props.accessToken as string);
+
+        if (!organizationSlug) {
+          organizationSlug = this.props.organizationSlug as string;
+        }
+
+        const team = await apiService.createTeam({
+          organizationSlug,
+          name,
+        });
+
+        let output = "# New Team";
+        output += `- **ID**: ${team.id}\n`;
+        output += `- **Slug**: ${team.slug}\n`;
+        output += `- **Name**: ${team.name}\n`;
+
+        return output;
+      }),
+    );
+
+    this.server.tool(
       "create_project",
       "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
       {
