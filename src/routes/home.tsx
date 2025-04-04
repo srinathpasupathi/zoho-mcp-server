@@ -285,6 +285,20 @@ export default new Hono<{
             <small>Note: Windsurf requires an enterprise account to utilize MCP. 😕</small>
           </p>
 
+          <h3>With VSCode</h3>
+          <p><small>You need VSCode 1.99 for MCP support.</small></p>
+          <ol>
+            <li>CMD+P</li>
+            <li>MCP: Add Server...</li>
+            <li>
+              Select <strong>Command (stdio)</strong>.
+            </li>
+            <li><pre>npx mcp-remote https://sentry.cool/sse</pre>↲</li>
+            <li><pre>Sentry</pre>↲</li>
+            <li>Selet <strong>User settings</strong> or <strong>Workspace settings</strong>(to limit to specific project)</li>
+          </ol>
+
+
           <h2>Workflows</h2>
           <section className="workflows">
             <p>
