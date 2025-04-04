@@ -1,6 +1,5 @@
 import type { z } from "zod";
-import { TokenResponseSchema } from "./schema";
-import { captureException, captureMessage, withScope } from "@sentry/cloudflare";
+import { TokenResponseSchema } from "../schema";
 
 /**
  * Constructs an authorization URL for an upstream service.
@@ -92,47 +91,4 @@ export async function exchangeCodeForAccessToken({
     console.error("Failed to parse token response", e);
     return [null, new Response("Failed to parse token response", { status: 500 })];
   }
-}
-
-export function logError(
-  error: Error | unknown,
-  contexts?: Record<string, Record<string, any>>,
-  attachments?: Record<string, string | Uint8Array>,
-): void;
-export function logError(
-  message: string,
-  contexts?: Record<string, Record<string, any>>,
-  attachments?: Record<string, string | Uint8Array>,
-): void;
-export function logError(
-  error: string | Error | unknown,
-  contexts?: Record<string, Record<string, any>>,
-  attachments?: Record<string, string | Uint8Array>,
-): string {
-  const level = "error";
-
-  console.error(error);
-
-  const eventId = withScope((scope) => {
-    if (attachments) {
-      for (const [key, data] of Object.entries(attachments)) {
-        scope.addAttachment({
-          data,
-          filename: key,
-        });
-      }
-    }
-
-    return typeof error === "string"
-      ? captureMessage(error, {
-          contexts,
-          level,
-        })
-      : captureException(error, {
-          contexts,
-          level,
-        });
-  });
-
-  return eventId;
 }

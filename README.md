@@ -1,5 +1,8 @@
 # sentry-mcp
 
+[![CI](https://github.com/getsentry/sentry-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/getsentry/sentry-mcp/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/getsentry/sentry-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-mcp)
+
 This is a prototype of a remote MCP sever, acting as a middleware to the upstream Sentry API provider.
 
 It is based on [Cloudflare's work towards remote MCPs](https://blog.cloudflare.com/remote-model-context-protocol-servers-mcp/).

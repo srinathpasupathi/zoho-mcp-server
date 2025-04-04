@@ -1,8 +1,8 @@
 import type { AuthRequest, OAuthHelpers } from "@cloudflare/workers-oauth-provider";
 import { Hono } from "hono";
-import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../utils";
+import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../lib/oauth";
 import type { Props } from "../types";
-import { SentryApiService } from "../sentry-api";
+import { SentryApiService } from "../lib/sentry-api";
 
 export const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
 export const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";

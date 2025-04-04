@@ -10,8 +10,8 @@ import {
   type SentryErrorEntrySchema,
   type SentryEventSchema,
 } from "./schema";
-import { SentryApiService } from "./sentry-api";
-import { logError } from "./utils";
+import { SentryApiService } from "./lib/sentry-api";
+import { logError } from "./lib/logging";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
