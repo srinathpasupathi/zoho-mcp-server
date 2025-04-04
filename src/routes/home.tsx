@@ -298,7 +298,10 @@ export default new Hono<{
               Select <strong>Command (stdio)</strong>.
             </li>
             <li>
-              Enter <code>npx mcp-remote https://sentry.cool/sse</code>
+              Enter <code>npx mcp-remote https://sentry.cool/sse</code>{" "}
+              <button type="button" data-copy="npx mcp-remote https://sentry.cool/sse">
+                Copy
+              </button>
             </li>
             <li>
               Enter <code>Sentry</code>
