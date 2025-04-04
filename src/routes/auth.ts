@@ -4,10 +4,10 @@ import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../utils";
 import type { Props } from "../types";
 import { SentryApiService } from "../sentry-api";
 
-const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
-const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
+export const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
+export const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
 // https://docs.sentry.io/api/permissions/
-const SCOPES = "org:read project:read project:write event:read";
+export const SCOPES = "org:read project:read project:write event:read";
 
 export default new Hono<{
   Bindings: Env & {

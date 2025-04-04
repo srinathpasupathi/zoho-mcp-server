@@ -2,6 +2,7 @@ import { withSentry } from "@sentry/cloudflare";
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
 import app from "./app";
 import SentryMCP from "./mcp";
+import { SCOPES } from "./routes/auth";
 
 // required for Durable Objects
 export { default as SentryMCP } from "./mcp";
@@ -15,6 +16,7 @@ const oAuthProvider = new OAuthProvider({
   authorizeEndpoint: "/authorize",
   tokenEndpoint: "/token",
   clientRegistrationEndpoint: "/register",
+  scopesSupported: SCOPES.split(" "),
 });
 
 export default withSentry(
