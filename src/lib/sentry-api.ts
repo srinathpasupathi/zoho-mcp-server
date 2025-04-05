@@ -1,15 +1,106 @@
-import type { z } from "zod";
-import {
-  SentryClientKeySchema,
-  SentryDiscoverEventSchema,
-  SentryEventSchema,
-  SentryOrgSchema,
-  SentryProjectSchema,
-  SentryTeamSchema,
-} from "../schema";
+import { z } from "zod";
 import { logError } from "./logging";
 
 const API_BASE_URL = "https://sentry.io/api/0";
+
+export const SentryOrgSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryTeamSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryProjectSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+});
+
+export const SentryClientKeySchema = z.object({
+  id: z.string(),
+  dsn: z.object({
+    public: z.string(),
+  }),
+});
+
+export const SentryIssueSchema = z.object({
+  id: z.string(),
+  shortId: z.string(),
+  title: z.string(),
+  lastSeen: z.string().datetime(),
+  count: z.number(),
+  permalink: z.string().url(),
+});
+
+// XXX: Sentry's schema generally speaking is "assume all user input is missing"
+// so we need to handle effectively every field being optional or nullable.
+const ExceptionInterface = z
+  .object({
+    mechanism: z
+      .object({
+        type: z.string().nullable(),
+        handled: z.boolean().nullable(),
+      })
+      .partial(),
+    type: z.string().nullable(),
+    value: z.string().nullable(),
+    stacktrace: z.object({
+      frames: z.array(
+        z
+          .object({
+            filename: z.string().nullable(),
+            function: z.string().nullable(),
+            lineNo: z.number().nullable(),
+            colNo: z.number().nullable(),
+            absPath: z.string().nullable(),
+            module: z.string().nullable(),
+            // lineno, source code
+            context: z.array(z.tuple([z.number(), z.string()])),
+          })
+          .partial(),
+      ),
+    }),
+  })
+  .partial();
+
+export const SentryErrorEntrySchema = z.object({
+  // XXX: Sentry can return either of these. Not sure why we never normalized it.
+  values: z.array(ExceptionInterface.optional()),
+  value: ExceptionInterface.nullable().optional(),
+});
+
+export const SentryEventSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  entries: z.array(
+    z.union([
+      // TODO: there are other types
+      z.object({
+        type: z.literal("exception"),
+        data: SentryErrorEntrySchema,
+      }),
+      z.object({
+        type: z.string(),
+        data: z.unknown(),
+      }),
+    ]),
+  ),
+});
+
+// https://us.sentry.io/api/0/organizations/sentry/events/?dataset=errors&field=issue&field=title&field=project&field=timestamp&field=trace&per_page=5&query=event.type%3Aerror&referrer=sentry-mcp&sort=-timestamp&statsPeriod=1w
+export const SentryDiscoverEventSchema = z.object({
+  issue: z.string(),
+  "issue.id": z.union([z.string(), z.number()]),
+  project: z.string(),
+  title: z.string(),
+  "count()": z.number(),
+  "last_seen()": z.string(),
+});
 
 export class SentryApiService {
   private accessToken: string;

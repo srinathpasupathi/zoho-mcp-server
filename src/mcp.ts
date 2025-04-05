@@ -2,17 +2,24 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Props } from "./types";
 import { z } from "zod";
-import {
-  ParamIssueShortId,
-  ParamOrganizationSlug,
-  ParamPlatform,
-  ParamTeamSlug,
-  type SentryErrorEntrySchema,
-  type SentryEventSchema,
-} from "./schema";
+import type { SentryErrorEntrySchema, SentryEventSchema } from "./lib/sentry-api";
 import { SentryApiService } from "./lib/sentry-api";
 import { logError } from "./lib/logging";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+
+export const ParamOrganizationSlug = z
+  .string()
+  .describe("The organization's slug. This will default to the first org you have access to.");
+
+export const ParamTeamSlug = z
+  .string()
+  .describe("The team's slug. This will default to the first team you have access to.");
+
+export const ParamIssueShortId = z.string().describe("The Issue ID. e.g. `PROJECT-1Z43`");
+
+export const ParamPlatform = z
+  .string()
+  .describe("The platform for the project (e.g., python, javascript, react, etc.)");
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
