@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import type SentryMCP from "../mcp";
+import type SentryMCP from "../mcp/server";
 import { css, Style } from "hono/css";
+import { TOOL_DEFINITIONS } from "../mcp/tools";
 
 const copyPasteHelper = `
 const nodes = document.querySelectorAll("[data-copy]");
@@ -188,43 +189,6 @@ const globalStyles = css`
   }
 `;
 
-// This is generated from the list of tools defined in `mcp.ts` in the MCP server itself.
-const TOOLS: {
-  name: string;
-  description: string;
-}[] = [
-  {
-    name: "list_organizations",
-    description: "List all organizations that the user has access to in Sentry.",
-  },
-  {
-    name: "list_teams",
-    description: "Retrieve a list of teams in Sentry.",
-  },
-  {
-    name: "list_projects",
-    description: "Retrieve a list of projects in Sentry.",
-  },
-  {
-    name: "get_error_details",
-    description:
-      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
-  },
-  {
-    name: "search_errors_in_file",
-    description:
-      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
-  },
-  {
-    name: "create_team",
-    description: "Create a new team in Sentry.",
-  },
-  {
-    name: "create_project",
-    description: "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
-  },
-];
-
 export default new Hono<{
   Bindings: Env & {
     MCP_OBJECT: DurableObjectNamespace<SentryMCP>;
@@ -235,7 +199,7 @@ export default new Hono<{
       mcpServers: {
         sentry: {
           command: "npx",
-          args: ["mcp-remote", new URL("/sse", c.req.url).href],
+          args: ["-y", "mcp-remote", new URL("/sse", c.req.url).href],
         },
       },
     },
@@ -355,7 +319,7 @@ export default new Hono<{
               </small>
             </p>
             <ul>
-              {TOOLS.map((tool) => (
+              {TOOL_DEFINITIONS.map((tool) => (
                 <li key={tool.name}>
                   <h3>{tool.name}</h3>
                   <p>{tool.description}</p>
