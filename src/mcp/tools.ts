@@ -39,26 +39,46 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
 export const TOOL_DEFINITIONS = [
   {
     name: "list_organizations" as const,
-    description: "List all organizations that the user has access to in Sentry.",
+    description: [
+      "List all organizations that the user has access to in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View all organizations in Sentry",
+    ].join("\n"),
   },
   {
     name: "list_teams" as const,
-    description: "List all teams in an organization.",
+    description: [
+      "List all teams in an organization in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View all teams in a Sentry organization",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug,
     }),
   },
   {
     name: "list_projects" as const,
-    description: "Retrieve a list of projects in Sentry.",
+    description: [
+      "Retrieve a list of projects in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View all projects in a Sentry organization",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug,
     }),
   },
   {
     name: "get_error_details" as const,
-    description:
+    description: [
       "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message. Either issueId or issueUrl MUST be provided.",
+      "",
+      "Use this tool when you need to:",
+      "- Investigate a specific production error",
+      "- Access detailed error information and stacktraces from Sentry",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug.optional(),
       issueId: ParamIssueShortId.optional(),
@@ -71,8 +91,14 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: "search_errors_in_file" as const,
-    description:
+    description: [
       "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
+      "",
+      "Use this tool when you need to:",
+      "- Search for production errors in a specific file",
+      "- Analyze error patterns and frequencies",
+      "- Find recent or frequently occurring errors.",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug.optional(),
       filename: z.string().describe("The filename to search for errors in."),
@@ -87,7 +113,12 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: "create_team" as const,
-    description: "Create a new team in Sentry.",
+    description: [
+      "Create a new team in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- Create a new team in a Sentry organization",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug,
       name: z.string().describe("The name of the team to create."),
@@ -95,7 +126,12 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: "create_project" as const,
-    description: "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
+    description: [
+      "Create a new project in Sentry, giving you access to a new SENTRY_DSN.",
+      "",
+      "Use this tool when you need to:",
+      "- Create a new project in a Sentry organization",
+    ].join("\n"),
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug.optional(),
       teamSlug: ParamTeamSlug,
