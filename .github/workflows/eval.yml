@@ -24,7 +24,7 @@ jobs:
           echo $diff
 
           # Check if a file with .eval.ts extension has changed (added, modified, deleted)
-          $SourceDiff = $diff | Where-Object { $_ -match '.eval.ts$' }
+          $SourceDiff = $diff | Where-Object { $_ -match '.eval.ts$' -or '^src/mcp/' }
           $HasDiff = $SourceDiff.Length -gt 0
 
           echo evals_changed=$hasDiff >> $GITHUB_OUTPUT

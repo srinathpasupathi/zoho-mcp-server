@@ -32,7 +32,7 @@ evalite("workflow", {
   task: async (input) => {
     const transport = new Experimental_StdioMCPTransport({
       command: "npm",
-      args: ["run", "start:stdio"],
+      args: ["run", "start:stdio", "--mocks"],
       env: {
         SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN!,
       },

@@ -33,6 +33,7 @@
     "dotenv": "^16.4.7",
     "evalite": "~0.10.0",
     "lint-staged": "^15.5.0",
+    "msw": "^2.7.3",
     "simple-git-hooks": "^2.12.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
