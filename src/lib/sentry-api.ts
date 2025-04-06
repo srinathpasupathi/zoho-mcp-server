@@ -119,10 +119,6 @@ export function extractIssueId(url: string): {
   issueId: string;
   organizationSlug: string;
 } {
-  if (!url) {
-    throw new Error("Missing issue_id_or_url argument");
-  }
-
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     throw new Error(
       "Invalid Sentry issue URL. Must start with http:// or https://",
