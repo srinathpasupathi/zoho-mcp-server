@@ -6,6 +6,7 @@
     "build": "tsc",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
+    "eval": "evalite",
     "eval:ci": "evalite",
     "eval:dev": "evalite watch",
     "format": "biome format --write",
