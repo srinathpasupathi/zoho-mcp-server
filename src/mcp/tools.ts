@@ -1,5 +1,5 @@
 import type { Props } from "../types";
-import { type RefinementCtx, z } from "zod";
+import { z } from "zod";
 import type { SentryErrorEntrySchema, SentryEventSchema } from "../lib/sentry-api";
 import { SentryApiService, extractIssueId } from "../lib/sentry-api";
 import { ParamIssueShortId, ParamOrganizationSlug, ParamPlatform, ParamTeamSlug } from "./schema";
