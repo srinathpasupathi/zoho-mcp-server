@@ -1,16 +1,16 @@
 import { withSentry } from "@sentry/cloudflare";
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
 import app from "./app";
-import SentryMCPWorker from "./mcp/transports/cloudflare-worker";
+import SentryMCP from "./mcp/transports/cloudflare-worker";
 import { SCOPES } from "./routes/auth";
 
 // required for Durable Objects
-export { SentryMCPWorker };
+export { SentryMCP };
 
 const oAuthProvider = new OAuthProvider({
   apiRoute: "/sse",
   // @ts-ignore
-  apiHandler: SentryMCPWorker.mount("/sse"),
+  apiHandler: SentryMCP.mount("/sse"),
   // @ts-ignore
   defaultHandler: app,
   authorizeEndpoint: "/authorize",

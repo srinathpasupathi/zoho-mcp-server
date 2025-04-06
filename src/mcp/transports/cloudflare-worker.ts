@@ -5,11 +5,7 @@ import { configureServer } from "../server";
 
 // Context from the auth process, encrypted & stored in the auth token
 // and provided to the DurableMCP as this.props
-export default class SentryMCPWorker extends McpAgent<
-  Env,
-  unknown,
-  WorkerProps
-> {
+export default class SentryMCP extends McpAgent<Env, unknown, WorkerProps> {
   server = new McpServer({
     name: "Sentry MCP",
     version: "0.1.0",

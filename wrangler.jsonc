@@ -10,7 +10,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "migrations": [
     {
-      "new_sqlite_classes": ["SentryMCPWorker"],
+      "new_sqlite_classes": ["SentryMCP"],
       "tag": "v1"
     }
   ],
@@ -22,7 +22,7 @@
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "SentryMCPWorker",
+        "class_name": "SentryMCP",
         "name": "MCP_OBJECT"
       }
     ]

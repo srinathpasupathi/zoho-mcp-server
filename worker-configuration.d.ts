@@ -7,7 +7,7 @@ declare namespace Cloudflare {
 		SENTRY_CLIENT_ID: string;
 		SENTRY_CLIENT_SECRET: string;
 		SENTRY_DSN: string;
-		MCP_OBJECT: DurableObjectNamespace<import("./src/index").SentryMCPWorker>;
+		MCP_OBJECT: DurableObjectNamespace<import("./src/index").SentryMCP>;
 		AI: Ai;
 	}
 }
