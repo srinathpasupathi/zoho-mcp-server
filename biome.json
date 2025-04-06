@@ -22,7 +22,8 @@
         "noConfusingVoidType": "off"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noUnusedTemplateLiteral": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"
@@ -32,7 +33,6 @@
   "formatter": {
     "enabled": true,
     "indentWidth": 2,
-    "indentStyle": "space",
-    "lineWidth": 100
+    "indentStyle": "space"
   }
 }

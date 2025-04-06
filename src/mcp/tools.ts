@@ -1,8 +1,16 @@
 import type { Props } from "../types";
 import { z } from "zod";
-import type { SentryErrorEntrySchema, SentryEventSchema } from "../lib/sentry-api";
+import type {
+  SentryErrorEntrySchema,
+  SentryEventSchema,
+} from "../lib/sentry-api";
 import { SentryApiService, extractIssueId } from "../lib/sentry-api";
-import { ParamIssueShortId, ParamOrganizationSlug, ParamPlatform, ParamTeamSlug } from "./schema";
+import {
+  ParamIssueShortId,
+  ParamOrganizationSlug,
+  ParamPlatform,
+  ParamTeamSlug,
+} from "./schema";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
@@ -14,7 +22,9 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
       if (!firstError) {
         continue;
       }
-      output += `**Error:**\n${"```"}\n${firstError.type}: ${firstError.value}\n${"```"}\n\n`;
+      output += `**Error:**\n${"```"}\n${firstError.type}: ${
+        firstError.value
+      }\n${"```"}\n\n`;
       if (!firstError.stacktrace || !firstError.stacktrace.frames) {
         continue;
       }
@@ -148,7 +158,10 @@ export const TOOL_DEFINITIONS = [
 
 export type ToolName = (typeof TOOL_DEFINITIONS)[number]["name"];
 
-type ToolDefinition<T extends ToolName> = Extract<(typeof TOOL_DEFINITIONS)[number], { name: T }>;
+type ToolDefinition<T extends ToolName> = Extract<
+  (typeof TOOL_DEFINITIONS)[number],
+  { name: T }
+>;
 
 type ZodifyRecord<T extends Record<string, any>> = {
   [K in keyof T]: z.infer<T[K]>;
@@ -160,7 +173,9 @@ export type ToolParams<T extends ToolName> = ToolDefinition<T> extends {
   ? ZodifyRecord<ToolDefinition<T>["paramsSchema"]>
   : Record<string, never>;
 
-export type ToolHandler<T extends ToolName> = (params: ToolParams<T>) => Promise<string>;
+export type ToolHandler<T extends ToolName> = (
+  params: ToolParams<T>,
+) => Promise<string>;
 
 export type ToolHandlerExtended<T extends ToolName> = (
   props: Props,
@@ -213,34 +228,45 @@ export const TOOL_HANDLERS = {
   get_error_details: async (props, { issueId, issueUrl, organizationSlug }) => {
     const apiService = new SentryApiService(props.accessToken);
 
+    if (issueUrl) {
+      const resolved = extractIssueId(issueUrl);
+      if (!resolved) {
+        throw new Error(
+          "Invalid Sentry issue URL. Path should contain '/issues/{issue_id}'",
+        );
+      }
+      organizationSlug = resolved.organizationSlug;
+      issueId = resolved.issueId;
+    } else if (!issueId) {
+      throw new Error("Either issueId or issueUrl must be provided");
+    }
+
     if (!organizationSlug) {
       organizationSlug = props.organizationSlug;
     }
 
-    const resolvedIssueId = issueId || (issueUrl ? extractIssueId(issueUrl) : undefined);
-    if (!resolvedIssueId) {
-      throw new Error("Either issueId or issueUrl must be provided");
-    }
-
     const event = await apiService.getLatestEventForIssue({
       organizationSlug,
-      issueId: resolvedIssueId,
+      issueId: issueId,
     });
 
-    let output = `# ${resolvedIssueId}: ${event.title}\n\n`;
-    output += `**Issue ID**:\n${resolvedIssueId}\n\n`;
+    let output = `# ${issueId}: ${event.title}\n\n`;
+    output += `**Issue ID**:\n${issueId}\n\n`;
 
     output += formatEventOutput(event);
 
     output += "# Using this information\n\n";
-    output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${resolvedIssueId}\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issueId}\`) to automatically close the issue when the commit is merged.\n`;
     output +=
       "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
 
     return output;
   },
 
-  search_errors_in_file: async (props, { filename, sortBy, organizationSlug }) => {
+  search_errors_in_file: async (
+    props,
+    { filename, sortBy, organizationSlug },
+  ) => {
     const apiService = new SentryApiService(props.accessToken);
 
     if (!organizationSlug) {
@@ -294,7 +320,10 @@ export const TOOL_HANDLERS = {
     return output;
   },
 
-  create_project: async (props, { organizationSlug, teamSlug, name, platform }) => {
+  create_project: async (
+    props,
+    { organizationSlug, teamSlug, name, platform },
+  ) => {
     const apiService = new SentryApiService(props.accessToken);
 
     if (!organizationSlug) {

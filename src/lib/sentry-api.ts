@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { logError } from "./logging";
 
-const API_BASE_URL = new URL("/api/0", process.env.SENTRY_URL || "https://sentry.io");
+const API_BASE_URL = new URL(
+  "/api/0",
+  process.env.SENTRY_URL || "https://sentry.io",
+);
 
 export const SentryOrgSchema = z.object({
   id: z.string(),
@@ -103,36 +106,62 @@ export const SentryDiscoverEventSchema = z.object({
 });
 
 /**
- * Extracts the Sentry issue ID from either a full URL or a standalone ID.
+ * Extracts the Sentry issue ID and organization slug from a full URL
  *
- * @param issueIdOrUrl - Either a full Sentry issue URL or just the issue ID
- * @returns The numeric issue ID
+ * @param url - A full Sentry issue URL
+ * @returns Object containing the numeric issue ID and organization slug (if found)
  * @throws Error if the input is invalid
  */
-export function extractIssueId(issueIdOrUrl: string): string {
-  if (!issueIdOrUrl) {
+export function extractIssueId(url: string): {
+  issueId: string;
+  organizationSlug: string;
+} {
+  if (!url) {
     throw new Error("Missing issue_id_or_url argument");
   }
 
-  if (issueIdOrUrl.startsWith("http://") || issueIdOrUrl.startsWith("https://")) {
-    const url = new URL(issueIdOrUrl);
-
-    const pathParts = url.pathname.split("/").filter(Boolean);
-    if (pathParts.length < 2 || !pathParts.includes("issues")) {
-      throw new Error("Invalid Sentry issue URL. Path must contain '/issues/{issue_id}'");
-    }
-
-    const issueId = pathParts[pathParts.indexOf("issues") + 1];
-    if (!issueId || !/^\d+$/.test(issueId)) {
-      throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
-    }
-    return issueId;
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    throw new Error(
+      "Invalid Sentry issue URL. Must start with http:// or https://",
+    );
   }
 
-  if (!/^\d+$/.test(issueIdOrUrl)) {
+  const parsedUrl = new URL(url);
+
+  const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
+  if (pathParts.length < 2 || !pathParts.includes("issues")) {
+    throw new Error(
+      "Invalid Sentry issue URL. Path must contain '/issues/{issue_id}'",
+    );
+  }
+
+  const issueId = pathParts[pathParts.indexOf("issues") + 1];
+  if (!issueId || !/^\d+$/.test(issueId)) {
     throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
   }
-  return issueIdOrUrl;
+
+  // Extract organization slug from either the path or subdomain
+  let organizationSlug: string | undefined;
+  if (pathParts.includes("organizations")) {
+    organizationSlug = pathParts[pathParts.indexOf("organizations") + 1];
+  } else if (pathParts.length > 1 && pathParts[0] !== "issues") {
+    // If URL is like sentry.io/sentry/issues/123
+    organizationSlug = pathParts[0];
+  } else {
+    // Check for subdomain
+    const hostParts = parsedUrl.hostname.split(".");
+    if (hostParts.length > 2 && hostParts[0] !== "www") {
+      organizationSlug = hostParts[0];
+    }
+  }
+
+  if (!organizationSlug) {
+    throw new Error(
+      "Invalid Sentry issue URL. Could not determine organization.",
+    );
+  }
+
+  return { issueId, organizationSlug };
 }
 
 export class SentryApiService {
@@ -142,7 +171,10 @@ export class SentryApiService {
     this.accessToken = accessToken;
   }
 
-  private async request(url: string, options: RequestInit = {}): Promise<Response> {
+  private async request(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       ...options,
       headers: {
@@ -168,8 +200,12 @@ export class SentryApiService {
     return orgsBody.map((i) => SentryOrgSchema.parse(i));
   }
 
-  async listTeams(organizationSlug: string): Promise<z.infer<typeof SentryTeamSchema>[]> {
-    const response = await this.request(`/organizations/${organizationSlug}/teams/`);
+  async listTeams(
+    organizationSlug: string,
+  ): Promise<z.infer<typeof SentryTeamSchema>[]> {
+    const response = await this.request(
+      `/organizations/${organizationSlug}/teams/`,
+    );
 
     const teamsBody = await response.json<{ id: string; slug: string }[]>();
     return teamsBody.map((i) => SentryTeamSchema.parse(i));
@@ -182,16 +218,23 @@ export class SentryApiService {
     organizationSlug: string;
     name: string;
   }): Promise<z.infer<typeof SentryTeamSchema>> {
-    const response = await this.request(`/organizations/${organizationSlug}/teams/`, {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
+    const response = await this.request(
+      `/organizations/${organizationSlug}/teams/`,
+      {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      },
+    );
 
     return SentryTeamSchema.parse(await response.json());
   }
 
-  async listProjects(organizationSlug: string): Promise<z.infer<typeof SentryProjectSchema>[]> {
-    const response = await this.request(`/organizations/${organizationSlug}/projects/`);
+  async listProjects(
+    organizationSlug: string,
+  ): Promise<z.infer<typeof SentryProjectSchema>[]> {
+    const response = await this.request(
+      `/organizations/${organizationSlug}/projects/`,
+    );
 
     const projectsBody = await response.json<{ id: string; slug: string }[]>();
     return projectsBody.map((i) => SentryProjectSchema.parse(i));
@@ -207,14 +250,22 @@ export class SentryApiService {
     teamSlug: string;
     name: string;
     platform?: string;
-  }): Promise<[z.infer<typeof SentryProjectSchema>, z.infer<typeof SentryClientKeySchema> | null]> {
-    const response = await this.request(`/teams/${organizationSlug}/${teamSlug}/projects/`, {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        platform,
-      }),
-    });
+  }): Promise<
+    [
+      z.infer<typeof SentryProjectSchema>,
+      z.infer<typeof SentryClientKeySchema> | null,
+    ]
+  > {
+    const response = await this.request(
+      `/teams/${organizationSlug}/${teamSlug}/projects/`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          platform,
+        }),
+      },
+    );
     const project = SentryProjectSchema.parse(await response.json());
 
     try {
@@ -265,14 +316,16 @@ export class SentryApiService {
       ["per_page", "10"],
       // TODO: https://github.com/getsentry/sentry-mcp/issues/19
       ["project", projectSlug ?? ""],
-      ["query", filename ? `stack.filename:"*${filename.replace(/"/g, '\\"')}"` : ""],
+      [
+        "query",
+        filename ? `stack.filename:"*${filename.replace(/"/g, '\\"')}"` : "",
+      ],
       ["referrer", "sentry-mcp"],
       ["sort", `-${sortBy === "last_seen" ? "last_seen" : "count"}`],
       ["statsPeriod", "1w"],
-      ...["issue", "title", "project", "last_seen()", "count()"].map<[string, string]>((n) => [
-        "field",
-        n,
-      ]),
+      ...["issue", "title", "project", "last_seen()", "count()"].map<
+        [string, string]
+      >((n) => ["field", n]),
     ]);
 
     const apiUrl = `/organizations/${organizationSlug}/events/?${query.toString()}`;
