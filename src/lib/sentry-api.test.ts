@@ -66,7 +66,7 @@ describe("extractIssueId", () => {
 
   it("should throw error for empty input", () => {
     expect(() => extractIssueId("")).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Missing issue_id_or_url argument]`,
+      `[Error: Invalid Sentry issue URL. Must start with http:// or https://]`,
     );
   });
 
