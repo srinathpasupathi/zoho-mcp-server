@@ -279,7 +279,7 @@ export default new Hono<{
 
                   {tool.paramsSchema ? (
                     <dl class="params">
-                      {Object.entries(tool.paramsSchema.shape).map(([key, value]) => {
+                      {Object.entries(tool.paramsSchema).map(([key, value]) => {
                         return (
                           <>
                             <dt key={key}>

@@ -16,35 +16,40 @@ export default class SentryMCP extends McpAgent<Env, unknown, Props> {
     for (const tool of TOOL_DEFINITIONS) {
       const handler = TOOL_HANDLERS[tool.name];
 
-      this.server.tool(tool.name, tool.description, tool.paramsSchema || {}, async (...args) => {
-        try {
-          // TODO(dcramer): I'm too dumb to figure this out
-          // @ts-ignore
-          const output = await handler(this.props, ...args);
+      this.server.tool(
+        tool.name as string,
+        tool.description,
+        tool.paramsSchema ? tool.paramsSchema : {},
+        async (...args) => {
+          try {
+            // TODO(dcramer): I'm too dumb to figure this out
+            // @ts-ignore
+            const output = await handler(this.props, ...args);
 
-          return {
-            content: [
-              {
-                type: "text",
-                text: output,
-              },
-            ],
-          };
-        } catch (error) {
-          logError(error);
-          return {
-            content: [
-              {
-                type: "text",
-                text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API:\n\n${
-                  error instanceof Error ? error.message : String(error)
-                }`,
-              },
-            ],
-            isError: true,
-          };
-        }
-      });
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: output,
+                },
+              ],
+            };
+          } catch (error) {
+            logError(error);
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API:\n\n${
+                    error instanceof Error ? error.message : String(error)
+                  }`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        },
+      );
     }
   }
 }

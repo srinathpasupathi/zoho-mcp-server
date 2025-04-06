@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SentryErrorEntrySchema, SentryEventSchema } from "../lib/sentry-api";
 import { SentryApiService, extractIssueId } from "../lib/sentry-api";
 import { ParamIssueShortId, ParamOrganizationSlug, ParamPlatform, ParamTeamSlug } from "./schema";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
   let output = "";
@@ -54,9 +55,9 @@ export const TOOL_DEFINITIONS = [
       "Use this tool when you need to:",
       "- View all teams in a Sentry organization",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug,
-    }),
+    },
   },
   {
     name: "list_projects" as const,
@@ -66,9 +67,9 @@ export const TOOL_DEFINITIONS = [
       "Use this tool when you need to:",
       "- View all projects in a Sentry organization",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug,
-    }),
+    },
   },
   {
     name: "get_error_details" as const,
@@ -79,7 +80,7 @@ export const TOOL_DEFINITIONS = [
       "- Investigate a specific production error",
       "- Access detailed error information and stacktraces from Sentry",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
       issueId: ParamIssueShortId.optional(),
       issueUrl: z
@@ -87,7 +88,7 @@ export const TOOL_DEFINITIONS = [
         .url()
         .describe("The URL of the issue to retrieve details for.")
         .optional(),
-    }),
+    },
   },
   {
     name: "search_errors_in_file" as const,
@@ -99,7 +100,7 @@ export const TOOL_DEFINITIONS = [
       "- Analyze error patterns and frequencies",
       "- Find recent or frequently occurring errors.",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
       filename: z.string().describe("The filename to search for errors in."),
       sortBy: z
@@ -109,7 +110,7 @@ export const TOOL_DEFINITIONS = [
         .describe(
           "Sort the results either by the last time they occurred or the count of occurrences.",
         ),
-    }),
+    },
   },
   {
     name: "create_team" as const,
@@ -119,10 +120,10 @@ export const TOOL_DEFINITIONS = [
       "Use this tool when you need to:",
       "- Create a new team in a Sentry organization",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug,
       name: z.string().describe("The name of the team to create."),
-    }),
+    },
   },
   {
     name: "create_project" as const,
@@ -132,7 +133,7 @@ export const TOOL_DEFINITIONS = [
       "Use this tool when you need to:",
       "- Create a new project in a Sentry organization",
     ].join("\n"),
-    paramsSchema: z.object({
+    paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
       teamSlug: ParamTeamSlug,
       name: z
@@ -141,7 +142,7 @@ export const TOOL_DEFINITIONS = [
           "The name of the project to create. Typically this is commonly the name of the repository or service. It is only used as a visual label in Sentry.",
         ),
       platform: ParamPlatform.optional(),
-    }),
+    },
   },
 ];
 
@@ -149,10 +150,14 @@ export type ToolName = (typeof TOOL_DEFINITIONS)[number]["name"];
 
 type ToolDefinition<T extends ToolName> = Extract<(typeof TOOL_DEFINITIONS)[number], { name: T }>;
 
+type ZodifyRecord<T extends Record<string, any>> = {
+  [K in keyof T]: z.infer<T[K]>;
+};
+
 export type ToolParams<T extends ToolName> = ToolDefinition<T> extends {
-  paramsSchema: z.ZodObject<any>;
+  paramsSchema: Record<string, any>;
 }
-  ? z.infer<ToolDefinition<T>["paramsSchema"]>
+  ? ZodifyRecord<ToolDefinition<T>["paramsSchema"]>
   : Record<string, never>;
 
 export type ToolHandler<T extends ToolName> = (params: ToolParams<T>) => Promise<string>;
@@ -160,7 +165,7 @@ export type ToolHandler<T extends ToolName> = (params: ToolParams<T>) => Promise
 export type ToolHandlerExtended<T extends ToolName> = (
   props: Props,
   params: ToolParams<T>,
-  extra: { organizationSlug?: string },
+  extra: RequestHandlerExtra,
 ) => Promise<string>;
 
 export type ToolHandlers = {
