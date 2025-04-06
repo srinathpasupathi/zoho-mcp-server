@@ -91,7 +91,10 @@ export async function exchangeCodeForAccessToken({
   });
   if (!resp.ok) {
     console.log(await resp.text());
-    return [null, new Response("Failed to fetch access token", { status: 500 })];
+    return [
+      null,
+      new Response("Failed to fetch access token", { status: 500 }),
+    ];
   }
 
   try {
@@ -102,6 +105,9 @@ export async function exchangeCodeForAccessToken({
     return [output, null];
   } catch (e) {
     console.error("Failed to parse token response", e);
-    return [null, new Response("Failed to parse token response", { status: 500 })];
+    return [
+      null,
+      new Response("Failed to parse token response", { status: 500 }),
+    ];
   }
 }

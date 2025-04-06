@@ -9,7 +9,9 @@ describe("app", () => {
       expect(res.status).toBe(200);
 
       const text = await res.text();
-      expect(text).toBe(["User-agent: *", "Allow: /$", "Disallow: /"].join("\n"));
+      expect(text).toBe(
+        ["User-agent: *", "Allow: /$", "Disallow: /"].join("\n"),
+      );
     });
   });
 });

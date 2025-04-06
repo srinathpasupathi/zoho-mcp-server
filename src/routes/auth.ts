@@ -1,13 +1,20 @@
-import type { AuthRequest, OAuthHelpers } from "@cloudflare/workers-oauth-provider";
+import type {
+  AuthRequest,
+  OAuthHelpers,
+} from "@cloudflare/workers-oauth-provider";
 import { Hono } from "hono";
-import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../lib/oauth";
+import {
+  exchangeCodeForAccessToken,
+  getUpstreamAuthorizeUrl,
+} from "../lib/oauth";
 import type { Props } from "../types";
 import { SentryApiService } from "../lib/sentry-api";
 
 export const SENTRY_AUTH_URL = "/oauth/authorize/";
 export const SENTRY_TOKEN_URL = "/oauth/token/";
 // https://docs.sentry.io/api/permissions/
-export const SCOPES = "org:read project:read project:write team:read team:write event:read";
+export const SCOPES =
+  "org:read project:read project:write team:read team:write event:read";
 
 export default new Hono<{
   Bindings: Env & {
@@ -35,7 +42,10 @@ export default new Hono<{
 
     return Response.redirect(
       getUpstreamAuthorizeUrl({
-        upstream_url: new URL(SENTRY_AUTH_URL, c.env.SENTRY_URL || "https://sentry.io").href,
+        upstream_url: new URL(
+          SENTRY_AUTH_URL,
+          c.env.SENTRY_URL || "https://sentry.io",
+        ).href,
         scope: SCOPES,
         client_id: c.env.SENTRY_CLIENT_ID,
         redirect_uri: new URL("/callback", c.req.url).href,
@@ -54,14 +64,19 @@ export default new Hono<{
    */
   .get("/callback", async (c) => {
     // Get the oathReqInfo out of KV
-    const oauthReqInfo = JSON.parse(atob(c.req.query("state") as string)) as AuthRequest;
+    const oauthReqInfo = JSON.parse(
+      atob(c.req.query("state") as string),
+    ) as AuthRequest;
     if (!oauthReqInfo.clientId) {
       return c.text("Invalid state", 400);
     }
 
     // Exchange the code for an access token
     const [payload, errResponse] = await exchangeCodeForAccessToken({
-      upstream_url: new URL(SENTRY_TOKEN_URL, c.env.SENTRY_URL || "https://sentry.io").href,
+      upstream_url: new URL(
+        SENTRY_TOKEN_URL,
+        c.env.SENTRY_URL || "https://sentry.io",
+      ).href,
       client_id: c.env.SENTRY_CLIENT_ID,
       client_secret: c.env.SENTRY_CLIENT_SECRET,
       code: c.req.query("code"),
