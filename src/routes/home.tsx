@@ -37,16 +37,7 @@ const globalStyles = css`
   }
 
   html {
-    font-family: var(
-      --default-font-family,
-      ui-sans-serif,
-      system-ui,
-      sans-serif,
-      "Apple Color Emoji",
-      "Segoe UI Emoji",
-      "Segoe UI Symbol",
-      "Noto Color Emoji"
-    );
+    font-family: var(--default-font-family);
 
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
@@ -88,50 +79,20 @@ const globalStyles = css`
   }
 
   blockquote {
-    font-family: var(
-      --default-mono-font-family,
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      "Liberation Mono",
-      "Courier New",
-      monospace
-    );
+    font-family: var(--default-mono-font-family);
     font-weight: 600;
     font-size: 0.95rem;
     font-style: italic;
   }
 
   code {
-    font-family: var(
-      --default-mono-font-family,
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      "Liberation Mono",
-      "Courier New",
-      monospace
-    );
+    font-family: var(--default-mono-font-family);
     font-size: 0.85em;
     color: var(--tw-prose-code);
   }
 
   pre {
-    font-family: var(
-      --default-mono-font-family,
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      "Liberation Mono",
-      "Courier New",
-      monospace
-    );
+    font-family: var(--default-mono-font-family);
     color: var(--tw-prose-pre-code);
     background-color: var(--tw-prose-pre-bg);
     overflow-x: auto;
@@ -173,18 +134,11 @@ const globalStyles = css`
     }
 
     h3 {
-      font-family: var(
-        --default-mono-font-family,
-        ui-monospace,
-        SFMono-Regular,
-        Menlo,
-        Monaco,
-        Consolas,
-        "Liberation Mono",
-        "Courier New",
-        monospace
-      );
+      font-family: var(--default-mono-font-family);
       font-size: 0.95rem;
+    }
+
+    .params {
     }
   }
 `;
@@ -322,6 +276,22 @@ export default new Hono<{
               {TOOL_DEFINITIONS.map((tool) => (
                 <li key={tool.name}>
                   <h3>{tool.name}</h3>
+
+                  {tool.paramsSchema ? (
+                    <dl class="params">
+                      {Object.entries(tool.paramsSchema.shape).map(([key, value]) => {
+                        return (
+                          <>
+                            <dt key={key}>
+                              <code>{key}</code>
+                            </dt>
+                            <dd key={key}>{value.description}</dd>
+                          </>
+                        );
+                      })}
+                    </dl>
+                  ) : null}
+
                   <p>{tool.description.split("\n")[0]}</p>
                 </li>
               ))}
