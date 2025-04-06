@@ -80,6 +80,7 @@ export const SentryErrorEntrySchema = z.object({
 export const SentryEventSchema = z.object({
   id: z.string(),
   title: z.string(),
+  message: z.string().nullable(),
   dateCreated: z.string().datetime(),
   culprit: z.string().nullable(),
   entries: z.array(
