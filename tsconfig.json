@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "worker-configuration.d.ts"],
+  "include": ["src/**/*", "worker-configuration.d.ts", "test/**/*"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "es2021",

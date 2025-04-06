@@ -2,8 +2,26 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { startStdio } from "./transports/stdio.js";
+import { mswServer } from "../lib/sentry-msw.js";
 
-const accessToken = process.env.SENTRY_AUTH_TOKEN;
+let accessToken = process.env.SENTRY_AUTH_TOKEN;
+
+if (process.argv.indexOf("--mocks")) {
+  mswServer.listen({
+    onUnhandledRequest: (req, print) => {
+      console.log(req.url);
+      if (req.url.startsWith("https://api.openai.com/")) {
+        return;
+      }
+
+      print.warning();
+      throw new Error("Unhandled request");
+    },
+    // onUnhandledRequest: "error"
+  });
+
+  accessToken = "mocked-access-token";
+}
 
 if (!accessToken) {
   console.error("SENTRY_AUTH_TOKEN is not set");
