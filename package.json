@@ -7,7 +7,7 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "eval": "evalite",
-    "eval:ci": "evalite",
+    "eval:ci": "evalite --threshold=100",
     "eval:dev": "evalite watch",
     "format": "biome format --write",
     "lint": "biome lint",
