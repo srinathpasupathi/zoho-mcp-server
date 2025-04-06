@@ -1,4 +1,4 @@
-import type { Props } from "../types";
+import type { ServerContext } from "../types";
 import { z } from "zod";
 import type {
   SentryErrorEntrySchema,
@@ -66,7 +66,7 @@ export const TOOL_DEFINITIONS = [
       "- View all teams in a Sentry organization",
     ].join("\n"),
     paramsSchema: {
-      organizationSlug: ParamOrganizationSlug,
+      organizationSlug: ParamOrganizationSlug.optional(),
     },
   },
   {
@@ -78,7 +78,7 @@ export const TOOL_DEFINITIONS = [
       "- View all projects in a Sentry organization",
     ].join("\n"),
     paramsSchema: {
-      organizationSlug: ParamOrganizationSlug,
+      organizationSlug: ParamOrganizationSlug.optional(),
     },
   },
   {
@@ -131,7 +131,7 @@ export const TOOL_DEFINITIONS = [
       "- Create a new team in a Sentry organization",
     ].join("\n"),
     paramsSchema: {
-      organizationSlug: ParamOrganizationSlug,
+      organizationSlug: ParamOrganizationSlug.optional(),
       name: z.string().describe("The name of the team to create."),
     },
   },
@@ -178,7 +178,7 @@ export type ToolHandler<T extends ToolName> = (
 ) => Promise<string>;
 
 export type ToolHandlerExtended<T extends ToolName> = (
-  props: Props,
+  context: ServerContext,
   params: ToolParams<T>,
   extra: RequestHandlerExtra,
 ) => Promise<string>;
@@ -188,8 +188,8 @@ export type ToolHandlers = {
 };
 
 export const TOOL_HANDLERS = {
-  list_organizations: async (props) => {
-    const apiService = new SentryApiService(props.accessToken);
+  list_organizations: async (context) => {
+    const apiService = new SentryApiService(context.accessToken);
     const organizations = await apiService.listOrganizations();
 
     let output = "# Organizations\n\n";
@@ -197,11 +197,15 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
-  list_teams: async (props, { organizationSlug }) => {
-    const apiService = new SentryApiService(props.accessToken);
+  list_teams: async (context, { organizationSlug }) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
 
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const teams = await apiService.listTeams(organizationSlug);
@@ -211,11 +215,15 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
-  list_projects: async (props, { organizationSlug }) => {
-    const apiService = new SentryApiService(props.accessToken);
+  list_projects: async (context, { organizationSlug }) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
 
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const projects = await apiService.listProjects(organizationSlug);
@@ -225,8 +233,11 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
-  get_error_details: async (props, { issueId, issueUrl, organizationSlug }) => {
-    const apiService = new SentryApiService(props.accessToken);
+  get_error_details: async (
+    context,
+    { issueId, issueUrl, organizationSlug },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
 
     if (issueUrl) {
       const resolved = extractIssueId(issueUrl);
@@ -241,8 +252,12 @@ export const TOOL_HANDLERS = {
       throw new Error("Either issueId or issueUrl must be provided");
     }
 
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const event = await apiService.getLatestEventForIssue({
@@ -269,13 +284,17 @@ export const TOOL_HANDLERS = {
   },
 
   search_errors_in_file: async (
-    props,
+    context,
     { filename, sortBy, organizationSlug },
   ) => {
-    const apiService = new SentryApiService(props.accessToken);
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
 
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const eventList = await apiService.searchErrors({
@@ -305,11 +324,15 @@ export const TOOL_HANDLERS = {
     return output;
   },
 
-  create_team: async (props, { organizationSlug, name }) => {
-    const apiService = new SentryApiService(props.accessToken);
+  create_team: async (context, { organizationSlug, name }) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
 
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const team = await apiService.createTeam({
@@ -326,13 +349,17 @@ export const TOOL_HANDLERS = {
   },
 
   create_project: async (
-    props,
+    context,
     { organizationSlug, teamSlug, name, platform },
   ) => {
-    const apiService = new SentryApiService(props.accessToken);
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
 
     if (!organizationSlug) {
-      organizationSlug = props.organizationSlug;
+      throw new Error("Organization slug is required");
     }
 
     const [project, clientKey] = await apiService.createProject({
