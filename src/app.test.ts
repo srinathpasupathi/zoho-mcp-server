@@ -6,8 +6,6 @@ describe("app", () => {
     it("should return correct robots.txt content", async () => {
       const res = await app.request("/robots.txt");
 
-      console.log(res.body);
-
       expect(res.status).toBe(200);
 
       const text = await res.text();
