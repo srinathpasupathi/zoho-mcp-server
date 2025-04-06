@@ -252,9 +252,10 @@ export const TOOL_HANDLERS = {
 
     let output = `# ${issueId}: ${event.title}\n\n`;
     output += `**Issue ID**:\n${issueId}\n`;
-    if (event.message) output += `**Message**:\n${event.message}\n`;
     if (event.culprit) output += `**Culprit**:\n${event.culprit}\n`;
-    output += `**Occurred At**:\n${new Date(event.datetime).toISOString()}\n\n`;
+    output += `**Occurred At**:\n${new Date(
+      event.dateCreated,
+    ).toISOString()}\n\n`;
 
     output += formatEventOutput(event);
 
