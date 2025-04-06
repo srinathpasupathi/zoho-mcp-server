@@ -42,9 +42,6 @@ importers:
       '@cloudflare/vitest-pool-workers':
         specifier: ^0.8.11
         version: 0.8.11(@cloudflare/workers-types@4.20250406.0)(@vitest/runner@3.1.1)(@vitest/snapshot@3.1.1)(vitest@2.1.9(@types/node@22.14.0)(msw@2.7.3(@types/node@22.14.0)(typescript@5.8.3)))
-      '@fetch-mock/vitest':
-        specifier: ^0.2.13
-        version: 0.2.13(vitest@2.1.9(@types/node@22.14.0)(msw@2.7.3(@types/node@22.14.0)(typescript@5.8.3)))
       '@types/node':
         specifier: ^22.14.0
         version: 22.14.0
@@ -760,12 +757,6 @@ packages:
   '@fastify/websocket@11.0.1':
     resolution: {integrity: sha512-44yam5+t1I9v09hWBYO+ezV88+mb9Se2BjgERtzB/68+0mGeTfFkjBeDBe2y+ZdiPpeO2rhevhdnfrBm5mqH+Q==}
 
-  '@fetch-mock/vitest@0.2.13':
-    resolution: {integrity: sha512-HjsNOA/YTaF1cvRdOblUVYj8iVjLA5DTvQjsCKUrTE4hEMNEVaufjyDK3Gqegu0nM21s3e5fbPkljBTLBkUScg==}
-    engines: {node: '>=18.11.0'}
-    peerDependencies:
-      vitest: '*'
-
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
@@ -1113,9 +1104,6 @@ packages:
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
-
-  '@types/glob-to-regexp@0.4.4':
-    resolution: {integrity: sha512-nDKoaKJYbnn1MZxUY0cA1bPmmgZbg0cTq7Rh13d0KWYNOiKbqoR+2d89SnRPszGh7ROzSwZ/GOjZ4jPbmmZ6Eg==}
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
@@ -1702,10 +1690,6 @@ packages:
 
   fastq@1.19.1:
     resolution: {integrity: sha512-GwLTyxkCXjXbxqIhTsMI2Nui8huMPtnxg7krajPJAjnEG/iiOS7i+zCtWGZR9G0NBKbXKh6X9m9UIsYX/N6vvQ==}
-
-  fetch-mock@12.5.2:
-    resolution: {integrity: sha512-b5KGDFmdmado2MPQjZl6ix3dAG3iwCitb0XQwN72y2s9VnWZ3ObaGNy+bkpm1390foiLDybdJ7yjRGKD36kATw==}
-    engines: {node: '>=18.11.0'}
 
   fft.js@4.0.4:
     resolution: {integrity: sha512-f9c00hphOgeQTlDyavwTtu6RiK8AIFjD6+jvXkNkpeQ7rirK3uFWVpalkoS4LAwbdX7mfZ8aoBfFVQX1Re/8aw==}
@@ -2457,10 +2441,6 @@ packages:
   real-require@0.2.0:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
-
-  regexparam@3.0.0:
-    resolution: {integrity: sha512-RSYAtP31mvYLkAHrOlh25pCNQ5hWnT106VukGaaFfuJrZFkGRX5GhUAdPqpSDXxOhA2c4akmRuplv1mRqnBn6Q==}
-    engines: {node: '>=8'}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -3560,11 +3540,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@fetch-mock/vitest@0.2.13(vitest@2.1.9(@types/node@22.14.0)(msw@2.7.3(@types/node@22.14.0)(typescript@5.8.3)))':
-    dependencies:
-      fetch-mock: 12.5.2
-      vitest: 2.1.9(@types/node@22.14.0)(msw@2.7.3(@types/node@22.14.0)(typescript@5.8.3))
-
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
       '@img/sharp-libvips-darwin-arm64': 1.0.4
@@ -3840,8 +3815,6 @@ snapshots:
   '@types/diff-match-patch@1.0.36': {}
 
   '@types/estree@1.0.7': {}
-
-  '@types/glob-to-regexp@0.4.4': {}
 
   '@types/linkify-it@5.0.0': {}
 
@@ -4550,13 +4523,6 @@ snapshots:
   fastq@1.19.1:
     dependencies:
       reusify: 1.1.0
-
-  fetch-mock@12.5.2:
-    dependencies:
-      '@types/glob-to-regexp': 0.4.4
-      dequal: 2.0.3
-      glob-to-regexp: 0.4.1
-      regexparam: 3.0.0
 
   fft.js@4.0.4: {}
 
@@ -5327,8 +5293,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   real-require@0.2.0: {}
-
-  regexparam@3.0.0: {}
 
   require-directory@2.1.1: {}
 
