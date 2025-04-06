@@ -9,14 +9,23 @@ const model = openai("gpt-4o");
 const CONFIG = {
   organizationSlug: "sentry-mcp-evals",
   teamSlug: "sentry-mcp-evals",
+  projectSlug: "test-suite",
 };
 
 evalite("workflow", {
   data: async () => {
     return [
       {
+        input: `What organizations do I have access to in Sentry`,
+        expected: CONFIG.organizationSlug,
+      },
+      {
         input: `What teams do I have access to in Sentry for '${CONFIG.organizationSlug}'`,
         expected: CONFIG.teamSlug,
+      },
+      {
+        input: `What projects do I have access to in Sentry for '${CONFIG.organizationSlug}'`,
+        expected: CONFIG.projectSlug,
       },
     ];
   },
