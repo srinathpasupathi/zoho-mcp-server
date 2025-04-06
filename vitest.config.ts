@@ -16,8 +16,8 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json", "html"],
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.{test,spec}.ts", "src/types.ts"],
+      exclude: ["src/**/*.{test,spec,eval}.ts", "src/types.ts"],
     },
-    setupFiles: [],
+    setupFiles: ["dotenv/config"],
   },
 });

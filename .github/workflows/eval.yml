@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  conditional_check:
+    runs-on: ubuntu-latest
+    outputs:
+      evals_changed: ${{ steps.check_file_changed.outputs.evals_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - shell: pwsh
+        # Give an id to the step, so we can reference it later
+        id: check_file_changed
+        run: |
+          # Diff HEAD with the previous commit
+          $diff = git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
+
+          echo $diff
+
+          # Check if a file with .eval.ts extension has changed (added, modified, deleted)
+          $SourceDiff = $diff | Where-Object { $_ -match '.eval.ts$' }
+          $HasDiff = $SourceDiff.Length -gt 0
+
+          echo evals_changed=$hasDiff >> $GITHUB_OUTPUT
+
+  run_evals:
+    runs-on: 'ubuntu-20.04'
+    needs: [ conditional_check ]
+    if: needs.conditional_check.outputs.evals_changed == 'True'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run evals
+        run: pnpm eval:ci
