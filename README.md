@@ -9,6 +9,14 @@ It is based on [Cloudflare's work towards remote MCPs](https://blog.cloudflare.c
 
 ## Getting Started
 
+### Self-Hosted Sentry
+
+You can override the `SENTRY_URL` env variable to set your base Sentry url:
+
+```shell
+SENTRY_URL=https://sentry.mycompany.com
+```
+
 ### MCP Inspector
 
 MCP includes an [Inspector](https://modelcontextprotocol.io/docs/tools/inspector), to easily test the service:

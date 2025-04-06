@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { logError } from "./logging";
 
-const API_BASE_URL = "https://sentry.io/api/0";
+const API_BASE_URL = new URL("/api/0", process.env.SENTRY_URL || "https://sentry.io");
 
 export const SentryOrgSchema = z.object({
   id: z.string(),

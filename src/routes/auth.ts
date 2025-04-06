@@ -4,8 +4,8 @@ import { exchangeCodeForAccessToken, getUpstreamAuthorizeUrl } from "../lib/oaut
 import type { Props } from "../types";
 import { SentryApiService } from "../lib/sentry-api";
 
-export const SENTRY_AUTH_URL = "https://sentry.io/oauth/authorize/";
-export const SENTRY_TOKEN_URL = "https://sentry.io/oauth/token/";
+export const SENTRY_AUTH_URL = "/oauth/authorize/";
+export const SENTRY_TOKEN_URL = "/oauth/token/";
 // https://docs.sentry.io/api/permissions/
 export const SCOPES = "org:read project:read project:write team:read team:write event:read";
 
@@ -14,6 +14,7 @@ export default new Hono<{
     OAUTH_PROVIDER: OAuthHelpers;
     SENTRY_CLIENT_ID: string;
     SENTRY_CLIENT_SECRET: string;
+    SENTRY_URL: string;
   };
 }>()
   /**
@@ -34,7 +35,7 @@ export default new Hono<{
 
     return Response.redirect(
       getUpstreamAuthorizeUrl({
-        upstream_url: SENTRY_AUTH_URL,
+        upstream_url: new URL(SENTRY_AUTH_URL, c.env.SENTRY_URL || "https://sentry.io").href,
         scope: SCOPES,
         client_id: c.env.SENTRY_CLIENT_ID,
         redirect_uri: new URL("/callback", c.req.url).href,
@@ -60,7 +61,7 @@ export default new Hono<{
 
     // Exchange the code for an access token
     const [payload, errResponse] = await exchangeCodeForAccessToken({
-      upstream_url: SENTRY_TOKEN_URL,
+      upstream_url: new URL(SENTRY_TOKEN_URL, c.env.SENTRY_URL || "https://sentry.io").href,
       client_id: c.env.SENTRY_CLIENT_ID,
       client_secret: c.env.SENTRY_CLIENT_SECRET,
       code: c.req.query("code"),
