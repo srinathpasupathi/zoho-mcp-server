@@ -158,7 +158,7 @@ export const TOOL_DEFINITIONS = [
 
 export type ToolName = (typeof TOOL_DEFINITIONS)[number]["name"];
 
-type ToolDefinition<T extends ToolName> = Extract<
+export type ToolDefinition<T extends ToolName> = Extract<
   (typeof TOOL_DEFINITIONS)[number],
   { name: T }
 >;

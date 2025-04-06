@@ -6,9 +6,7 @@
   "files.trimTrailingWhitespace": false,
   "files.trimFinalNewlines": false,
   "files.insertFinalNewline": true,
-  "[json][jsonc][javascript][typescript]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.tabSize": 2
-  },
-  "cursor.general.enableShadowWorkspace": true
+  "cursor.general.enableShadowWorkspace": true,
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "biomejs.biome"
 }
