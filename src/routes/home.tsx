@@ -322,7 +322,7 @@ export default new Hono<{
               {TOOL_DEFINITIONS.map((tool) => (
                 <li key={tool.name}>
                   <h3>{tool.name}</h3>
-                  <p>{tool.description}</p>
+                  <p>{tool.description.split("\n")[0]}</p>
                 </li>
               ))}
             </ul>
