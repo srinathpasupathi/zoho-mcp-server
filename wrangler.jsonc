@@ -22,7 +22,7 @@
   "durable_objects": {
     "bindings": [
       {
-        "class_name": "SentryMCP",
+        "class_name": "SentryMCPWorker",
         "name": "MCP_OBJECT"
       }
     ]
