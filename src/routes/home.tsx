@@ -175,8 +175,9 @@ export default new Hono<{
             <a href="https://docs.sentry.io/api/">Sentry's API</a>.
           </p>
           <p>
-            While this service is maintained by Sentry, it is very much still a proof-of-concept as
-            the protocol is still in development (as is our own thinking around its usage).
+            While this service is maintained by Sentry, it is very much still a
+            proof-of-concept as the protocol is still in development (as is our
+            own thinking around its usage).
           </p>
           <div>
             <button type="button" data-copy={mcpSnippet}>
@@ -208,7 +209,9 @@ export default new Hono<{
             </li>
           </ol>
           <p>
-            <small>Note: Windsurf requires an enterprise account to utilize MCP. 😕</small>
+            <small>
+              Note: Windsurf requires an enterprise account to utilize MCP. 😕
+            </small>
           </p>
 
           <h3>With VSCode</h3>
@@ -222,7 +225,10 @@ export default new Hono<{
             </li>
             <li>
               Enter <code>npx mcp-remote https://sentry.cool/sse</code>{" "}
-              <button type="button" data-copy="npx mcp-remote https://sentry.cool/sse">
+              <button
+                type="button"
+                data-copy="npx mcp-remote https://sentry.cool/sse"
+              >
                 Copy
               </button>
             </li>
@@ -230,8 +236,8 @@ export default new Hono<{
               Enter <code>Sentry</code>
             </li>
             <li>
-              Select <strong>User settings</strong> or <strong>Workspace settings</strong> (to limit
-              to specific project)
+              Select <strong>User settings</strong> or{" "}
+              <strong>Workspace settings</strong> (to limit to specific project)
             </li>
           </ol>
           <p>
@@ -241,24 +247,26 @@ export default new Hono<{
           <h2>Workflows</h2>
           <section className="workflows">
             <p>
-              Here's a few sample workflows (prompts) that we've tried to design around within the
-              provider:
+              Here's a few sample workflows (prompts) that we've tried to design
+              around within the provider:
             </p>
             <ul>
               <li>
                 <blockquote>
-                  Check Sentry for errors in <code>@file.tsx</code> and propose solutions.
+                  Check Sentry for errors in <code>@file.tsx</code> and propose
+                  solutions.
                 </blockquote>
               </li>
               <li>
                 <blockquote>
-                  Diagnose issue <code>ISSUE-SHORTID</code> in Sentry and propose solutions.
+                  Diagnose issue <code>ISSUE_URL</code> in Sentry and propose
+                  solutions.
                 </blockquote>
               </li>
               <li>
                 <blockquote>
-                  Create a new project in Sentry for <code>service-name</code> and setup local
-                  instrumentation using it.
+                  Create a new project in Sentry for <code>service-name</code>{" "}
+                  and setup local instrumentation using it.
                 </blockquote>
               </li>
             </ul>
@@ -268,8 +276,9 @@ export default new Hono<{
           <section className="tools">
             <p>
               <small>
-                Note: Any tool that takes an <code>organization_slug</code> parameter will try to
-                infer a default organization, otherwise you should mention it in the prompt.
+                Note: Any tool that takes an <code>organization_slug</code>{" "}
+                parameter will try to infer a default organization, otherwise
+                you should mention it in the prompt.
               </small>
             </p>
             <ul>
@@ -302,7 +311,9 @@ export default new Hono<{
         <h2>Additional Resources</h2>
         <ul>
           <li>
-            <a href="https://github.com/getsentry/sentry-mcp">sentry-mcp on GitHub</a>
+            <a href="https://github.com/getsentry/sentry-mcp">
+              sentry-mcp on GitHub
+            </a>
           </li>
         </ul>
         <script dangerouslySetInnerHTML={{ __html: copyPasteHelper }} />
