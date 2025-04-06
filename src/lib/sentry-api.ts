@@ -102,6 +102,39 @@ export const SentryDiscoverEventSchema = z.object({
   "last_seen()": z.string(),
 });
 
+/**
+ * Extracts the Sentry issue ID from either a full URL or a standalone ID.
+ *
+ * @param issueIdOrUrl - Either a full Sentry issue URL or just the issue ID
+ * @returns The numeric issue ID
+ * @throws Error if the input is invalid
+ */
+export function extractIssueId(issueIdOrUrl: string): string {
+  if (!issueIdOrUrl) {
+    throw new Error("Missing issue_id_or_url argument");
+  }
+
+  if (issueIdOrUrl.startsWith("http://") || issueIdOrUrl.startsWith("https://")) {
+    const url = new URL(issueIdOrUrl);
+
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    if (pathParts.length < 2 || !pathParts.includes("issues")) {
+      throw new Error("Invalid Sentry issue URL. Path must contain '/issues/{issue_id}'");
+    }
+
+    const issueId = pathParts[pathParts.indexOf("issues") + 1];
+    if (!issueId || !/^\d+$/.test(issueId)) {
+      throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
+    }
+    return issueId;
+  }
+
+  if (!/^\d+$/.test(issueIdOrUrl)) {
+    throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
+  }
+  return issueIdOrUrl;
+}
+
 export class SentryApiService {
   private accessToken: string;
 

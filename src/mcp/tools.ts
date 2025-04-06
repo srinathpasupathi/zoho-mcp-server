@@ -1,7 +1,7 @@
 import type { Props } from "../types";
-import { z } from "zod";
+import { type RefinementCtx, z } from "zod";
 import type { SentryErrorEntrySchema, SentryEventSchema } from "../lib/sentry-api";
-import { SentryApiService } from "../lib/sentry-api";
+import { SentryApiService, extractIssueId } from "../lib/sentry-api";
 import { ParamIssueShortId, ParamOrganizationSlug, ParamPlatform, ParamTeamSlug } from "./schema";
 
 function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
@@ -58,10 +58,15 @@ export const TOOL_DEFINITIONS = [
   {
     name: "get_error_details" as const,
     description:
-      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message.",
+      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message. Either issueId or issueUrl MUST be provided.",
     paramsSchema: z.object({
       organizationSlug: ParamOrganizationSlug.optional(),
-      issueId: ParamIssueShortId,
+      issueId: ParamIssueShortId.optional(),
+      issueUrl: z
+        .string()
+        .url()
+        .describe("The URL of the issue to retrieve details for.")
+        .optional(),
     }),
   },
   {
@@ -164,25 +169,30 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
-  get_error_details: async (props, { issueId, organizationSlug }) => {
+  get_error_details: async (props, { issueId, issueUrl, organizationSlug }) => {
     const apiService = new SentryApiService(props.accessToken);
 
     if (!organizationSlug) {
       organizationSlug = props.organizationSlug;
     }
 
+    const resolvedIssueId = issueId || (issueUrl ? extractIssueId(issueUrl) : undefined);
+    if (!resolvedIssueId) {
+      throw new Error("Either issueId or issueUrl must be provided");
+    }
+
     const event = await apiService.getLatestEventForIssue({
       organizationSlug,
-      issueId,
+      issueId: resolvedIssueId,
     });
 
-    let output = `# ${issueId}: ${event.title}\n\n`;
-    output += `**Issue ID**:\n${issueId}\n\n`;
+    let output = `# ${resolvedIssueId}: ${event.title}\n\n`;
+    output += `**Issue ID**:\n${resolvedIssueId}\n\n`;
 
     output += formatEventOutput(event);
 
     output += "# Using this information\n\n";
-    output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${issueId}\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can reference the IssueID in commit messages (e.g. \`Fixes ${resolvedIssueId}\`) to automatically close the issue when the commit is merged.\n`;
     output +=
       "- The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.\n";
 
