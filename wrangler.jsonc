@@ -10,7 +10,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "migrations": [
     {
-      "new_sqlite_classes": ["SentryMCP"],
+      "new_sqlite_classes": ["SentryMCPWorker"],
       "tag": "v1"
     }
   ],

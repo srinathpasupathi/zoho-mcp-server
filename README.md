@@ -9,6 +9,26 @@ It is based on [Cloudflare's work towards remote MCPs](https://blog.cloudflare.c
 
 ## Getting Started
 
+### Stdio vs Remote
+
+While this repository is primarily servicing a remote MCP use-case, we also support a stdio transport.
+
+Note: This is currently a draft and not available via a distribution.
+
+You will need to ensure your token is provisioned with the necessary scopes. As of writing this is:
+
+```
+org:read project:read project:write team:read team:write event:read
+```
+
+You can find the canonical reference to the needed scopes in the [source code](https://github.com/getsentry/sentry-mcp/blob/main/src/routes/auth.ts).
+
+Launching the stdio transport will just require you to bind `SENTRY_AUTH_TOKEN` and run the provided script:
+
+```shell
+SENTRY_AUTH_TOKEN= npm run start:stdio
+```
+
 ### Self-Hosted Sentry
 
 You can override the `SENTRY_URL` env variable to set your base Sentry url:

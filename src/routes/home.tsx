@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type SentryMCP from "../mcp/server";
+import type SentryMCPWorker from "../mcp/transports/cloudflare-worker";
 import { css, Style } from "hono/css";
 import { TOOL_DEFINITIONS } from "../mcp/tools";
 
@@ -145,7 +145,7 @@ const globalStyles = css`
 
 export default new Hono<{
   Bindings: Env & {
-    MCP_OBJECT: DurableObjectNamespace<SentryMCP>;
+    MCP_OBJECT: DurableObjectNamespace<SentryMCPWorker>;
   };
 }>().get("/", async (c) => {
   const mcpSnippet = JSON.stringify(

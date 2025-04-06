@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "build": "tsc",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "format": "biome format --write",
@@ -10,6 +11,7 @@
     "lint:fix": "biome lint --fix",
     "inspector": "pnpx @modelcontextprotocol/inspector@latest",
     "start": "wrangler dev",
+    "start:stdio": "tsx dist/mcp/start-stdio.js",
     "cf-typegen": "wrangler types",
     "postinstall": "simple-git-hooks",
     "test": "vitest",
@@ -43,7 +45,7 @@
     "pre-commit": "pnpm exec lint-staged --concurrent false"
   },
   "lint-staged": {
-    "*": ["biome format --write"],
+    "**/*.{ts,tsx,json}": ["biome format --write"],
     "**/*.{ts,tsx}": ["biome lint --fix"]
   }
 }

@@ -7,7 +7,7 @@ import {
   exchangeCodeForAccessToken,
   getUpstreamAuthorizeUrl,
 } from "../lib/oauth";
-import type { Props } from "../types";
+import type { WorkerProps } from "../types";
 import { SentryApiService } from "../lib/sentry-api";
 
 export const SENTRY_AUTH_URL = "/oauth/authorize/";
@@ -105,7 +105,7 @@ export default new Hono<{
         name: payload.user.name,
         accessToken: payload.access_token,
         organizationSlug: orgsList[0].slug,
-      } as Props,
+      } as WorkerProps,
     });
 
     return Response.redirect(redirectTo);
