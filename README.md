@@ -108,7 +108,6 @@ Evals will require a `.env` file with some config:
 
 ```shell
 OAUTH_API_TOKEN=
-SENTRY_AUTH_TOKEN=
 ```
 
 Once thats done you can run them using:
