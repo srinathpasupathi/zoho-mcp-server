@@ -6,7 +6,7 @@ It is based on [Cloudflare's work towards remote MCPs](https://blog.cloudflare.c
 
 ## Getting Started
 
-https://sentry.cool
+https://mcp.sentry.dev
 
 ### Stdio vs Remote
 
