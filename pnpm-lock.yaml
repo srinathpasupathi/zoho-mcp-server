@@ -18,8 +18,8 @@ importers:
         specifier: ^9.11.0
         version: 9.11.0(@cloudflare/workers-types@4.20250406.0)
       agents:
-        specifier: ~0.0.53
-        version: 0.0.53(@cloudflare/workers-types@4.20250406.0)
+        specifier: ~0.0.54
+        version: 0.0.54(@cloudflare/workers-types@4.20250406.0)
       better-sqlite3:
         specifier: ^11.9.1
         version: 11.9.1
@@ -1203,8 +1203,8 @@ packages:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
     engines: {node: '>= 8.0.0'}
 
-  agents@0.0.53:
-    resolution: {integrity: sha512-FNQlUW4pNJ/vOlHfMzIH15rB+7IY2TykyyPtnR0cIRJkDAKKSKYlboMmBcyWUpMumw0En/CMR/G/lEU2kPwxcQ==}
+  agents@0.0.54:
+    resolution: {integrity: sha512-juU2Yem8kQe7uaDk/uKku+mUnStYbishI3GXFK9qbvE7ce4kWrK7ZvJIIhpwDDYgFud/C0ZlgAYtYstt9R5t2Q==}
 
   ai@4.3.2:
     resolution: {integrity: sha512-h643SfhKil0Pnxk2tVIazFDL1JevutUghvc3mOpWqJFMcudmgtwQYlvxCkwSfljrrq+qIfne8d6jCihMMhM7pw==}
@@ -3941,7 +3941,7 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  agents@0.0.53(@cloudflare/workers-types@4.20250406.0):
+  agents@0.0.54(@cloudflare/workers-types@4.20250406.0):
     dependencies:
       '@modelcontextprotocol/sdk': 1.8.0
       cron-schedule: 5.0.4
