@@ -128,6 +128,42 @@ export const restHandlers = [
       ]);
     },
   ),
+  http.post(
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/teams/",
+    () => {
+      // TODO: validate payload (only accept 'the-goats' for team name)
+      return HttpResponse.json({
+        id: "4509109078196224",
+        slug: "the-goats",
+        name: "the-goats",
+        dateCreated: "2025-04-07T00:05:48.196710Z",
+        isMember: true,
+        teamRole: "admin",
+        flags: { "idp:provisioned": false },
+        access: [
+          "event:read",
+          "org:integrations",
+          "org:read",
+          "member:read",
+          "alerts:write",
+          "event:admin",
+          "team:admin",
+          "project:releases",
+          "team:read",
+          "project:write",
+          "event:write",
+          "team:write",
+          "project:read",
+          "project:admin",
+          "alerts:read",
+        ],
+        hasAccess: true,
+        isPending: false,
+        memberCount: 1,
+        avatar: { avatarType: "letter_avatar", avatarUuid: null },
+      });
+    },
+  ),
 ];
 
 export const mswServer = setupServer(...restHandlers);
