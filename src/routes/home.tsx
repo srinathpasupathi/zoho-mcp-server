@@ -52,7 +52,6 @@ const globalStyles = css`
     line-height: 1.75;
   }
 
-
   main {
     display: flex;
     flex-direction: row;
@@ -185,12 +184,13 @@ export default new Hono<{
     MCP_OBJECT: DurableObjectNamespace<SentryMCP>;
   };
 }>().get("/", async (c) => {
+  const sseUrl = new URL("/sse", c.req.url).href;
   const mcpSnippet = JSON.stringify(
     {
       mcpServers: {
         sentry: {
           command: "npx",
-          args: ["-y", "mcp-remote", new URL("/sse", c.req.url).href],
+          args: ["-y", "mcp-remote", sseUrl],
         },
       },
     },
@@ -274,10 +274,10 @@ export default new Hono<{
                     Select <strong>Command (stdio)</strong>.
                   </li>
                   <li>
-                    Enter <code>npx mcp-remote https://sentry.cool/sse</code>{" "}
+                    Enter <code>npx mcp-remote {sseUrl}</code>{" "}
                     <button
                       type="button"
-                      data-copy="npx mcp-remote https://sentry.cool/sse"
+                      data-copy={`npx mcp-remote ${sseUrl}`}
                     >
                       Copy
                     </button>
