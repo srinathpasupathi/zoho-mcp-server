@@ -340,11 +340,13 @@ export const TOOL_HANDLERS = {
       name,
     });
 
-    let output = "# New Team";
+    let output = "# New Team\n\n";
     output += `- **ID**: ${team.id}\n`;
     output += `- **Slug**: ${team.slug}\n`;
     output += `- **Name**: ${team.name}\n`;
 
+    output += "# Using this information\n\n";
+    output += `- You should always inform the user of the Team Slug value.\n`;
     return output;
   },
 
@@ -369,7 +371,7 @@ export const TOOL_HANDLERS = {
       platform,
     });
 
-    let output = "# New Project";
+    let output = "# New Project\n\n";
     output += `- **ID**: ${project.id}\n`;
     output += `- **Slug**: ${project.slug}\n`;
     output += `- **Name**: ${project.name}\n`;
@@ -382,6 +384,7 @@ export const TOOL_HANDLERS = {
 
     output += "# Using this information\n\n";
     output += `- You can reference the **SENTRY_DSN** value to initialize Sentry's SDKs.\n`;
+    output += `- You should always inform the user of the **SENTRY_DSN** and Project Slug values.\n`;
 
     return output;
   },

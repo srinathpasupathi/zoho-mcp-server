@@ -27,6 +27,15 @@ evalite("workflow", {
         input: `What projects do I have access to in Sentry for '${CONFIG.organizationSlug}'`,
         expected: CONFIG.projectSlug,
       },
+      {
+        input: `Create a new team in Sentry for '${CONFIG.organizationSlug}' called 'the-goats' response with **only** the team slug and no other text.`,
+        expected: "the-goats",
+      },
+      {
+        input: `Create a new project in Sentry for '${CONFIG.organizationSlug}' called 'cloudflare-mcp' with the 'sentry-mcp-evals' team. Output **only** the project slug and the SENTRY_DSN in the format of:\n<PROJECT_SLUG>\n<SENTRY_DSN>`,
+        expected:
+          "cloudflare-mcp\nhttps://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945",
+      },
     ];
   },
   task: async (input) => {

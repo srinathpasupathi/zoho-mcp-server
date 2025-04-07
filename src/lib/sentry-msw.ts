@@ -128,6 +128,153 @@ export const restHandlers = [
       ]);
     },
   ),
+  http.post(
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/teams/",
+    () => {
+      // TODO: validate payload (only accept 'the-goats' for team name)
+      return HttpResponse.json({
+        id: "4509109078196224",
+        slug: "the-goats",
+        name: "the-goats",
+        dateCreated: "2025-04-07T00:05:48.196710Z",
+        isMember: true,
+        teamRole: "admin",
+        flags: { "idp:provisioned": false },
+        access: [
+          "event:read",
+          "org:integrations",
+          "org:read",
+          "member:read",
+          "alerts:write",
+          "event:admin",
+          "team:admin",
+          "project:releases",
+          "team:read",
+          "project:write",
+          "event:write",
+          "team:write",
+          "project:read",
+          "project:admin",
+          "alerts:read",
+        ],
+        hasAccess: true,
+        isPending: false,
+        memberCount: 1,
+        avatar: { avatarType: "letter_avatar", avatarUuid: null },
+      });
+    },
+  ),
+  http.post(
+    "https://sentry.io/api/0/teams/sentry-mcp-evals/sentry-mcp-evals/projects/",
+    () => {
+      // TODO: validate payload (only accept 'cloudflare-mcp' for project name)
+      return HttpResponse.json({
+        id: "4509109104082945",
+        slug: "cloudflare-mcp",
+        name: "cloudflare-mcp",
+        platform: "javascript",
+        dateCreated: "2025-04-07T00:12:23.143074Z",
+        isBookmarked: false,
+        isMember: true,
+        features: [
+          "discard-groups",
+          "alert-filters",
+          "similarity-embeddings",
+          "similarity-indexing",
+          "similarity-view",
+        ],
+        firstEvent: null,
+        firstTransactionEvent: false,
+        access: [
+          "team:write",
+          "alerts:write",
+          "event:write",
+          "org:read",
+          "alerts:read",
+          "event:admin",
+          "project:admin",
+          "event:read",
+          "org:integrations",
+          "project:read",
+          "project:releases",
+          "project:write",
+          "member:read",
+          "team:read",
+          "team:admin",
+        ],
+        hasAccess: true,
+        hasMinifiedStackTrace: false,
+        hasMonitors: false,
+        hasProfiles: false,
+        hasReplays: false,
+        hasFeedbacks: false,
+        hasFlags: false,
+        hasNewFeedbacks: false,
+        hasSessions: false,
+        hasInsightsHttp: false,
+        hasInsightsDb: false,
+        hasInsightsAssets: false,
+        hasInsightsAppStart: false,
+        hasInsightsScreenLoad: false,
+        hasInsightsVitals: false,
+        hasInsightsCaches: false,
+        hasInsightsQueues: false,
+        hasInsightsLlmMonitoring: false,
+        isInternal: false,
+        isPublic: false,
+        avatar: { avatarType: "letter_avatar", avatarUuid: null },
+        color: "#bf3f55",
+        status: "active",
+      });
+    },
+  ),
+  http.post(
+    "https://sentry.io/api/0/projects/sentry-mcp-evals/cloudflare-mcp/keys/",
+    () => {
+      // TODO: validate payload (only accept 'Default' for key name)
+      return HttpResponse.json({
+        id: "d20df0a1ab5031c7f3c7edca9c02814d",
+        name: "Default",
+        label: "Default",
+        public: "d20df0a1ab5031c7f3c7edca9c02814d",
+        secret: "154001fd3dfe38130e1c7948a323fad8",
+        projectId: 4509109104082945,
+        isActive: true,
+        rateLimit: null,
+        dsn: {
+          secret:
+            "https://d20df0a1ab5031c7f3c7edca9c02814d:154001fd3dfe38130e1c7948a323fad8@o4509106732793856.ingest.us.sentry.io/4509109104082945",
+          public:
+            "https://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945",
+          csp: "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/csp-report/?sentry_key=d20df0a1ab5031c7f3c7edca9c02814d",
+          security:
+            "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/security/?sentry_key=d20df0a1ab5031c7f3c7edca9c02814d",
+          minidump:
+            "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/minidump/?sentry_key=d20df0a1ab5031c7f3c7edca9c02814d",
+          nel: "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/nel/?sentry_key=d20df0a1ab5031c7f3c7edca9c02814d",
+          unreal:
+            "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/unreal/d20df0a1ab5031c7f3c7edca9c02814d/",
+          crons:
+            "https://o4509106732793856.ingest.us.sentry.io/api/4509109104082945/cron/___MONITOR_SLUG___/d20df0a1ab5031c7f3c7edca9c02814d/",
+          cdn: "https://js.sentry-cdn.com/d20df0a1ab5031c7f3c7edca9c02814d.min.js",
+        },
+        browserSdkVersion: "8.x",
+        browserSdk: {
+          choices: [
+            ["9.x", "9.x"],
+            ["8.x", "8.x"],
+            ["7.x", "7.x"],
+          ],
+        },
+        dateCreated: "2025-04-07T00:12:25.139394Z",
+        dynamicSdkLoaderOptions: {
+          hasReplay: true,
+          hasPerformance: true,
+          hasDebug: false,
+        },
+      });
+    },
+  ),
 ];
 
 export const mswServer = setupServer(...restHandlers);
