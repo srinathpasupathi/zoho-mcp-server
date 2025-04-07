@@ -345,6 +345,8 @@ export const TOOL_HANDLERS = {
     output += `- **Slug**: ${team.slug}\n`;
     output += `- **Name**: ${team.name}\n`;
 
+    output += "# Using this information\n\n";
+    output += `- You should always inform the user of the Team Slug value.\n`;
     return output;
   },
 
@@ -382,6 +384,7 @@ export const TOOL_HANDLERS = {
 
     output += "# Using this information\n\n";
     output += `- You can reference the **SENTRY_DSN** value to initialize Sentry's SDKs.\n`;
+    output += `- You should always inform the user of the **SENTRY_DSN** and Project Slug values.\n`;
 
     return output;
   },

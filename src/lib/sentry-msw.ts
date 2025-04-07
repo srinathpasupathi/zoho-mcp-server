@@ -165,7 +165,7 @@ export const restHandlers = [
     },
   ),
   http.post(
-    "https://sentry.io/api/0/organizations/sentry-mcp-evals/projects/",
+    "https://sentry.io/api/0/teams/sentry-mcp-evals/sentry-mcp-evals/projects/",
     () => {
       // TODO: validate payload (only accept 'cloudflare-mcp' for project name)
       return HttpResponse.json({
@@ -229,7 +229,7 @@ export const restHandlers = [
     },
   ),
   http.post(
-    "https://sentry.io/api/0/organizations/sentry-mcp-evals/projects/cloudflare-mcp/keys/",
+    "https://sentry.io/api/0/projects/sentry-mcp-evals/cloudflare-mcp/keys/",
     () => {
       // TODO: validate payload (only accept 'Default' for key name)
       return HttpResponse.json({
