@@ -23,12 +23,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@ai-sdk/openai": "^1.3.7",
+    "@ai-sdk/openai": "^1.3.9",
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/vitest-pool-workers": "^0.8.11",
+    "@cloudflare/vitest-pool-workers": "^0.8.14",
     "@types/node": "^22.14.0",
     "@vitest/coverage-v8": "^2.1.9",
-    "ai": "^4.3.2",
+    "ai": "^4.3.4",
     "autoevals": "^0.0.125",
     "dotenv": "^16.4.7",
     "evalite": "~0.10.0",
@@ -39,15 +39,15 @@
     "typescript": "^5.8.3",
     "vite": "^6.2.5",
     "vitest": "^2.1.9",
-    "wrangler": "^4.7.2"
+    "wrangler": "^4.9.1"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.0.2",
-    "@modelcontextprotocol/sdk": "^1.8.0",
-    "@sentry/cloudflare": "^9.11.0",
-    "agents": "~0.0.54",
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "@sentry/cloudflare": "^9.12.0",
+    "agents": "~0.0.57",
     "better-sqlite3": "^11.9.1",
-    "hono": "^4.7.5",
+    "hono": "^4.7.6",
     "workers-mcp": "0.1.0-3",
     "zod": "^3.24.2"
   },
