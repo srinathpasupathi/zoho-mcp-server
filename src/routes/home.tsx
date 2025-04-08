@@ -136,8 +136,8 @@ const globalStyles = css`
 
     button {
       position: absolute;
-      right: 0.25rem;
-      top: 0.25rem;
+      right: 0.855rem;
+      top: 0.85rem;
     }
   }
 
@@ -223,6 +223,16 @@ export default new Hono<{
                   Copy Configuration
                 </button>
                 <pre>{mcpSnippet}</pre>
+              </div>
+              <p>
+                Or if you just need the server itself (requires an OAuth
+                compatible client):
+              </p>
+              <div class="snippet">
+                <button type="button" data-copy={mcpSnippet}>
+                  Copy Configuration
+                </button>
+                <pre>{sseUrl}</pre>
               </div>
 
               <section className="setup-guide">
