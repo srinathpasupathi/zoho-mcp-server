@@ -96,6 +96,7 @@ const globalStyles = css`
   h3,
   ul,
   ol,
+  dl,
   pre,
   blockquote {
     margin: 0 0 1.25rem;
