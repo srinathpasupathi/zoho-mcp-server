@@ -350,6 +350,7 @@ export default new Hono<{
                     <li key={tool.name}>
                       <h3>{tool.name}</h3>
 
+                      <p>{tool.description.split("\n")[0]}</p>
                       {tool.paramsSchema ? (
                         <dl class="params">
                           {Object.entries(tool.paramsSchema).map(
@@ -366,8 +367,6 @@ export default new Hono<{
                           )}
                         </dl>
                       ) : null}
-
-                      <p>{tool.description.split("\n")[0]}</p>
                     </li>
                   ))}
                 </ul>
