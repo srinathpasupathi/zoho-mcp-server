@@ -271,7 +271,9 @@ export const TOOL_DEFINITIONS = [
       "- Understand the Sentry search syntax",
     ].join("\n"),
     paramsSchema: {
-      subject: z.enum(["query_syntax"]).optional(),
+      subject: z
+        .enum(["query_syntax"])
+        .describe("The subject to get help with."),
     },
   },
 ];
