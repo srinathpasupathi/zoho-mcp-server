@@ -87,9 +87,6 @@ export default new Hono<{
     // Get organizations using the SentryApiService
     const apiService = new SentryApiService(payload.access_token);
     const orgsList = await apiService.listOrganizations();
-    if (!orgsList.length) {
-      return c.text("No organizations found", 400);
-    }
 
     // Return back to the MCP client a new token
     const { redirectTo } = await c.env.OAUTH_PROVIDER.completeAuthorization({
@@ -104,7 +101,7 @@ export default new Hono<{
         id: payload.user.id,
         name: payload.user.name,
         accessToken: payload.access_token,
-        organizationSlug: orgsList[0].slug,
+        organizationSlug: orgsList.length ? orgsList[0].slug : null,
       } as WorkerProps,
     });
 
