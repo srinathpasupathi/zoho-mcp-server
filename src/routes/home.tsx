@@ -273,7 +273,9 @@ export default new Hono<{
               <section className="setup-guide">
                 <h3 id="with-vscode">With VSCode</h3>
                 <ol>
-                  <li>CMD+P</li>
+                  <li>
+                    <strong>CMD + P</strong>
+                  </li>
                   <li>
                     Select <strong>MCP: Add Server...</strong>
                   </li>
