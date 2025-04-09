@@ -24,10 +24,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@ai-sdk/openai": "^1.3.7",
+    "@ai-sdk/openai": "^1.3.9",
     "@biomejs/biome": "^1.9.4",
     "@cloudflare/vite-plugin": "^1.0.1",
-    "@cloudflare/vitest-pool-workers": "^0.8.11",
+    "@cloudflare/vitest-pool-workers": "^0.8.14",
     "@cloudflare/workers-types": "^4.20250407.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.3",
@@ -36,7 +36,7 @@
     "@types/react-dom": "^19.1.1",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.9",
-    "ai": "^4.3.2",
+    "ai": "^4.3.4",
     "autoevals": "^0.0.125",
     "better-sqlite3": "^11.9.1",
     "dotenv": "^16.4.7",
@@ -49,14 +49,15 @@
     "typescript": "^5.8.3",
     "vite": "^6.2.5",
     "vitest": "^2.1.9",
-    "wrangler": "^4.7.2"
+    "wrangler": "^4.9.1"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.0.2",
-    "@modelcontextprotocol/sdk": "^1.8.0",
-    "@sentry/cloudflare": "^9.11.0",
-    "agents": "~0.0.54",
-    "hono": "^4.7.5",
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "@sentry/cloudflare": "^9.12.0",
+    "agents": "~0.0.57",
+    "better-sqlite3": "^11.9.1",
+    "hono": "^4.7.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "workers-mcp": "0.1.0-3",

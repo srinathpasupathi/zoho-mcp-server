@@ -9,7 +9,6 @@ let accessToken = process.env.SENTRY_AUTH_TOKEN;
 if (process.argv.indexOf("--mocks")) {
   mswServer.listen({
     onUnhandledRequest: (req, print) => {
-      console.log(req.url);
       if (req.url.startsWith("https://api.openai.com/")) {
         return;
       }

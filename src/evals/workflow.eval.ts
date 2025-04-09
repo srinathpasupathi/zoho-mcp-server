@@ -36,6 +36,11 @@ evalite("workflow", {
         expected:
           "cloudflare-mcp\nhttps://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945",
       },
+      {
+        input:
+          "Can you look for some production errors in Sentry. Output **only** the list of errors in the format of:\n- <ERROR>\n- <ERROR>",
+        expected: "Error: Tool list_organizations is already registered",
+      },
     ];
   },
   task: async (input) => {

@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "sentry-dev": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8788/sse"]
+    },
+    "sentry": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["mcp-remote", "https://mcp.sentry.dev/sse"]
+    }
+  }
+}

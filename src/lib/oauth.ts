@@ -86,10 +86,13 @@ export async function exchangeCodeForAccessToken({
     }).toString(),
   });
   if (!resp.ok) {
-    console.log(await resp.text());
+    console.warn(await resp.text());
     return [
       null,
-      new Response("Failed to fetch access token", { status: 500 }),
+      new Response(
+        "There was an issue authenticating your account and retrieving an access token. Please try again.",
+        { status: 400 },
+      ),
     ];
   }
 
@@ -103,7 +106,10 @@ export async function exchangeCodeForAccessToken({
     console.error("Failed to parse token response", e);
     return [
       null,
-      new Response("Failed to parse token response", { status: 500 }),
+      new Response(
+        "There was an issue authenticating your account and retrieving an access token. Please try again.",
+        { status: 500 },
+      ),
     ];
   }
 }

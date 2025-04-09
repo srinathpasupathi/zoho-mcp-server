@@ -62,9 +62,9 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: "search_errors_in_file" as const,
+    name: "search_errors" as const,
     description: [
-      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
+      "Search for errors in Sentry.",
       "",
       "Use this tool when you need to:",
       "- Search for production errors in a specific file",
@@ -73,7 +73,18 @@ export const TOOL_DEFINITIONS = [
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
-      filename: z.string().describe("The filename to search for errors in."),
+      filename: z
+        .string()
+        .describe(
+          "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
+        )
+        .optional(),
+      query: z
+        .string()
+        .describe(
+          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
+        )
+        .optional(),
       sortBy: z
         .enum(["last_seen", "count"])
         .optional()
@@ -113,6 +124,20 @@ export const TOOL_DEFINITIONS = [
           "The name of the project to create. Typically this is commonly the name of the repository or service. It is only used as a visual label in Sentry.",
         ),
       platform: ParamPlatform.optional(),
+    },
+  },
+  {
+    name: "help" as const,
+    description: [
+      "Get information to help you better work with Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- Understand the Sentry search syntax",
+    ].join("\n"),
+    paramsSchema: {
+      subject: z
+        .enum(["query_syntax"])
+        .describe("The subject to get help with."),
     },
   },
 ];

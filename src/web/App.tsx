@@ -45,6 +45,21 @@ export default function App() {
             </button>
             <pre>{mcpSnippet}</pre>
           </div>
+          <p>
+            Or if you just need the server itself (requires an OAuth compatible
+            client):
+          </p>
+          <div className="snippet">
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(sseUrl);
+              }}
+            >
+              Copy Configuration
+            </button>
+            <pre>{sseUrl}</pre>
+          </div>
 
           <section className="setup-guide">
             <h3 id="with-cursor">With Cursor</h3>
@@ -83,7 +98,9 @@ export default function App() {
           <section className="setup-guide">
             <h3 id="with-vscode">With VSCode</h3>
             <ol>
-              <li>CMD+P</li>
+              <li>
+                <strong>CMD + P</strong>
+              </li>
               <li>
                 Select <strong>MCP: Add Server...</strong>
               </li>
@@ -157,7 +174,7 @@ export default function App() {
               {TOOL_DEFINITIONS.map((tool) => (
                 <li key={tool.name}>
                   <h3>{tool.name}</h3>
-
+                  <p>{tool.description.split("\n")[0]}</p>
                   {tool.paramsSchema ? (
                     <dl className="params">
                       {Object.entries(tool.paramsSchema).map(([key, value]) => {
@@ -172,8 +189,6 @@ export default function App() {
                       })}
                     </dl>
                   ) : null}
-
-                  <p>{tool.description.split("\n")[0]}</p>
                 </li>
               ))}
             </ul>
