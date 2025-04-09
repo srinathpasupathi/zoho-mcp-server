@@ -200,9 +200,9 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: "search_errors_in_file" as const,
+    name: "search_errors" as const,
     description: [
-      "Search for errors recently occurring in a specific file. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
+      "Search for errors in Sentry.",
       "",
       "Use this tool when you need to:",
       "- Search for production errors in a specific file",
@@ -213,12 +213,14 @@ export const TOOL_DEFINITIONS = [
       organizationSlug: ParamOrganizationSlug.optional(),
       filename: z
         .string()
-        .describe("The filename to search for errors in.")
+        .describe(
+          "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
+        )
         .optional(),
       query: z
         .string()
         .describe(
-          `The search query to apply. Use the \`help\` tool to get more information about the query syntax.`,
+          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
         )
         .optional(),
       sortBy: z
@@ -405,9 +407,9 @@ export const TOOL_HANDLERS = {
     return output;
   },
 
-  search_errors_in_file: async (
+  search_errors: async (
     context,
-    { filename, sortBy, organizationSlug },
+    { filename, query, sortBy, organizationSlug },
   ) => {
     const apiService = new SentryApiService(context.accessToken);
 
@@ -422,14 +424,22 @@ export const TOOL_HANDLERS = {
     const eventList = await apiService.searchErrors({
       organizationSlug,
       filename,
+      query,
       sortBy,
     });
 
-    if (eventList.length === 0) {
-      return `# No errors found\n\nCould not find any errors affecting file \`${filename}\`.\n\nWe searched within the ${organizationSlug} organization.`;
-    }
+    let output = `# Search Results\n\n`;
+    if (query) output += `These errors match the query \`${query}\`\n`;
+    if (filename)
+      output += `These errors are limited to the file suffix \`${filename}\`\n`;
+    output += "\n";
 
-    let output = `# Errors related to \`${filename}\`\n\n`;
+    if (eventList.length === 0) {
+      output += `No results found\n\n`;
+      output += `We searched within the ${organizationSlug} organization.\n\n`;
+      output += `You may want to consult the \`help\` tool if you think your search syntax might be wrong.\n`;
+      return output;
+    }
 
     for (const eventSummary of eventList) {
       output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
