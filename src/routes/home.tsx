@@ -196,6 +196,22 @@ export default new Hono<{
     2,
   );
 
+  const zedInstructions = JSON.stringify(
+    {
+      context_servers: {
+        sentry: {
+          command: {
+            command: "npx",
+            args: ["-y", "mcp-remote", sseUrl],
+          },
+        },
+        settings: {},
+      },
+    },
+    undefined,
+    2,
+  );
+
   return c.html(
     <html lang="en">
       <head>
@@ -308,6 +324,23 @@ export default new Hono<{
                 </p>
               </section>
 
+              <section className="setup-guide">
+                <h3 id="with-zed">With Zed</h3>
+                <ol>
+                  <li>
+                    <strong>CMD + ,</strong> to open Zed settings.
+                  </li>
+                  <li>
+                    <div className="snippet">
+                      <button type="button" data-copy={zedInstructions}>
+                        Copy
+                      </button>
+                      <pre>{zedInstructions}</pre>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+
               <section className="workflows" id="workflows">
                 <h2>Workflows</h2>
                 <p>
@@ -397,6 +430,9 @@ export default new Hono<{
                     </li>
                     <li>
                       <a href="#with-vscode">With VSCode</a>
+                    </li>
+                    <li>
+                      <a href="#with-zed">With Zed</a>
                     </li>
                   </ul>
                 </li>
