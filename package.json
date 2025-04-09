@@ -18,9 +18,8 @@
     "cf-typegen": "wrangler types",
     "postinstall": "simple-git-hooks",
     "test": "vitest",
-    "test:ci": "vitest run --coverage",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage"
+    "test:ci": "vitest run --coverage --reporter=junit",
+    "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@ai-sdk/openai": "^1.3.9",
