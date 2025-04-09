@@ -52,6 +52,7 @@ export default function App() {
           <div className="snippet">
             <button
               type="button"
+              className="btn"
               onClick={() => {
                 navigator.clipboard.writeText(sseUrl);
               }}
