@@ -136,8 +136,10 @@ function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
                 .join("")}`
             : "";
 
-          return `in "${frame.filename || frame.module}"${
-            frame.lineNo ? ` at line ${frame.lineNo}` : ""
+          return `${context ? "in " : ""}"${frame.filename || frame.module}"${
+            frame.lineNo
+              ? ` at line ${frame.lineNo}${frame.colNo !== null ? `:${frame.colNo}` : ""}`
+              : ""
           }${context}`;
         })
         .join("\n")}\n${"```"}\n\n`;
@@ -444,6 +446,10 @@ export const TOOL_HANDLERS = {
     for (const eventSummary of eventList) {
       output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
       output += `- **Issue ID**: ${eventSummary.issue}\n`;
+      output += `- **URL**: ${apiService.getIssueUrl(
+        organizationSlug,
+        eventSummary.issue,
+      )}\n`;
       output += `- **Project**: ${eventSummary.project}\n`;
       output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
       output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;

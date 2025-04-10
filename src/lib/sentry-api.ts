@@ -192,6 +192,12 @@ export class SentryApiService {
     return response;
   }
 
+  getIssueUrl(organizationSlug: string, issueId: string): string {
+    return process.env.SENTRY_URL
+      ? `${process.env.SENTRY_URL}/organizations/${organizationSlug}/issues/${issueId}`
+      : `https://${organizationSlug}.sentry.io"}/issues/${issueId}`;
+  }
+
   async listOrganizations(): Promise<z.infer<typeof SentryOrgSchema>[]> {
     const response = await this.request("/organizations/");
 
