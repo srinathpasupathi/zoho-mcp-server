@@ -174,6 +174,7 @@ export class SentryApiService {
     url: string,
     options: RequestInit = {},
   ): Promise<Response> {
+    console.log(`[sentryApi] ${options.method || "GET"} ${API_BASE_URL}${url}`);
     const response = await fetch(`${API_BASE_URL}${url}`, {
       ...options,
       headers: {
@@ -306,25 +307,34 @@ export class SentryApiService {
     return SentryEventSchema.parse(body);
   }
 
-  async searchErrors({
+  async searchEvents({
+    dataset,
     organizationSlug,
+    projectSlug,
     filename,
     query,
-    projectSlug,
     sortBy = "last_seen",
   }: {
+    dataset: "errors" | "transactions";
     organizationSlug: string;
+    projectSlug?: string;
     filename?: string;
     query?: string;
-    projectSlug?: string;
     sortBy?: "last_seen" | "count";
   }): Promise<z.infer<typeof SentryDiscoverEventSchema>[]> {
-    const sentryQuery = `${
-      filename ? `stack.filename:"*${filename.replace(/"/g, '\\"')}" ` : ""
-    }${query ?? ""}`;
+    const sentryQuery: string[] = [];
+    if (filename) {
+      sentryQuery.push(`stack.filename:"*${filename.replace(/"/g, '\\"')}"`);
+    }
+    if (query) {
+      sentryQuery.push(query);
+    }
+    if (projectSlug) {
+      sentryQuery.push(`project:${projectSlug}`);
+    }
 
     const queryParams = new URLSearchParams();
-    queryParams.set("dataset", "errors");
+    queryParams.set("dataset", dataset);
     queryParams.set("per_page", "10");
     queryParams.set("referrer", "sentry-mcp");
     queryParams.set(
@@ -337,8 +347,8 @@ export class SentryApiService {
     queryParams.append("field", "project");
     queryParams.append("field", "last_seen()");
     queryParams.append("field", "count()");
-    queryParams.set("query", sentryQuery);
-    if (projectSlug) queryParams.set("project", projectSlug);
+    queryParams.set("query", sentryQuery.join(" "));
+    // if (projectSlug) queryParams.set("project", projectSlug);
 
     const apiUrl = `/organizations/${organizationSlug}/events/?${queryParams.toString()}`;
 

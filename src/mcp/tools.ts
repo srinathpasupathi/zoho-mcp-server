@@ -9,6 +9,7 @@ import {
   ParamIssueShortId,
   ParamOrganizationSlug,
   ParamPlatform,
+  ParamProjectSlug,
   ParamTeamSlug,
 } from "./schema";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
@@ -210,14 +211,30 @@ export const TOOL_DEFINITIONS = [
       "- Search for production errors in a specific file",
       "- Analyze error patterns and frequencies",
       "- Find recent or frequently occurring errors.",
+      "",
+      "<examples>",
+      "### Find common errors within a file",
+      "",
+      "To find common errors within a file, you can use the `filename` parameter. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename. If you provide generic filenames like `index.js` you're going to end up finding errors that are might be from completely different projects.",
+      "",
+      "```",
+      "search_errors(filename='index.js', sortBy='count')",
+      "```",
+      "",
+      "### Find recent crashes from the 'peated' project",
+      "",
+      "```",
+      "search_errors(query='is:unresolved error.handled:false', projectSlug='peated', sortBy='last_seen')",
+      "```",
+      "",
+      "</examples>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
       filename: z
         .string()
-        .describe(
-          "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
-        )
+        .describe("The filename to search for errors in.")
         .optional(),
       query: z
         .string()
@@ -411,7 +428,7 @@ export const TOOL_HANDLERS = {
 
   search_errors: async (
     context,
-    { filename, query, sortBy, organizationSlug },
+    { filename, query, sortBy, organizationSlug, projectSlug },
   ) => {
     const apiService = new SentryApiService(context.accessToken);
 
@@ -423,11 +440,13 @@ export const TOOL_HANDLERS = {
       throw new Error("Organization slug is required");
     }
 
-    const eventList = await apiService.searchErrors({
+    const eventList = await apiService.searchEvents({
       organizationSlug,
+      projectSlug,
       filename,
       query,
       sortBy,
+      dataset: "errors",
     });
 
     let output = `# Search Results\n\n`;

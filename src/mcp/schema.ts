@@ -12,6 +12,12 @@ export const ParamTeamSlug = z
     "The team's slug. This will default to the first team you have access to.",
   );
 
+export const ParamProjectSlug = z
+  .string()
+  .describe(
+    "The project's slug. This will default to all projects you have access to. It is encouraged to specify this when possible.",
+  );
+
 export const ParamIssueShortId = z
   .string()
   .describe("The Issue ID. e.g. `PROJECT-1Z43`");
