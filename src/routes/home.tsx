@@ -246,7 +246,7 @@ export default new Hono<{
                 compatible client):
               </p>
               <div class="snippet">
-                <button type="button" data-copy={mcpSnippet}>
+                <button type="button" data-copy={sseUrl}>
                   Copy Configuration
                 </button>
                 <pre>{sseUrl}</pre>
