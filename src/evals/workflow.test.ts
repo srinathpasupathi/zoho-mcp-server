@@ -1,8 +1,8 @@
 import { openai } from "@ai-sdk/openai";
 import { experimental_createMCPClient, streamText } from "ai";
-import { evalite } from "evalite";
-import { Factuality } from "./utils";
+import { checkFactuality } from "./utils";
 import { Experimental_StdioMCPTransport } from "ai/mcp-stdio";
+import { describeEval } from "vitest-evals";
 
 const model = openai("gpt-4o");
 
@@ -11,8 +11,8 @@ const CONFIG = {
   teamSlug: "sentry-mcp-evals",
   projectSlug: "test-suite",
 };
-
-evalite("workflow", {
+// TODO: support this in
+describeEval("workflow", {
   data: async () => {
     return [
       {
@@ -97,5 +97,7 @@ evalite("workflow", {
       await mcpClient.close();
     }
   },
-  scorers: [Factuality],
+  scorers: [checkFactuality],
+  skipIf: () => !process.env.OPENAI_API_KEY,
+  threshold: 0.6,
 });
