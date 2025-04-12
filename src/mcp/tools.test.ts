@@ -32,7 +32,7 @@ describe("list_teams", () => {
     expect(result).toMatchInlineSnapshot(`
       "# Teams in **sentry-mcp-evals**
 
-      - sentry-mcp-evals
+      - the-goats
       "
     `);
   });

@@ -323,8 +323,8 @@ export const restHandlers = [
       return HttpResponse.json([
         {
           id: "4509106740854784",
-          slug: "sentry-mcp-evals",
-          name: "sentry-mcp-evals",
+          slug: "the-goats",
+          name: "the-goats",
           dateCreated: "2025-04-06T14:11:23.961739Z",
           isMember: true,
           teamRole: "admin",
@@ -363,14 +363,14 @@ export const restHandlers = [
         {
           team: {
             id: "4509106733776896",
-            slug: "sentry-mcp-evals",
-            name: "sentry-mcp-evals",
+            slug: "the-goats",
+            name: "the-goats",
           },
           teams: [
             {
               id: "4509106733776896",
-              slug: "sentry-mcp-evals",
-              name: "sentry-mcp-evals",
+              slug: "the-goats",
+              name: "the-goats",
             },
           ],
           id: "4509106749636608",

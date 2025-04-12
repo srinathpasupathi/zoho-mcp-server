@@ -4,12 +4,12 @@ import { Experimental_StdioMCPTransport } from "ai/mcp-stdio";
 import { describeEval } from "vitest-evals";
 import { Factuality } from "./utils";
 
-const model = openai("gpt-3.5-turbo");
+const model = openai("gpt-4o");
 
 const CONFIG = {
   organizationSlug: "sentry-mcp-evals",
-  teamSlug: "sentry-mcp-evals",
-  projectSlug: "test-suite",
+  teamSlug: "the-goats",
+  projectSlug: "cloudflare-mcp",
 };
 // TODO: support this in
 describeEval("workflow", {
@@ -29,10 +29,10 @@ describeEval("workflow", {
       },
       {
         input: `Create a new team in Sentry for '${CONFIG.organizationSlug}' called 'the-goats' response with **only** the team slug and no other text.`,
-        expected: "the-goats",
+        expected: CONFIG.teamSlug,
       },
       {
-        input: `Create a new project in Sentry for '${CONFIG.organizationSlug}' called 'cloudflare-mcp' with the 'sentry-mcp-evals' team. Output **only** the project slug and the SENTRY_DSN in the format of:\n<PROJECT_SLUG>\n<SENTRY_DSN>`,
+        input: `Create a new project in Sentry for '${CONFIG.organizationSlug}' called '${CONFIG.projectSlug}' with the '${CONFIG.teamSlug}' team. Output **only** the project slug and the SENTRY_DSN in the format of:\n<PROJECT_SLUG>\n<SENTRY_DSN>`,
         expected:
           "cloudflare-mcp\nhttps://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945",
       },
@@ -49,7 +49,7 @@ describeEval("workflow", {
           '"index.js" at line 8029:24',
           '"index.js" at line 19631:28',
           "```",
-          "- **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41",
+          `- **URL**: https://${CONFIG.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
         ].join("\n"),
       },
     ];
