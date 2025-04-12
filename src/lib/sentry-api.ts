@@ -1,11 +1,6 @@
 import { z } from "zod";
 import { logError } from "./logging";
 
-const API_BASE_URL = new URL(
-  "/api/0",
-  process.env.SENTRY_URL || "https://sentry.io",
-);
-
 export const SentryOrgSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -164,23 +159,36 @@ export function extractIssueId(url: string): {
 }
 
 export class SentryApiService {
-  private accessToken: string;
+  private accessToken: string | null;
+  protected host: string;
+  protected apiPrefix: string;
 
-  constructor(accessToken: string) {
+  constructor(
+    accessToken: string | null = null,
+    host = process.env.SENTRY_HOST,
+  ) {
     this.accessToken = accessToken;
+    this.host = host || "sentry.io";
+    this.apiPrefix = new URL("/api/0", `https://${this.host}`).href;
   }
 
   private async request(
-    url: string,
+    path: string,
     options: RequestInit = {},
   ): Promise<Response> {
-    console.log(`[sentryApi] ${options.method || "GET"} ${API_BASE_URL}${url}`);
-    const response = await fetch(`${API_BASE_URL}${url}`, {
+    const url = `${this.apiPrefix}${path}`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.accessToken) {
+      headers.Authorization = `Bearer ${this.accessToken}`;
+    }
+
+    console.log(`[sentryApi] ${options.method || "GET"} ${url}`);
+    const response = await fetch(url, {
       ...options,
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-        "Content-Type": "application/json",
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -194,9 +202,9 @@ export class SentryApiService {
   }
 
   getIssueUrl(organizationSlug: string, issueId: string): string {
-    return process.env.SENTRY_URL
-      ? `${process.env.SENTRY_URL}/organizations/${organizationSlug}/issues/${issueId}`
-      : `https://${organizationSlug}.sentry.io"}/issues/${issueId}`;
+    return this.host !== "sentry.io"
+      ? `https://${this.host}/organizations/${organizationSlug}/issues/${issueId}`
+      : `https://${organizationSlug}.${this.host}/issues/${issueId}`;
   }
 
   async listOrganizations(): Promise<z.infer<typeof SentryOrgSchema>[]> {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { extractIssueId } from "./sentry-api";
+import { extractIssueId, SentryApiService } from "./sentry-api";
 
 describe("extractIssueId", () => {
   it("should extract issue ID from a full Sentry URL", () => {
@@ -90,5 +90,72 @@ describe("extractIssueId", () => {
     expect(() => extractIssueId("abc")).toThrowErrorMatchingInlineSnapshot(
       `[Error: Invalid Sentry issue URL. Must start with http:// or https://]`,
     );
+  });
+});
+
+describe("SentryApiService", () => {
+  describe("getIssueUrl", () => {
+    it("should work with sentry.io", () => {
+      const apiService = new SentryApiService(null, "sentry.io");
+      const result = apiService.getIssueUrl("sentry-mcp", "123456");
+      expect(result).toMatchInlineSnapshot(
+        `"https://sentry-mcp.sentry.io/issues/123456"`,
+      );
+    });
+    it("should work with self-hosted", () => {
+      const apiService = new SentryApiService(null, "sentry.example.com");
+      const result = apiService.getIssueUrl("sentry-mcp", "123456");
+      expect(result).toMatchInlineSnapshot(
+        `"https://sentry.example.com/organizations/sentry-mcp/issues/123456"`,
+      );
+    });
+  });
+
+  describe("listOrganizations", () => {
+    it("serializes", async () => {
+      const apiService = new SentryApiService("access-token", "sentry.io");
+      const result = await apiService.listOrganizations();
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "id": "4509106740723712",
+            "name": "sentry-mcp-evals",
+            "slug": "sentry-mcp-evals",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("listTeams", () => {
+    it("serializes", async () => {
+      const apiService = new SentryApiService("access-token", "sentry.io");
+      const result = await apiService.listTeams("sentry-mcp-evals");
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "id": "4509106740854784",
+            "name": "sentry-mcp-evals",
+            "slug": "sentry-mcp-evals",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("listProjects", () => {
+    it("serializes", async () => {
+      const apiService = new SentryApiService("access-token", "sentry.io");
+      const result = await apiService.listProjects("sentry-mcp-evals");
+      expect(result).toMatchInlineSnapshot(`
+        [
+          {
+            "id": "4509106749636608",
+            "name": "test-suite",
+            "slug": "test-suite",
+          },
+        ]
+      `);
+    });
   });
 });

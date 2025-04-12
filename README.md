@@ -30,10 +30,10 @@ SENTRY_AUTH_TOKEN= npm run start:stdio
 
 ### Self-Hosted Sentry
 
-You can override the `SENTRY_URL` env variable to set your base Sentry url:
+You can override the `SENTRY_HOST` env variable to set your base Sentry url:
 
 ```shell
-SENTRY_URL=https://sentry.mycompany.com
+SENTRY_HOST=sentry.example.com
 ```
 
 ### MCP Inspector

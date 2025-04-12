@@ -1,10 +1,10 @@
 import { openai } from "@ai-sdk/openai";
 import { experimental_createMCPClient, streamText } from "ai";
-import { checkFactuality } from "./utils";
 import { Experimental_StdioMCPTransport } from "ai/mcp-stdio";
 import { describeEval } from "vitest-evals";
+import { Factuality } from "./utils";
 
-const model = openai("gpt-4o");
+const model = openai("gpt-3.5-turbo");
 
 const CONFIG = {
   organizationSlug: "sentry-mcp-evals",
@@ -97,7 +97,7 @@ describeEval("workflow", {
       await mcpClient.close();
     }
   },
-  scorers: [checkFactuality],
+  scorers: [Factuality(model)],
   skipIf: () => !process.env.OPENAI_API_KEY,
   threshold: 0.6,
 });
