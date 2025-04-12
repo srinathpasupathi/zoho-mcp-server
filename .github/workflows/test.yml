@@ -52,5 +52,5 @@ jobs:
         with:
           directory: ./coverage/
           flags: unittests
-          name: codecov-umbrella
+          name: codecov-unittests
           fail_ci_if_error: false

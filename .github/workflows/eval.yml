@@ -63,5 +63,5 @@ jobs:
         with:
           directory: ./coverage/
           flags: evals
-          name: codecov-umbrella
+          name: codecov-evals
           fail_ci_if_error: false
