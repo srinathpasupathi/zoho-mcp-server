@@ -107,13 +107,13 @@ pnpm test
 Evals will require a `.env` file with some config:
 
 ```shell
-OAUTH_API_TOKEN=
+OPENAI_API_KEY=
 ```
 
 Once thats done you can run them using:
 
 ```shell
-pnpm eval
+pnpm test
 ```
 
 ## Notes
