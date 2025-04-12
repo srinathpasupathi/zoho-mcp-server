@@ -6,6 +6,8 @@
     "build": "tsc",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
+    "eval": "vitest --config=vitest.eval.config.ts",
+    "eval:ci": "vitest run --config=vitest.eval.config.ts --coverage --reporter=junit",
     "format": "biome format --write",
     "lint": "biome lint",
     "lint:fix": "biome lint --fix",

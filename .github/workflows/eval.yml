@@ -52,7 +52,7 @@ jobs:
         run: pnpm install
 
       - name: Run evals
-        run: pnpm test:ci evals
+        run: pnpm eval:ci evals
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
