@@ -1,32 +1,17 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { createScorer } from "evalite";
 import { z } from "zod";
 
 const model = openai("gpt-4o");
 
 /**
- * Factuality scorer using OpenAI's GPT-4o model.
- */
-export const Factuality = createScorer<string, string, string>({
-  name: "Factuality",
-  description: "Check for factuality of answer.",
-  scorer: ({ input, expected, output }) =>
-    checkFactuality({
-      question: input,
-      groundTruth: expected!,
-      submission: output,
-    }),
-});
-
-/**
  * Checks the factuality of a submission, using
  * OpenAI's GPT-4o model.
  */
-const checkFactuality = async (opts: {
-  question: string;
-  groundTruth: string;
-  submission: string;
+export const checkFactuality = async (opts: {
+  input: string;
+  expected: string;
+  output: string;
 }) => {
   const { object } = await generateObject({
     model,
@@ -39,11 +24,11 @@ const checkFactuality = async (opts: {
       You are comparing a submitted answer to an expert answer on a given question. Here is the data:
       [BEGIN DATA]
       ************
-      [Question]: ${opts.question}
+      [Question]: ${opts.input}
       ************
-      [Expert]: ${opts.groundTruth}
+      [Expert]: ${opts.expected}
       ************
-      [Submission]: ${opts.submission}
+      [Submission]: ${opts.output}
       ************
       [END DATA]
 

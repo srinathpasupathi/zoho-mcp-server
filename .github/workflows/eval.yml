@@ -6,13 +6,15 @@ on:
     branches: [main]
     paths:
       - 'src/mcp/**'
-      - '*.eval.ts'
+      - 'src/lib/sentry*'
+      - 'src/evals/workflow.test.ts'
       - '.github/workflows/eval.yml'
   pull_request:
     branches: [main]
     paths:
       - 'src/mcp/**'
-      - '*.eval.ts'
+      - 'src/lib/sentry*'
+      - 'src/evals/workflow.test.ts'
       - '.github/workflows/eval.yml'
 
 jobs:
@@ -50,6 +52,16 @@ jobs:
         run: pnpm install
 
       - name: Run evals
-        run: pnpm eval:ci
+        run: pnpm test:ci evals
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          directory: ./coverage/
+          flags: evals
+          name: codecov-umbrella
+          fail_ci_if_error: false
