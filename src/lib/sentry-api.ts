@@ -35,9 +35,22 @@ export const SentryIssueSchema = z.object({
   permalink: z.string().url(),
 });
 
+export const SentryFrameInterface = z
+  .object({
+    filename: z.string().nullable(),
+    function: z.string().nullable(),
+    lineNo: z.number().nullable(),
+    colNo: z.number().nullable(),
+    absPath: z.string().nullable(),
+    module: z.string().nullable(),
+    // lineno, source code
+    context: z.array(z.tuple([z.number(), z.string()])),
+  })
+  .partial();
+
 // XXX: Sentry's schema generally speaking is "assume all user input is missing"
 // so we need to handle effectively every field being optional or nullable.
-const ExceptionInterface = z
+export const SentryExceptionInterface = z
   .object({
     mechanism: z
       .object({
@@ -48,28 +61,15 @@ const ExceptionInterface = z
     type: z.string().nullable(),
     value: z.string().nullable(),
     stacktrace: z.object({
-      frames: z.array(
-        z
-          .object({
-            filename: z.string().nullable(),
-            function: z.string().nullable(),
-            lineNo: z.number().nullable(),
-            colNo: z.number().nullable(),
-            absPath: z.string().nullable(),
-            module: z.string().nullable(),
-            // lineno, source code
-            context: z.array(z.tuple([z.number(), z.string()])),
-          })
-          .partial(),
-      ),
+      frames: z.array(SentryFrameInterface),
     }),
   })
   .partial();
 
 export const SentryErrorEntrySchema = z.object({
   // XXX: Sentry can return either of these. Not sure why we never normalized it.
-  values: z.array(ExceptionInterface.optional()),
-  value: ExceptionInterface.nullable().optional(),
+  values: z.array(SentryExceptionInterface.optional()),
+  value: SentryExceptionInterface.nullable().optional(),
 });
 
 export const SentryEventSchema = z.object({
@@ -78,6 +78,7 @@ export const SentryEventSchema = z.object({
   message: z.string().nullable(),
   dateCreated: z.string().datetime(),
   culprit: z.string().nullable(),
+  platform: z.string().nullable(),
   entries: z.array(
     z.union([
       // TODO: there are other types

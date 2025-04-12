@@ -113,12 +113,9 @@ describe("get_error_details", () => {
     expect(result).toMatchInlineSnapshot(`
       "# REMOTE-MCP-41: Error: Tool list_organizations is already registered
 
-      **Issue ID**:
-      REMOTE-MCP-41
-      **Culprit**:
-      Object.fetch(index)
-      **Occurred At**:
-      2025-04-08T21:15:04.000Z
+      **Issue ID**: REMOTE-MCP-41
+      **Culprit**: Object.fetch(index)
+      **Occurred At**: 2025-04-08T21:15:04.000Z
 
       **Error:**
       \`\`\`
@@ -127,9 +124,9 @@ describe("get_error_details", () => {
 
       **Stacktrace:**
       \`\`\`
-      "index.js" at line 7809:27
-      "index.js" at line 8029:24
-      "index.js" at line 19631:28
+      index.js:7809:27
+      index.js:8029:24 (OAuthProviderImpl.fetch)
+      index.js:19631:28 (Object.fetch)
       \`\`\`
 
       # Using this information
@@ -153,15 +150,13 @@ describe("get_error_details", () => {
         issueUrl: "https://sentry-mcp-evals.sentry.io/issues/6507376925",
       },
     );
+
     expect(result).toMatchInlineSnapshot(`
       "# 6507376925: Error: Tool list_organizations is already registered
 
-      **Issue ID**:
-      6507376925
-      **Culprit**:
-      Object.fetch(index)
-      **Occurred At**:
-      2025-04-08T21:15:04.000Z
+      **Issue ID**: 6507376925
+      **Culprit**: Object.fetch(index)
+      **Occurred At**: 2025-04-08T21:15:04.000Z
 
       **Error:**
       \`\`\`
@@ -170,9 +165,9 @@ describe("get_error_details", () => {
 
       **Stacktrace:**
       \`\`\`
-      "index.js" at line 7809:27
-      "index.js" at line 8029:24
-      "index.js" at line 19631:28
+      index.js:7809:27
+      index.js:8029:24 (OAuthProviderImpl.fetch)
+      index.js:19631:28 (Object.fetch)
       \`\`\`
 
       # Using this information
