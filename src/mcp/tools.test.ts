@@ -53,7 +53,7 @@ describe("list_projects", () => {
     expect(result).toMatchInlineSnapshot(`
       "# Projects in **sentry-mcp-evals**
 
-      - test-suite
+      - cloudflare-mcp
       "
     `);
   });

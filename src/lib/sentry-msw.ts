@@ -374,8 +374,8 @@ export const restHandlers = [
             },
           ],
           id: "4509106749636608",
-          name: "test-suite",
-          slug: "test-suite",
+          name: "cloudflare-mcp",
+          slug: "cloudflare-mcp",
           isBookmarked: false,
           isMember: true,
           access: [
