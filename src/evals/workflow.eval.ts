@@ -98,7 +98,7 @@ describeEval("workflow", {
     }
   },
   scorers: [Factuality(model)],
-  skipIf: () => !process.env.OPENAI_API_KEY,
+  // skipIf: () => !process.env.OPENAI_API_KEY,
   threshold: 0.6,
   timeout: 30000,
 });
