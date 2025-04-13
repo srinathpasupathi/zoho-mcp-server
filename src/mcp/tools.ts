@@ -146,9 +146,25 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: "get_error_details" as const,
+    name: "get_issue_summary" as const,
     description: [
-      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message. Either issueId or issueUrl MUST be provided.",
+      "Retrieve a summary of an issue in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View a summary of an issue in Sentry",
+      "",
+      "If the issue is an error, or you want additional information like the stacktrace, you should use `get_issue_details()` tool instead.",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      issueId: ParamIssueShortId.optional(),
+      issueUrl: z.string().url().optional(),
+    },
+  },
+  {
+    name: "get_issue_details" as const,
+    description: [
+      "Retrieve issue details from Sentry for a specific Issue ID, including the stacktrace and error message if available. Either issueId or issueUrl MUST be provided.",
       "",
       "Use this tool when you need to:",
       "- Investigate a specific production error",
@@ -399,7 +415,53 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
-  get_error_details: async (
+  get_issue_summary: async (
+    context,
+    { issueId, issueUrl, organizationSlug },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (issueUrl) {
+      const resolved = extractIssueId(issueUrl);
+      if (!resolved) {
+        throw new Error(
+          "Invalid Sentry issue URL. Path should contain '/issues/{issue_id}'",
+        );
+      }
+      organizationSlug = resolved.organizationSlug;
+      issueId = resolved.issueId;
+    } else if (!issueId) {
+      throw new Error("Either issueId or issueUrl must be provided");
+    }
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const issue = await apiService.getIssue({
+      organizationSlug,
+      issueId,
+    });
+
+    let output = `# ${issue.title}\n\n`;
+    output += `**Issue ID**: ${issue.shortId}\n`;
+    output += `**Culprit**: ${issue.culprit}\n`;
+    output += `**First Seen**: ${new Date(issue.firstSeen).toISOString()}\n`;
+    output += `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}\n`;
+    output += `**Occurrences**: ${issue.count}\n`;
+    output += `**Users Impacted**: ${issue.userCount}\n`;
+    output += `**Status**: ${issue.status}\n`;
+    output += `**Platform**: ${issue.platform}\n`;
+    output += `**Project**: ${issue.project.name}\n`;
+    output += `**URL**: ${issue.permalink}\n`;
+
+    return output;
+  },
+  get_issue_details: async (
     context,
     { issueId, issueUrl, organizationSlug },
   ) => {
@@ -499,8 +561,8 @@ export const TOOL_HANDLERS = {
     }
 
     output += "# Using this information\n\n";
-    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
-    output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
+    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can get more details about this error by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
 
     return output;
   },

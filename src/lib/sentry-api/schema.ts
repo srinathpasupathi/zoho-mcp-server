@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { logError } from "../logging";
 
 export const SentryOrgSchema = z.object({
   id: z.string(),
@@ -30,9 +29,16 @@ export const SentryIssueSchema = z.object({
   id: z.string(),
   shortId: z.string(),
   title: z.string(),
+  firstSeen: z.string().datetime(),
   lastSeen: z.string().datetime(),
-  count: z.number(),
+  count: z.union([z.string(), z.number()]),
+  userCount: z.union([z.string(), z.number()]),
   permalink: z.string().url(),
+  project: SentryProjectSchema,
+  platform: z.string(),
+  status: z.string(),
+  culprit: z.string(),
+  type: z.union([z.literal("error"), z.string()]),
 });
 
 export const SentryFrameInterface = z
