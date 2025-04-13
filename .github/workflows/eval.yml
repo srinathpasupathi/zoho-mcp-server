@@ -1,4 +1,4 @@
-name: Eval
+name: eval
 
 on:
   workflow_dispatch:
@@ -10,7 +10,6 @@ on:
       - 'src/evals/workflow.test.ts'
       - '.github/workflows/eval.yml'
   pull_request:
-    branches: [main]
     paths:
       - 'src/mcp/**'
       - 'src/lib/sentry*'
@@ -18,7 +17,7 @@ on:
       - '.github/workflows/eval.yml'
 
 jobs:
-  evals:
+  eval:
     environment: Actions
     runs-on: 'ubuntu-20.04'
     steps:
@@ -29,7 +28,8 @@ jobs:
         with:
           node-version: "20"
 
-      - uses: pnpm/action-setup@v3
+      # pnpm/action-setup@v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
         name: Install pnpm
         with:
           version: 8
@@ -66,8 +66,16 @@ jobs:
           name: codecov-evals
           fail_ci_if_error: false
 
-      - name: Upload test results to Codecov
+      - name: Upload results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-junit
+          path: '**/*.junit.xml'
+          retention-days: 1
