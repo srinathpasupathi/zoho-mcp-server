@@ -1,4 +1,4 @@
-name: test
+name: Test
 
 on:
   push:
@@ -65,6 +65,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-junit
+          name: junit-test
           path: '**/*.junit.xml'
           retention-days: 1
