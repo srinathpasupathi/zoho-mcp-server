@@ -1,10 +1,50 @@
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 
+const ReleasePayload = {
+  id: 1402755016,
+  version: "8ce89484-0fec-4913-a2cd-e8e2d41dee36",
+  status: "open",
+  shortVersion: "8ce89484-0fec-4913-a2cd-e8e2d41dee36",
+  versionInfo: {
+    package: null,
+    version: { raw: "8ce89484-0fec-4913-a2cd-e8e2d41dee36" },
+    description: "8ce89484-0fec-4913-a2cd-e8e2d41dee36",
+    buildHash: null,
+  },
+  ref: null,
+  url: null,
+  dateReleased: null,
+  dateCreated: "2025-04-13T19:54:21.764000Z",
+  data: {},
+  newGroups: 0,
+  owner: null,
+  commitCount: 0,
+  lastCommit: null,
+  deployCount: 0,
+  lastDeploy: null,
+  authors: [],
+  projects: [
+    {
+      id: 4509062593708032,
+      slug: "cloudflare-mcp",
+      name: "cloudflare-mcp",
+      newGroups: 0,
+      platform: "bun",
+      platforms: ["javascript"],
+      hasHealthData: false,
+    },
+  ],
+  firstEvent: "2025-04-13T19:54:21Z",
+  lastEvent: "2025-04-13T20:28:23Z",
+  currentProjectMeta: {},
+  userAgent: null,
+};
+
 const IssuePayload = {
   id: "6507376925",
   shareId: null,
-  shortId: "REMOTE-MCP-41",
+  shortId: "CLOUDFLARE-MCP-41",
   title: "Error: Tool list_organizations is already registered",
   culprit: "Object.fetch(index)",
   permalink: "https://sentry-mcp-evals.sentry.io/issues/6507376925/",
@@ -17,8 +57,8 @@ const IssuePayload = {
   platform: "javascript",
   project: {
     id: "4509062593708032",
-    name: "remote-mcp",
-    slug: "remote-mcp",
+    name: "CLOUDFLARE-MCP",
+    slug: "CLOUDFLARE-MCP",
     platform: "bun",
   },
   type: "error",
@@ -508,7 +548,7 @@ const EventsErrorsPayload = {
       project: "test-suite",
       "count()": 2,
       "last_seen()": "2025-04-07T12:23:39+00:00",
-      issue: "REMOTE-MCP-41",
+      issue: "CLOUDFLARE-MCP-41",
     },
   ],
   meta: {
@@ -1035,7 +1075,7 @@ export const restHandlers = [
     },
   ),
   http.get(
-    "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/REMOTE-MCP-41/",
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/CLOUDFLARE-MCP-41/",
     () => HttpResponse.json(IssuePayload),
   ),
   http.get(
@@ -1043,12 +1083,20 @@ export const restHandlers = [
     () => HttpResponse.json(IssuePayload),
   ),
   http.get(
-    "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/REMOTE-MCP-41/events/latest/",
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/CLOUDFLARE-MCP-41/events/latest/",
     () => HttpResponse.json(IssueLatestEventPayload),
   ),
   http.get(
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/6507376925/events/latest/",
     () => HttpResponse.json(IssueLatestEventPayload),
+  ),
+  http.get(
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/releases/",
+    () => HttpResponse.json([ReleasePayload]),
+  ),
+  http.get(
+    "https://sentry.io/api/0/projects/sentry-mcp-evals/cloudflare-mcp/releases/",
+    () => HttpResponse.json([ReleasePayload]),
   ),
 ];
 
