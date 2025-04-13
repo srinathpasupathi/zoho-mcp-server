@@ -90,8 +90,8 @@ describe("search_errors", () => {
 
       # Using this information
 
-      - You can reference the Issue ID in commit messages (e.g. \`Fixes REMOTE-MCP-41\`) to automatically close the issue when the commit is merged.
-      - You can get more details about this error by using the "get_error_details" tool.
+      - You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.
+      - You can get more details about this error by using the tool: \`get_issue_details(sentry-mcp-evals, <issueID>)\`
       "
     `);
   });
@@ -142,9 +142,72 @@ describe("search_transactions", () => {
   });
 });
 
-describe("get_error_details", () => {
+describe("get_issue_summary", () => {
   it("serializes with issueId", async () => {
-    const tool = TOOL_HANDLERS.get_error_details;
+    const tool = TOOL_HANDLERS.get_issue_summary;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: "sentry-mcp-evals",
+        issueId: "REMOTE-MCP-41",
+        issueUrl: undefined,
+      },
+    );
+    expect(result).toMatchInlineSnapshot(`
+      "# Error: Tool list_organizations is already registered
+
+      **Issue ID**: REMOTE-MCP-41
+      **Culprit**: Object.fetch(index)
+      **First Seen**: 2025-04-03T22:51:19.403Z
+      **Last Seen**: 2025-04-12T11:34:11.000Z
+      **Occurrences**: 25
+      **Users Impacted**: 1
+      **Status**: unresolved
+      **Platform**: javascript
+      **Project**: remote-mcp
+      **URL**: https://sentry.sentry.io/issues/6507376925/
+      "
+    `);
+  });
+
+  it("serializes with issueUrl", async () => {
+    const tool = TOOL_HANDLERS.get_issue_summary;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: undefined,
+        issueId: undefined,
+        issueUrl: "https://sentry-mcp-evals.sentry.io/issues/6507376925",
+      },
+    );
+
+    expect(result).toMatchInlineSnapshot(`
+      "# Error: Tool list_organizations is already registered
+
+      **Issue ID**: REMOTE-MCP-41
+      **Culprit**: Object.fetch(index)
+      **First Seen**: 2025-04-03T22:51:19.403Z
+      **Last Seen**: 2025-04-12T11:34:11.000Z
+      **Occurrences**: 25
+      **Users Impacted**: 1
+      **Status**: unresolved
+      **Platform**: javascript
+      **Project**: remote-mcp
+      **URL**: https://sentry.sentry.io/issues/6507376925/
+      "
+    `);
+  });
+});
+
+describe("get_issue_details", () => {
+  it("serializes with issueId", async () => {
+    const tool = TOOL_HANDLERS.get_issue_details;
     const result = await tool(
       {
         accessToken: "access-token",
@@ -184,7 +247,7 @@ describe("get_error_details", () => {
   });
 
   it("serializes with issueUrl", async () => {
-    const tool = TOOL_HANDLERS.get_error_details;
+    const tool = TOOL_HANDLERS.get_issue_details;
     const result = await tool(
       {
         accessToken: "access-token",
