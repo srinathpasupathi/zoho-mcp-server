@@ -307,6 +307,163 @@ const IssueLatestEventPayload = {
   previousEventID: "b7ed18493f4f4817a217b03839d4c017",
 };
 
+const EventsErrorsPayload = {
+  data: [
+    {
+      "issue.id": 6114575469,
+      title: "Error: Tool list_organizations is already registered",
+      project: "test-suite",
+      "count()": 2,
+      "last_seen()": "2025-04-07T12:23:39+00:00",
+      issue: "REMOTE-MCP-41",
+    },
+  ],
+  meta: {
+    fields: {
+      "issue.id": "integer",
+      title: "string",
+      project: "string",
+      "count()": "integer",
+      "last_seen()": "date",
+    },
+    units: {
+      "issue.id": null,
+      title: null,
+      project: null,
+      "count()": null,
+      "last_seen()": null,
+    },
+    isMetricsData: false,
+    isMetricsExtractedData: false,
+    tips: { query: null, columns: null },
+    datasetReason: "unchanged",
+    dataset: "errors",
+  },
+};
+
+const EventsSpansPayload = {
+  data: [
+    {
+      id: "07752c6aeb027c8f",
+      "span.op": "http.server",
+      "span.description": "GET /trpc/bottleList",
+      "span.duration": 12.0,
+      transaction: "GET /trpc/bottleList",
+      timestamp: "2025-04-13T14:19:18+00:00",
+      is_transaction: true,
+      project: "peated",
+      trace: "6a477f5b0f31ef7b6b9b5e1dea66c91d",
+      "transaction.span_id": "07752c6aeb027c8f",
+      "project.name": "peated",
+    },
+    {
+      id: "7ab5edf5b3ba42c9",
+      "span.op": "http.server",
+      "span.description": "GET /trpc/bottleList",
+      "span.duration": 18.0,
+      transaction: "GET /trpc/bottleList",
+      timestamp: "2025-04-13T14:19:17+00:00",
+      is_transaction: true,
+      project: "peated",
+      trace: "54177131c7b192a446124daba3136045",
+      "transaction.span_id": "7ab5edf5b3ba42c9",
+      "project.name": "peated",
+    },
+  ],
+  meta: {
+    fields: {
+      id: "string",
+      "span.op": "string",
+      "span.description": "string",
+      "span.duration": "duration",
+      transaction: "string",
+      timestamp: "string",
+      is_transaction: "boolean",
+      project: "string",
+      trace: "string",
+      "transaction.span_id": "string",
+      "project.name": "string",
+    },
+    units: {
+      id: null,
+      "span.op": null,
+      "span.description": null,
+      "span.duration": "millisecond",
+      transaction: null,
+      timestamp: null,
+      is_transaction: null,
+      project: null,
+      trace: null,
+      "transaction.span_id": null,
+      "project.name": null,
+    },
+    isMetricsData: false,
+    isMetricsExtractedData: false,
+    tips: {},
+    datasetReason: "unchanged",
+    dataset: "spans",
+    dataScanned: "full",
+    accuracy: {
+      confidence: [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+      ],
+    },
+  },
+  confidence: [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+  ],
+};
+
 export const restHandlers = [
   http.get("https://sentry.io/api/0/organizations/", () => {
     return HttpResponse.json([
@@ -584,62 +741,66 @@ export const restHandlers = [
   http.get(
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/events/",
     async ({ request }) => {
-      // why is url empty???
-      // const url = new URL(request.url);
-      // const dataset = url.searchParams.get("dataset");
-      // const query = url.searchParams.get("query");
-      // if (dataset !== "errors") {
-      //   return HttpResponse.json("", { status: 400 });
-      // }
-      // if (query !== "errors") {
-      //   return HttpResponse.json("", { status: 400 });
-      // }
-      return HttpResponse.json({
-        data: [
-          {
-            "issue.id": 6114575469,
-            title: "Error: Tool list_organizations is already registered",
-            project: "test-suite",
-            "count()": 2,
-            "last_seen()": "2025-04-07T12:23:39+00:00",
-            issue: "REMOTE-MCP-41",
-          },
-        ],
-        meta: {
-          fields: {
-            "issue.id": "integer",
-            title: "string",
-            project: "string",
-            "count()": "integer",
-            "last_seen()": "date",
-          },
-          units: {
-            "issue.id": null,
-            title: null,
-            project: null,
-            "count()": null,
-            "last_seen()": null,
-          },
-          isMetricsData: false,
-          isMetricsExtractedData: false,
-          tips: { query: null, columns: null },
-          datasetReason: "unchanged",
-          dataset: "errors",
-        },
-      });
+      const url = new URL(request.url);
+      console.log(request.url);
+      const dataset = url.searchParams.get("dataset");
+      const query = url.searchParams.get("query");
+      const fields = url.searchParams.getAll("field");
+
+      if (dataset === "spans") {
+        //[sentryApi] GET https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=spans&per_page=10&referrer=sentry-mcp&sort=-span.duration&allowAggregateConditions=0&useRpc=1&field=id&field=trace&field=span.op&field=span.description&field=span.duration&field=transaction&field=project&field=timestamp&query=is_transaction%3Atrue
+        if (query !== "is_transaction:true") {
+          return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
+        }
+
+        if (url.searchParams.get("useRpc") !== "1") {
+          return HttpResponse.json("Invalid useRpc", { status: 400 });
+        }
+
+        if (
+          !fields.includes("id") ||
+          !fields.includes("trace") ||
+          !fields.includes("span.op") ||
+          !fields.includes("span.description") ||
+          !fields.includes("span.duration")
+        ) {
+          return HttpResponse.json("Invalid fields", { status: 400 });
+        }
+        return HttpResponse.json(EventsSpansPayload);
+      }
+      if (dataset === "errors") {
+        //https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=errors&per_page=10&referrer=sentry-mcp&sort=-count&statsPeriod=1w&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&query=
+        if (query !== "" && query !== "is:unresolved error.handled:false") {
+          return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
+        }
+
+        if (
+          !fields.includes("issue") ||
+          !fields.includes("title") ||
+          !fields.includes("project") ||
+          !fields.includes("last_seen()") ||
+          !fields.includes("count()")
+        ) {
+          return HttpResponse.json("Invalid fields", { status: 400 });
+        }
+
+        if (url.searchParams.get("sort") !== "-count") {
+          return HttpResponse.json("Invalid sort", { status: 400 });
+        }
+
+        return HttpResponse.json(EventsErrorsPayload);
+      }
+
+      return HttpResponse.json("Invalid dataset", { status: 400 });
     },
   ),
   http.get(
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/REMOTE-MCP-41/events/latest/",
-    () => {
-      return HttpResponse.json(IssueLatestEventPayload);
-    },
+    () => HttpResponse.json(IssueLatestEventPayload),
   ),
   http.get(
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/6507376925/events/latest/",
-    () => {
-      return HttpResponse.json(IssueLatestEventPayload);
-    },
+    () => HttpResponse.json(IssueLatestEventPayload),
   ),
 ];
 

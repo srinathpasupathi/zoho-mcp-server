@@ -8,7 +8,7 @@ import {
   getUpstreamAuthorizeUrl,
 } from "../lib/oauth";
 import type { WorkerProps } from "../types";
-import { SentryApiService } from "../lib/sentry-api";
+import { SentryApiService } from "../lib/sentry-api/client";
 
 export const SENTRY_AUTH_URL = "/oauth/authorize/";
 export const SENTRY_TOKEN_URL = "/oauth/token/";

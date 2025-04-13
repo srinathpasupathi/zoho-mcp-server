@@ -52,6 +52,21 @@ describeEval("workflow", {
           `- **URL**: https://${CONFIG.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
         ].join("\n"),
       },
+      {
+        input: "Analyze issue REMOTE-MCP-41 from Sentry.",
+        expected: [
+          "## REMOTE-MCP-41",
+          "- **Error**: Tool list_organizations is already registered",
+          "- **Issue ID**: REMOTE-MCP-41",
+          "- **Stacktrace**:",
+          "```",
+          "index.js at line 7809:27",
+          '"index.js" at line 8029:24',
+          '"index.js" at line 19631:28',
+          "```",
+          `- **URL**: https://${CONFIG.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
+        ].join("\n"),
+      },
     ];
   },
   task: async (input) => {

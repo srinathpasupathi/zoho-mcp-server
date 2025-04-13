@@ -7,6 +7,7 @@ import {
   ParamPlatform,
   ParamProjectSlug,
   ParamTeamSlug,
+  ParamTransaction,
 } from "./schema";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { formatEventOutput } from "./formatting";
@@ -169,8 +170,8 @@ export const TOOL_DEFINITIONS = [
       "Search for errors in Sentry.",
       "",
       "Use this tool when you need to:",
-      "- Search for production errors in a specific file",
-      "- Analyze error patterns and frequencies",
+      "- Search for production errors in a specific file.",
+      "- Analyze error patterns and frequencies.",
       "- Find recent or frequently occurring errors.",
       "",
       "<examples>",
@@ -206,6 +207,7 @@ export const TOOL_DEFINITIONS = [
         .string()
         .describe("The filename to search for errors in.")
         .optional(),
+      transaction: ParamTransaction.optional(),
       query: z
         .string()
         .describe(
@@ -218,6 +220,57 @@ export const TOOL_DEFINITIONS = [
         .default("last_seen")
         .describe(
           "Sort the results either by the last time they occurred or the count of occurrences.",
+        ),
+    },
+  },
+  {
+    name: "search_transactions" as const,
+    description: [
+      "Search for transactions in Sentry.",
+      "",
+      "Transactions are segments of traces that are associated with a specific route or endpoint.",
+      "",
+      "Use this tool when you need to:",
+      "- Search for production transaction data to understand performance.",
+      "- Analyze traces and latency patterns.",
+      "- Find examples of recent requests to endpoints.",
+      "",
+      "<examples>",
+      "### Find slow requests to a route",
+      "",
+      "...",
+      "",
+      "```",
+      "search_transactions(organizationSlug='my-organization', transaction='/checkout', sortBy='latency')",
+      "```",
+      "",
+      "</examples>",
+      "",
+      "<query_syntax>",
+      "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      // "",
+      // "There are some common query parameters that are useful for searching errors:",
+      // "",
+      // "- `is:unresolved` - Find unresolved errors",
+      // "- `error.handled:false` - Find errors that are not handled (otherwise known as uncaught exceptions or crashes)",
+      "</query_syntax>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
+      transaction: ParamTransaction.optional(),
+      query: z
+        .string()
+        .describe(
+          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
+        )
+        .optional(),
+      sortBy: z
+        .enum(["timestamp", "duration"])
+        .optional()
+        .default("timestamp")
+        .describe(
+          "Sort the results either by the timestamp of the request (most recent first) or the duration of the request (longest first).",
         ),
     },
   },
@@ -375,7 +428,7 @@ export const TOOL_HANDLERS = {
 
     const event = await apiService.getLatestEventForIssue({
       organizationSlug,
-      issueId: issueId,
+      issueId: issueId!,
     });
 
     let output = `# ${issueId}: ${event.title}\n\n`;
@@ -399,7 +452,7 @@ export const TOOL_HANDLERS = {
 
   search_errors: async (
     context,
-    { filename, query, sortBy, organizationSlug, projectSlug },
+    { filename, transaction, query, sortBy, organizationSlug, projectSlug },
   ) => {
     const apiService = new SentryApiService(context.accessToken);
 
@@ -411,13 +464,13 @@ export const TOOL_HANDLERS = {
       throw new Error("Organization slug is required");
     }
 
-    const eventList = await apiService.searchEvents({
+    const eventList = await apiService.searchErrors({
       organizationSlug,
       projectSlug,
       filename,
       query,
+      transaction,
       sortBy,
-      dataset: "errors",
     });
 
     let output = `# Search Results\n\n`;
@@ -448,6 +501,61 @@ export const TOOL_HANDLERS = {
     output += "# Using this information\n\n";
     output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
     output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
+
+    return output;
+  },
+
+  search_transactions: async (
+    context,
+    { transaction, query, sortBy, organizationSlug, projectSlug },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const eventList = await apiService.searchSpans({
+      organizationSlug,
+      projectSlug,
+      transaction,
+      query,
+      sortBy,
+    });
+
+    let output = `# Search Results\n\n`;
+    if (query) output += `These spans match the query \`${query}\`\n`;
+    if (transaction)
+      output += `These spans are limited to the transaction \`${transaction}\`\n`;
+    output += "\n";
+
+    if (eventList.length === 0) {
+      output += `No results found\n\n`;
+      output += `We searched within the ${organizationSlug} organization.\n\n`;
+      output += `You may want to consult the \`help\` tool if you think your search syntax might be wrong.\n`;
+      return output;
+    }
+
+    for (const eventSummary of eventList) {
+      output += `## ${eventSummary["span.op"]}: ${eventSummary["span.description"]}\n\n`;
+      output += `- **Transaction**: ${eventSummary.transaction}\n`;
+      output += `- **Duration**: ${eventSummary["span.duration"]}\n`;
+      output += `- **Timestamp**: ${eventSummary.timestamp}\n`;
+      output += `- **Span ID**: ${eventSummary.id}\n`;
+      output += `- **Trace ID**: ${eventSummary.trace}\n`;
+      output += `- **Project**: ${eventSummary.project}\n`;
+      output += `- **URL**: ${apiService.getTraceUrl(
+        organizationSlug,
+        eventSummary.trace,
+      )}\n\n`;
+    }
+
+    // output += "# Using this information\n\n";
+    // output += `- You can get more details about this error by using the "get_trace_details" tool.\n`;
 
     return output;
   },
