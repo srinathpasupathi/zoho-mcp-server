@@ -6,6 +6,7 @@ import {
   ParamOrganizationSlug,
   ParamPlatform,
   ParamProjectSlug,
+  ParamQuery,
   ParamTeamSlug,
   ParamTransaction,
 } from "./schema";
@@ -181,8 +182,13 @@ export const TOOL_DEFINITIONS = [
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
       projectSlug: ParamProjectSlug.optional(),
-      query: z.string().optional(),
-      sortBy: z.enum(["last_seen", "first_seen", "count"]).optional(),
+      query: ParamQuery.optional(),
+      sortBy: z
+        .enum(["last_seen", "first_seen", "count", "userCount"])
+        .describe(
+          "Sort the results either by the last time they occurred, the first time they occurred, the count of occurrences, or the number of users affected.",
+        )
+        .optional(),
     },
   },
   {
@@ -268,12 +274,7 @@ export const TOOL_DEFINITIONS = [
         .describe("The filename to search for errors in.")
         .optional(),
       transaction: ParamTransaction.optional(),
-      query: z
-        .string()
-        .describe(
-          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
-        )
-        .optional(),
+      query: ParamQuery.optional(),
       sortBy: z
         .enum(["last_seen", "count"])
         .optional()
@@ -323,12 +324,7 @@ export const TOOL_DEFINITIONS = [
       organizationSlug: ParamOrganizationSlug.optional(),
       projectSlug: ParamProjectSlug.optional(),
       transaction: ParamTransaction.optional(),
-      query: z
-        .string()
-        .describe(
-          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
-        )
-        .optional(),
+      query: ParamQuery.optional(),
       sortBy: z
         .enum(["timestamp", "duration"])
         .optional()
