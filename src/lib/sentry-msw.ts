@@ -935,7 +935,6 @@ export const restHandlers = [
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/events/",
     async ({ request }) => {
       const url = new URL(request.url);
-      console.log(request.url);
       const dataset = url.searchParams.get("dataset");
       const query = url.searchParams.get("query");
       const fields = url.searchParams.getAll("field");
@@ -968,6 +967,8 @@ export const restHandlers = [
             null,
             "",
             "is:unresolved error.handled:false",
+            "is:unresolved error.unhandled:true",
+            "is:unresolved project:cloudflare-mcp",
             "project:cloudflare-mcp",
           ].includes(query)
         ) {
@@ -984,7 +985,11 @@ export const restHandlers = [
           return HttpResponse.json("Invalid fields", { status: 400 });
         }
 
-        if (url.searchParams.get("sort") !== "-count") {
+        if (
+          !["-count", "-last_seen"].includes(
+            url.searchParams.get("sort") as string,
+          )
+        ) {
           return HttpResponse.json("Invalid sort", { status: 400 });
         }
 
@@ -992,6 +997,41 @@ export const restHandlers = [
       }
 
       return HttpResponse.json("Invalid dataset", { status: 400 });
+    },
+  ),
+  http.get(
+    "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/",
+    ({ request }) => {
+      const url = new URL(request.url);
+      const query = url.searchParams.get("query");
+      if (
+        ![
+          null,
+          "",
+          "is:unresolved",
+          "is:unresolved error.handled:false",
+          "is:unresolved error.unhandled:true",
+          "project:cloudflare-mcp",
+          "is:unresolved project:cloudflare-mcp",
+        ].includes(query)
+      ) {
+        return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
+      }
+
+      if (
+        !["user", "freq", "date", "new"].includes(
+          url.searchParams.get("sort") as string,
+        )
+      ) {
+        return HttpResponse.json(
+          `Invalid sort: ${url.searchParams.get("sort")}`,
+          {
+            status: 400,
+          },
+        );
+      }
+
+      return HttpResponse.json([IssuePayload]);
     },
   ),
   http.get(

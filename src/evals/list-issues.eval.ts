@@ -6,7 +6,7 @@ describeEval("list-issues", {
     return [
       {
         input:
-          "Can you you give me a list of common production errors messages, with their stacktrace and a url for more information?",
+          "Can you you give me a list of common production errors, with their stacktrace and a url for more information?",
         expected: [
           "## REMOTE-MCP-41",
           "- **Error**: Tool list_organizations is already registered",
@@ -22,6 +22,14 @@ describeEval("list-issues", {
       },
       {
         input: `Give me a summary of my top issues in ${FIXTURES.organizationSlug}`,
+        expected: [
+          "## REMOTE-MCP-41",
+          "- **Issue ID**: REMOTE-MCP-41",
+          `- **URL**: https://${FIXTURES.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
+        ].join("\n"),
+      },
+      {
+        input: `Find the most recent production errors in ${FIXTURES.organizationSlug}`,
         expected: [
           "## REMOTE-MCP-41",
           "- **Issue ID**: REMOTE-MCP-41",
