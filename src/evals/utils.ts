@@ -1,5 +1,66 @@
-import { generateObject, type LanguageModel } from "ai";
+import { openai } from "@ai-sdk/openai";
+import {
+  experimental_createMCPClient,
+  generateObject,
+  streamText,
+  type LanguageModel,
+} from "ai";
+import { Experimental_StdioMCPTransport } from "ai/mcp-stdio";
 import { z } from "zod";
+
+export const FIXTURES = {
+  organizationSlug: "sentry-mcp-evals",
+  teamSlug: "the-goats",
+  projectSlug: "cloudflare-mcp",
+};
+
+const defaultModel = openai("gpt-4o");
+
+export function TaskRunner(model: LanguageModel = defaultModel) {
+  return async function TaskRunner(input: string) {
+    const transport = new Experimental_StdioMCPTransport({
+      command: "npm",
+      args: ["run", "start:stdio", "--mocks"],
+      env: {
+        SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN!,
+      },
+    });
+    const mcpClient = await experimental_createMCPClient({
+      transport,
+    });
+
+    const tools = await mcpClient.tools();
+
+    try {
+      const result = streamText({
+        model,
+        tools,
+        system:
+          "You are an assistant responsible for evaluating the results of calling various tools. Given the user's query, use the tools available to you to answer the question.",
+        prompt: input,
+        maxRetries: 1,
+        maxSteps: 10,
+        experimental_telemetry: {
+          isEnabled: true,
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      });
+
+      for await (const part of result.fullStream) {
+        // console.log(part);
+      }
+
+      return await result.text;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      await mcpClient.close();
+    }
+  };
+}
 
 /**
  * A Factuality checker utilizing the `ai` SDK based on the implementation in `autoevals`.
@@ -10,7 +71,7 @@ import { z } from "zod";
  * scorers: [Factuality(openai("gpt-4o"))]
  * ```
  */
-export function Factuality(model: LanguageModel) {
+export function Factuality(model: LanguageModel = defaultModel) {
   return async function Factuality(opts: {
     input: string;
     output: string;

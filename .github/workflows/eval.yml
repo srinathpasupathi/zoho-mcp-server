@@ -6,14 +6,16 @@ on:
     branches: [main]
     paths:
       - 'src/mcp/**'
-      - 'src/lib/sentry*'
-      - 'src/evals/workflow.test.ts'
+      - 'src/lib/sentry-api/**'
+      - 'src/evals/**'
+      - '*.eval.ts'
       - '.github/workflows/eval.yml'
   pull_request:
     paths:
       - 'src/mcp/**'
-      - 'src/lib/sentry*'
-      - 'src/evals/workflow.test.ts'
+      - 'src/lib/sentry-api/**'
+      - 'src/evals/**'
+      - '*.eval.ts'
       - '.github/workflows/eval.yml'
 
 jobs:
