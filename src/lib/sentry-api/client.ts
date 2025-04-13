@@ -160,6 +160,43 @@ export class SentryApiService {
     return [project, null];
   }
 
+  async listIssues({
+    organizationSlug,
+    projectSlug,
+    query,
+    sortBy,
+  }: {
+    organizationSlug: string;
+    projectSlug?: string;
+    query?: string;
+    sortBy?: "user" | "freq" | "date" | "new";
+  }): Promise<z.infer<typeof SentryIssueSchema>[]> {
+    const sentryQuery: string[] = [];
+    if (query) {
+      sentryQuery.push(query);
+    }
+    if (projectSlug) {
+      sentryQuery.push(`project:${projectSlug}`);
+    }
+
+    const queryParams = new URLSearchParams();
+    queryParams.set("per_page", "10");
+    queryParams.set("referrer", "sentry-mcp");
+    if (sortBy) queryParams.set("sort", sortBy);
+    queryParams.set("statsPeriod", "1w");
+    queryParams.set("query", sentryQuery.join(" "));
+
+    queryParams.append("collapse", "stats");
+    queryParams.append("collapse", "unhandled");
+
+    const apiUrl = `/organizations/${organizationSlug}/issues/?${queryParams.toString()}`;
+
+    const response = await this.request(apiUrl);
+
+    const body = await response.json<unknown[]>();
+    return body.map((i) => SentryIssueSchema.parse(i));
+  }
+
   async getIssue({
     organizationSlug,
     issueId,

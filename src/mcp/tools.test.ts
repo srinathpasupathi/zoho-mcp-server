@@ -59,6 +59,41 @@ describe("list_projects", () => {
   });
 });
 
+describe("list_issues", () => {
+  it("serializes", async () => {
+    const tool = TOOL_HANDLERS.list_issues;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: "sentry-mcp-evals",
+        projectSlug: "cloudflare-mcp",
+        query: undefined,
+        sortBy: "last_seen",
+      },
+    );
+    expect(result).toMatchInlineSnapshot(`
+      "# Issues in **sentry-mcp-evals/cloudflare-mcp**
+
+      ## REMOTE-MCP-41
+
+      **Description**: Error: Tool list_organizations is already registered
+      **Culprit**: Object.fetch(index)
+      **First Seen**: 2025-04-03T22:51:19.403Z
+      **Last Seen**: 2025-04-12T11:34:11.000Z
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+
+      # Using this information
+
+      - You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.
+      - You can get more details about a specific issue by using the tool: \`get_issue_details(sentry-mcp-evals, <issueID>)\`
+      "
+    `);
+  });
+});
+
 describe("search_errors", () => {
   it("serializes", async () => {
     const tool = TOOL_HANDLERS.search_errors;
@@ -77,21 +112,22 @@ describe("search_errors", () => {
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# Search Results
+      "# Errors in **sentry-mcp-evals**
 
 
-      ## REMOTE-MCP-41: Error: Tool list_organizations is already registered
+      ## REMOTE-MCP-41
 
-      - **Issue ID**: REMOTE-MCP-41
-      - **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
-      - **Project**: test-suite
-      - **Last Seen**: 2025-04-07T12:23:39+00:00
-      - **Occurrences**: 2
+      **Description**: Error: Tool list_organizations is already registered
+      **Issue ID**: REMOTE-MCP-41
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **Project**: test-suite
+      **Last Seen**: 2025-04-07T12:23:39+00:00
+      **Occurrences**: 2
 
       # Using this information
 
       - You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.
-      - You can get more details about this error by using the tool: \`get_issue_details(sentry-mcp-evals, <issueID>)\`
+      - You can get more details about an error by using the tool: \`get_issue_details(sentry-mcp-evals, <issueID>)\`
       "
     `);
   });
@@ -114,28 +150,30 @@ describe("search_transactions", () => {
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# Search Results
+      "# Transactions in **sentry-mcp-evals**
 
 
-      ## http.server: GET /trpc/bottleList
+      ## GET /trpc/bottleList
 
-      - **Transaction**: GET /trpc/bottleList
-      - **Duration**: 12
-      - **Timestamp**: 2025-04-13T14:19:18+00:00
-      - **Span ID**: 07752c6aeb027c8f
-      - **Trace ID**: 6a477f5b0f31ef7b6b9b5e1dea66c91d
-      - **Project**: peated
-      - **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/6a477f5b0f31ef7b6b9b5e1dea66c91d
+      **Span ID**: 07752c6aeb027c8f
+      **Trace ID**: 6a477f5b0f31ef7b6b9b5e1dea66c91d
+      **Span Operation**: http.server
+      **Span Description**: GET /trpc/bottleList
+      **Duration**: 12
+      **Timestamp**: 2025-04-13T14:19:18+00:00
+      **Project**: peated
+      **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/6a477f5b0f31ef7b6b9b5e1dea66c91d
 
-      ## http.server: GET /trpc/bottleList
+      ## GET /trpc/bottleList
 
-      - **Transaction**: GET /trpc/bottleList
-      - **Duration**: 18
-      - **Timestamp**: 2025-04-13T14:19:17+00:00
-      - **Span ID**: 7ab5edf5b3ba42c9
-      - **Trace ID**: 54177131c7b192a446124daba3136045
-      - **Project**: peated
-      - **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/54177131c7b192a446124daba3136045
+      **Span ID**: 7ab5edf5b3ba42c9
+      **Trace ID**: 54177131c7b192a446124daba3136045
+      **Span Operation**: http.server
+      **Span Description**: GET /trpc/bottleList
+      **Duration**: 18
+      **Timestamp**: 2025-04-13T14:19:17+00:00
+      **Project**: peated
+      **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/54177131c7b192a446124daba3136045
 
       "
     `);
@@ -157,9 +195,9 @@ describe("get_issue_summary", () => {
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# Error: Tool list_organizations is already registered
+      "# REMOTE-MCP-41
 
-      **Issue ID**: REMOTE-MCP-41
+      **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
       **First Seen**: 2025-04-03T22:51:19.403Z
       **Last Seen**: 2025-04-12T11:34:11.000Z
@@ -188,9 +226,9 @@ describe("get_issue_summary", () => {
     );
 
     expect(result).toMatchInlineSnapshot(`
-      "# Error: Tool list_organizations is already registered
+      "# REMOTE-MCP-41
 
-      **Issue ID**: REMOTE-MCP-41
+      **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
       **First Seen**: 2025-04-03T22:51:19.403Z
       **Last Seen**: 2025-04-12T11:34:11.000Z
@@ -220,12 +258,17 @@ describe("get_issue_details", () => {
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# REMOTE-MCP-41: Error: Tool list_organizations is already registered
+      "# REMOTE-MCP-41
 
-      **Issue ID**: REMOTE-MCP-41
+      **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
-      **Occurred At**: 2025-04-08T21:15:04.000Z
+      **First Seen**: 2025-04-03T22:51:19.403Z
+      **Last Seen**: 2025-04-12T11:34:11.000Z
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
 
+      ## Event Specifics
+
+      **Occurred At**: 2025-04-08T21:15:04.000Z
       **Error:**
       \`\`\`
       Error: Tool list_organizations is already registered
@@ -261,12 +304,17 @@ describe("get_issue_details", () => {
     );
 
     expect(result).toMatchInlineSnapshot(`
-      "# 6507376925: Error: Tool list_organizations is already registered
+      "# REMOTE-MCP-41
 
-      **Issue ID**: 6507376925
+      **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
-      **Occurred At**: 2025-04-08T21:15:04.000Z
+      **First Seen**: 2025-04-03T22:51:19.403Z
+      **Last Seen**: 2025-04-12T11:34:11.000Z
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
 
+      ## Event Specifics
+
+      **Occurred At**: 2025-04-08T21:15:04.000Z
       **Error:**
       \`\`\`
       Error: Tool list_organizations is already registered
@@ -304,9 +352,9 @@ describe("create_team", () => {
     expect(result).toMatchInlineSnapshot(`
       "# New Team
 
-      - **ID**: 4509109078196224
-      - **Slug**: the-goats
-      - **Name**: the-goats
+      **ID**: 4509109078196224
+      **Slug**: the-goats
+      **Name**: the-goats
       # Using this information
 
       - You should always inform the user of the Team Slug value.
@@ -333,10 +381,10 @@ describe("create_project", () => {
     expect(result).toMatchInlineSnapshot(`
       "# New Project
 
-      - **ID**: 4509109104082945
-      - **Slug**: cloudflare-mcp
-      - **Name**: cloudflare-mcp
-      - **SENTRY_DSN**: https://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945
+      **ID**: 4509109104082945
+      **Slug**: cloudflare-mcp
+      **Name**: cloudflare-mcp
+      **SENTRY_DSN**: https://d20df0a1ab5031c7f3c7edca9c02814d@o4509106732793856.ingest.us.sentry.io/4509109104082945
 
       # Using this information
 

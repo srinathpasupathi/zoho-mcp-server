@@ -146,6 +146,46 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
+    name: "list_issues" as const,
+    description: [
+      "List all issues in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View all issues in a Sentry organization",
+      "",
+      "If you're looking for more granular data beyond a summary of identified problems, you should use the `search_errors()` or `search_transactions()` tools instead.",
+      "<examples>",
+      "### Find the newest unresolved issues in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved', sortBy='last_seen')",
+      "```",
+      "",
+      "### Find the most frequently occurring crashes in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved error.handled:false', sortBy='count')",
+      "```",
+      "",
+      "### Find the oldest unresolved issues in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved', sortBy='first_seen')",
+      "```",
+      "</examples>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
+      query: z.string().optional(),
+      sortBy: z.enum(["last_seen", "first_seen", "count"]).optional(),
+    },
+  },
+  {
     name: "get_issue_summary" as const,
     description: [
       "Retrieve a summary of an issue in Sentry.",
@@ -183,7 +223,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: "search_errors" as const,
     description: [
-      "Search for errors in Sentry.",
+      "Query Sentry for errors using advanced search syntax.",
       "",
       "Use this tool when you need to:",
       "- Search for production errors in a specific file.",
@@ -215,6 +255,10 @@ export const TOOL_DEFINITIONS = [
       "- `is:unresolved` - Find unresolved errors",
       "- `error.handled:false` - Find errors that are not handled (otherwise known as uncaught exceptions or crashes)",
       "</query_syntax>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -242,7 +286,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: "search_transactions" as const,
     description: [
-      "Search for transactions in Sentry.",
+      "Query Sentry for transactions using advanced search syntax.",
       "",
       "Transactions are segments of traces that are associated with a specific route or endpoint.",
       "",
@@ -261,15 +305,19 @@ export const TOOL_DEFINITIONS = [
       "```",
       "",
       "</examples>",
-      "",
-      "<query_syntax>",
-      "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      // "",
+      // "<query_syntax>",
+      // "Use the tool `help('query_syntax')` to get more information about the query syntax.",
       // "",
       // "There are some common query parameters that are useful for searching errors:",
       // "",
       // "- `is:unresolved` - Find unresolved errors",
       // "- `error.handled:false` - Find errors that are not handled (otherwise known as uncaught exceptions or crashes)",
-      "</query_syntax>",
+      // "</query_syntax>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you might want to call `list_organizations()` first.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -297,6 +345,10 @@ export const TOOL_DEFINITIONS = [
       "",
       "Use this tool when you need to:",
       "- Create a new team in a Sentry organization",
+      "",
+      "<hints>",
+      "- If any parameter is ambiguous, you should clarify with the user what they meant.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -310,6 +362,10 @@ export const TOOL_DEFINITIONS = [
       "",
       "Use this tool when you need to:",
       "- Create a new project in a Sentry organization",
+      "",
+      "<hints>",
+      "- If any parameter is ambiguous, you should clarify with the user what they meant.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -329,6 +385,14 @@ export const TOOL_DEFINITIONS = [
       "",
       "Use this tool when you need to:",
       "- Understand the Sentry search syntax",
+      "",
+      "<examples>",
+      "### Get help with the Sentry search syntax",
+      "",
+      "```",
+      "help('query_syntax')",
+      "```",
+      "</examples>",
     ].join("\n"),
     paramsSchema: {
       subject: z
@@ -415,6 +479,56 @@ export const TOOL_HANDLERS = {
 
     return output;
   },
+  list_issues: async (
+    context,
+    { organizationSlug, projectSlug, query, sortBy },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const sortByMap = {
+      last_seen: "date" as const,
+      first_seen: "new" as const,
+      count: "freq" as const,
+      userCount: "user" as const,
+    };
+
+    const issues = await apiService.listIssues({
+      organizationSlug,
+      projectSlug,
+      query,
+      sortBy: sortByMap[sortBy as keyof typeof sortByMap],
+    });
+
+    let output = `# Issues in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+    output += issues
+      .map((issue) =>
+        [
+          `## ${issue.shortId}`,
+          "",
+          `**Description**: ${issue.title}`,
+          `**Culprit**: ${issue.culprit}`,
+          `**First Seen**: ${new Date(issue.firstSeen).toISOString()}`,
+          `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}`,
+          `**URL**: ${apiService.getIssueUrl(organizationSlug, issue.shortId)}`,
+        ].join("\n"),
+      )
+      .join("\n");
+    output += "\n\n";
+
+    output += "# Using this information\n\n";
+    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can get more details about a specific issue by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
+
+    return output;
+  },
   get_issue_summary: async (
     context,
     { issueId, issueUrl, organizationSlug },
@@ -447,8 +561,8 @@ export const TOOL_HANDLERS = {
       issueId,
     });
 
-    let output = `# ${issue.title}\n\n`;
-    output += `**Issue ID**: ${issue.shortId}\n`;
+    let output = `# ${issue.shortId}\n\n`;
+    output += `**Description**: ${issue.title}\n`;
     output += `**Culprit**: ${issue.culprit}\n`;
     output += `**First Seen**: ${new Date(issue.firstSeen).toISOString()}\n`;
     output += `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}\n`;
@@ -491,19 +605,34 @@ export const TOOL_HANDLERS = {
       throw new Error("Organization slug is required");
     }
 
-    const event = await apiService.getLatestEventForIssue({
+    const [issue, event] = await Promise.all([
+      apiService.getIssue({
+        organizationSlug,
+        issueId: issueId!,
+      }),
+      apiService.getLatestEventForIssue({
+        organizationSlug,
+        issueId: issueId!,
+      }),
+    ]);
+
+    let output = `# ${issue.shortId}\n\n`;
+    output += `**Description**: ${issue.title}\n`;
+    output += `**Culprit**: ${issue.culprit}\n`;
+    output += `**First Seen**: ${new Date(issue.firstSeen).toISOString()}\n`;
+    output += `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}\n`;
+    output += `**URL**: ${apiService.getIssueUrl(
       organizationSlug,
-      issueId: issueId!,
-    });
+      issue.shortId,
+    )}\n`;
 
-    let output = `# ${issueId}: ${event.title}\n\n`;
-    output += `**Issue ID**: ${issueId}\n`;
-    if (event.culprit) output += `**Culprit**: ${event.culprit}\n`;
-    output += `**Occurred At**: ${new Date(
-      event.dateCreated,
-    ).toISOString()}\n\n`;
+    output += "\n";
 
-    if (event.message) output += `**Message**:\n${event.message}\n`;
+    output += "## Event Specifics\n\n";
+    output += `**Occurred At**: ${new Date(event.dateCreated).toISOString()}\n`;
+    if (event.message) {
+      output += `**Message**:\n${event.message}\n`;
+    }
 
     output += formatEventOutput(event);
 
@@ -538,7 +667,7 @@ export const TOOL_HANDLERS = {
       sortBy,
     });
 
-    let output = `# Search Results\n\n`;
+    let output = `# Errors in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
     if (query) output += `These errors match the query \`${query}\`\n`;
     if (filename)
       output += `These errors are limited to the file suffix \`${filename}\`\n`;
@@ -552,20 +681,21 @@ export const TOOL_HANDLERS = {
     }
 
     for (const eventSummary of eventList) {
-      output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
-      output += `- **Issue ID**: ${eventSummary.issue}\n`;
-      output += `- **URL**: ${apiService.getIssueUrl(
+      output += `## ${eventSummary.issue}\n\n`;
+      output += `**Description**: ${eventSummary.title}\n`;
+      output += `**Issue ID**: ${eventSummary.issue}\n`;
+      output += `**URL**: ${apiService.getIssueUrl(
         organizationSlug,
         eventSummary.issue,
       )}\n`;
-      output += `- **Project**: ${eventSummary.project}\n`;
-      output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
-      output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;
+      output += `**Project**: ${eventSummary.project}\n`;
+      output += `**Last Seen**: ${eventSummary["last_seen()"]}\n`;
+      output += `**Occurrences**: ${eventSummary["count()"]}\n\n`;
     }
 
     output += "# Using this information\n\n";
     output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
-    output += `- You can get more details about this error by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
+    output += `- You can get more details about an error by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
 
     return output;
   },
@@ -592,7 +722,7 @@ export const TOOL_HANDLERS = {
       sortBy,
     });
 
-    let output = `# Search Results\n\n`;
+    let output = `# Transactions in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
     if (query) output += `These spans match the query \`${query}\`\n`;
     if (transaction)
       output += `These spans are limited to the transaction \`${transaction}\`\n`;
@@ -606,14 +736,15 @@ export const TOOL_HANDLERS = {
     }
 
     for (const eventSummary of eventList) {
-      output += `## ${eventSummary["span.op"]}: ${eventSummary["span.description"]}\n\n`;
-      output += `- **Transaction**: ${eventSummary.transaction}\n`;
-      output += `- **Duration**: ${eventSummary["span.duration"]}\n`;
-      output += `- **Timestamp**: ${eventSummary.timestamp}\n`;
-      output += `- **Span ID**: ${eventSummary.id}\n`;
-      output += `- **Trace ID**: ${eventSummary.trace}\n`;
-      output += `- **Project**: ${eventSummary.project}\n`;
-      output += `- **URL**: ${apiService.getTraceUrl(
+      output += `## ${eventSummary.transaction}\n\n`;
+      output += `**Span ID**: ${eventSummary.id}\n`;
+      output += `**Trace ID**: ${eventSummary.trace}\n`;
+      output += `**Span Operation**: ${eventSummary["span.op"]}\n`;
+      output += `**Span Description**: ${eventSummary["span.description"]}\n`;
+      output += `**Duration**: ${eventSummary["span.duration"]}\n`;
+      output += `**Timestamp**: ${eventSummary.timestamp}\n`;
+      output += `**Project**: ${eventSummary.project}\n`;
+      output += `**URL**: ${apiService.getTraceUrl(
         organizationSlug,
         eventSummary.trace,
       )}\n\n`;
@@ -642,9 +773,9 @@ export const TOOL_HANDLERS = {
     });
 
     let output = "# New Team\n\n";
-    output += `- **ID**: ${team.id}\n`;
-    output += `- **Slug**: ${team.slug}\n`;
-    output += `- **Name**: ${team.name}\n`;
+    output += `**ID**: ${team.id}\n`;
+    output += `**Slug**: ${team.slug}\n`;
+    output += `**Name**: ${team.name}\n`;
 
     output += "# Using this information\n\n";
     output += `- You should always inform the user of the Team Slug value.\n`;
@@ -673,14 +804,14 @@ export const TOOL_HANDLERS = {
     });
 
     let output = "# New Project\n\n";
-    output += `- **ID**: ${project.id}\n`;
-    output += `- **Slug**: ${project.slug}\n`;
-    output += `- **Name**: ${project.name}\n`;
+    output += `**ID**: ${project.id}\n`;
+    output += `**Slug**: ${project.slug}\n`;
+    output += `**Name**: ${project.name}\n`;
 
     if (clientKey) {
-      output += `- **SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
+      output += `**SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
     } else {
-      output += "- **SENTRY_DSN**: There was an error fetching this value.\n\n";
+      output += "**SENTRY_DSN**: There was an error fetching this value.\n\n";
     }
 
     output += "# Using this information\n\n";
