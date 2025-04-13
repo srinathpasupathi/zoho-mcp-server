@@ -8,6 +8,14 @@ describeEval("list-teams", {
         input: `What teams do I have access to in Sentry for '${FIXTURES.organizationSlug}'`,
         expected: FIXTURES.teamSlug,
       },
+      {
+        input: `Do I have access to the team '${FIXTURES.teamSlug}' for '${FIXTURES.organizationSlug}'`,
+        expected: `Yes`,
+      },
+      {
+        input: `Do I have access to the team 'an-imaginary-team' for '${FIXTURES.organizationSlug}'`,
+        expected: `No`,
+      },
     ];
   },
   task: TaskRunner(),

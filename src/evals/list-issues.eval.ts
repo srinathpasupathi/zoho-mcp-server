@@ -20,6 +20,14 @@ describeEval("list-issues", {
           `- **URL**: https://${FIXTURES.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
         ].join("\n"),
       },
+      {
+        input: `Give me a summary of my top issues in ${FIXTURES.organizationSlug}`,
+        expected: [
+          "## REMOTE-MCP-41",
+          "- **Issue ID**: REMOTE-MCP-41",
+          `- **URL**: https://${FIXTURES.organizationSlug}.sentry.io/issues/REMOTE-MCP-41`,
+        ].join("\n"),
+      },
     ];
   },
   task: TaskRunner(),

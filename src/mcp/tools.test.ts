@@ -168,7 +168,7 @@ describe("get_issue_summary", () => {
       **Status**: unresolved
       **Platform**: javascript
       **Project**: remote-mcp
-      **URL**: https://sentry.sentry.io/issues/6507376925/
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
       "
     `);
   });
@@ -199,7 +199,7 @@ describe("get_issue_summary", () => {
       **Status**: unresolved
       **Platform**: javascript
       **Project**: remote-mcp
-      **URL**: https://sentry.sentry.io/issues/6507376925/
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
       "
     `);
   });

@@ -457,7 +457,10 @@ export const TOOL_HANDLERS = {
     output += `**Status**: ${issue.status}\n`;
     output += `**Platform**: ${issue.platform}\n`;
     output += `**Project**: ${issue.project.name}\n`;
-    output += `**URL**: ${issue.permalink}\n`;
+    output += `**URL**: ${apiService.getIssueUrl(
+      organizationSlug,
+      issue.shortId,
+    )}\n`;
 
     return output;
   },

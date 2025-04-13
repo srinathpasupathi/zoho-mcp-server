@@ -7,7 +7,7 @@ const IssuePayload = {
   shortId: "REMOTE-MCP-41",
   title: "Error: Tool list_organizations is already registered",
   culprit: "Object.fetch(index)",
-  permalink: "https://sentry.sentry.io/issues/6507376925/",
+  permalink: "https://sentry-mcp-evals.sentry.io/issues/6507376925/",
   logger: null,
   level: "error",
   status: "unresolved",
