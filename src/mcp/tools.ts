@@ -175,6 +175,16 @@ export const TOOL_DEFINITIONS = [
       "```",
       "</examples>",
       "",
+      "<query_syntax>",
+      "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      "",
+      "There are some common query parameters that are useful for searching errors:",
+      "",
+      "- `is:unresolved` - Find unresolved issues",
+      "- `release:[1.0, 2.0]` - Find issues in a specific release",
+      "- `release:latest` - Find issues in the latest release only",
+      "</query_syntax>",
+      "",
       "<hints>",
       "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
       "</hints>",
@@ -189,6 +199,24 @@ export const TOOL_DEFINITIONS = [
           "Sort the results either by the last time they occurred, the first time they occurred, the count of occurrences, or the number of users affected.",
         )
         .optional(),
+    },
+  },
+  {
+    name: "list_releases" as const,
+    description: [
+      "List all releases in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- Find recent releases in a Sentry organization",
+      "- Find the most recent version released of a specific project",
+      "- Determine when a release was deployed to an environment",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
     },
   },
   {
@@ -435,6 +463,12 @@ export const TOOL_HANDLERS = {
     const organizations = await apiService.listOrganizations();
 
     let output = "# Organizations\n\n";
+
+    if (organizations.length === 0) {
+      output += "You don't appear to be a member of any organizations.\n";
+      return output;
+    }
+
     output += organizations.map((org) => `- ${org.slug}\n`).join("");
 
     return output;
@@ -453,6 +487,12 @@ export const TOOL_HANDLERS = {
     const teams = await apiService.listTeams(organizationSlug);
 
     let output = `# Teams in **${organizationSlug}**\n\n`;
+
+    if (teams.length === 0) {
+      output += "No teams found.\n";
+      return output;
+    }
+
     output += teams.map((team) => `- ${team.slug}\n`).join("");
 
     return output;
@@ -471,6 +511,12 @@ export const TOOL_HANDLERS = {
     const projects = await apiService.listProjects(organizationSlug);
 
     let output = `# Projects in **${organizationSlug}**\n\n`;
+
+    if (projects.length === 0) {
+      output += "No projects found.\n";
+      return output;
+    }
+
     output += projects.map((project) => `- ${project.slug}\n`).join("");
 
     return output;
@@ -504,6 +550,11 @@ export const TOOL_HANDLERS = {
     });
 
     let output = `# Issues in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+
+    if (issues.length === 0) {
+      output += "No issues found.\n";
+      return output;
+    }
     output += issues
       .map((issue) =>
         [
@@ -522,6 +573,103 @@ export const TOOL_HANDLERS = {
     output += "# Using this information\n\n";
     output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
     output += `- You can get more details about a specific issue by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
+
+    return output;
+  },
+  list_releases: async (context, { organizationSlug, projectSlug }) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const releases = await apiService.listReleases({
+      organizationSlug,
+      projectSlug,
+    });
+
+    let output = `# Releases in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+
+    if (releases.length === 0) {
+      output += "No releases found.\n";
+      return output;
+    }
+
+    output += releases
+      .map((release) => {
+        const releaseInfo = [
+          `## ${release.shortVersion}`,
+          "",
+          `**Created**: ${new Date(release.dateCreated).toISOString()}`,
+        ];
+
+        if (release.dateReleased) {
+          releaseInfo.push(
+            `**Released**: ${new Date(release.dateReleased).toISOString()}`,
+          );
+        }
+
+        if (release.firstEvent) {
+          releaseInfo.push(
+            `**First Event**: ${new Date(release.firstEvent).toISOString()}`,
+          );
+        }
+
+        if (release.lastEvent) {
+          releaseInfo.push(
+            `**Last Event**: ${new Date(release.lastEvent).toISOString()}`,
+          );
+        }
+
+        if (release.newGroups !== undefined) {
+          releaseInfo.push(`**New Issues**: ${release.newGroups}`);
+        }
+
+        if (release.lastCommit) {
+          releaseInfo.push(`**Last Commit**: ${release.lastCommit.message}`);
+          releaseInfo.push(
+            `**Commit Author**: ${release.lastCommit.author.name}`,
+          );
+          releaseInfo.push(
+            `**Commit Date**: ${new Date(release.lastCommit.dateCreated).toISOString()}`,
+          );
+        }
+
+        if (release.lastDeploy) {
+          releaseInfo.push(
+            `**Last Deploy**: ${release.lastDeploy.environment}`,
+          );
+          if (release.lastDeploy.dateStarted) {
+            releaseInfo.push(
+              `**Deploy Started**: ${new Date(release.lastDeploy.dateStarted).toISOString()}`,
+            );
+          }
+          if (release.lastDeploy.dateFinished) {
+            releaseInfo.push(
+              `**Deploy Finished**: ${new Date(release.lastDeploy.dateFinished).toISOString()}`,
+            );
+          }
+        }
+
+        if (release.projects && release.projects.length > 0) {
+          releaseInfo.push(
+            `**Projects**: ${release.projects.map((p) => p.name).join(", ")}`,
+          );
+        }
+
+        return releaseInfo.join("\n");
+      })
+      .join("\n\n");
+
+    output += "\n\n";
+
+    output += "# Using this information\n\n";
+    output += `- You can reference the Release version in commit messages or documentation.\n`;
+    output += `- You can search for issues in a specific release using the \`search_errors()\` tool with the query \`release:${releases[0].version}\`.\n`;
 
     return output;
   },

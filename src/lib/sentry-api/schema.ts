@@ -1,32 +1,63 @@
 import { z } from "zod";
 
 export const SentryOrgSchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   slug: z.string(),
   name: z.string(),
 });
 
 export const SentryTeamSchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   slug: z.string(),
   name: z.string(),
 });
 
 export const SentryProjectSchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   slug: z.string(),
   name: z.string(),
 });
 
 export const SentryClientKeySchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   dsn: z.object({
     public: z.string(),
   }),
 });
 
+export const SentryReleaseSchema = z.object({
+  id: z.union([z.string(), z.number()]),
+  version: z.string(),
+  shortVersion: z.string(),
+  dateCreated: z.string().datetime(),
+  dateReleased: z.string().datetime().nullable(),
+  firstEvent: z.string().datetime().nullable(),
+  lastEvent: z.string().datetime().nullable(),
+  newGroups: z.number(),
+  lastCommit: z
+    .object({
+      id: z.union([z.string(), z.number()]),
+      message: z.string(),
+      dateCreated: z.string().datetime(),
+      author: z.object({
+        name: z.string(),
+        email: z.string(),
+      }),
+    })
+    .nullable(),
+  lastDeploy: z
+    .object({
+      id: z.union([z.string(), z.number()]),
+      environment: z.string(),
+      dateStarted: z.string().datetime().nullable(),
+      dateFinished: z.string().datetime().nullable(),
+    })
+    .nullable(),
+  projects: z.array(SentryProjectSchema),
+});
+
 export const SentryIssueSchema = z.object({
-  id: z.string(),
+  id: z.union([z.string(), z.number()]),
   shortId: z.string(),
   title: z.string(),
   firstSeen: z.string().datetime(),

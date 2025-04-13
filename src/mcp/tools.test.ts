@@ -77,18 +77,81 @@ describe("list_issues", () => {
     expect(result).toMatchInlineSnapshot(`
       "# Issues in **sentry-mcp-evals/cloudflare-mcp**
 
-      ## REMOTE-MCP-41
+      ## CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
       **First Seen**: 2025-04-03T22:51:19.403Z
       **Last Seen**: 2025-04-12T11:34:11.000Z
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
 
       # Using this information
 
       - You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.
       - You can get more details about a specific issue by using the tool: \`get_issue_details(sentry-mcp-evals, <issueID>)\`
+      "
+    `);
+  });
+});
+
+describe("list_releases", () => {
+  it("works without project", async () => {
+    const tool = TOOL_HANDLERS.list_releases;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: "sentry-mcp-evals",
+        projectSlug: undefined,
+      },
+    );
+    expect(result).toMatchInlineSnapshot(`
+      "# Releases in **sentry-mcp-evals**
+
+      ## 8ce89484-0fec-4913-a2cd-e8e2d41dee36
+
+      **Created**: 2025-04-13T19:54:21.764Z
+      **First Event**: 2025-04-13T19:54:21.000Z
+      **Last Event**: 2025-04-13T20:28:23.000Z
+      **New Issues**: 0
+      **Projects**: cloudflare-mcp
+
+      # Using this information
+
+      - You can reference the Release version in commit messages or documentation.
+      - You can search for issues in a specific release using the \`search_errors()\` tool with the query \`release:8ce89484-0fec-4913-a2cd-e8e2d41dee36\`.
+      "
+    `);
+  });
+  it("works with project", async () => {
+    const tool = TOOL_HANDLERS.list_releases;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: "sentry-mcp-evals",
+        projectSlug: "cloudflare-mcp",
+      },
+    );
+    expect(result).toMatchInlineSnapshot(`
+      "# Releases in **sentry-mcp-evals/cloudflare-mcp**
+
+      ## 8ce89484-0fec-4913-a2cd-e8e2d41dee36
+
+      **Created**: 2025-04-13T19:54:21.764Z
+      **First Event**: 2025-04-13T19:54:21.000Z
+      **Last Event**: 2025-04-13T20:28:23.000Z
+      **New Issues**: 0
+      **Projects**: cloudflare-mcp
+
+      # Using this information
+
+      - You can reference the Release version in commit messages or documentation.
+      - You can search for issues in a specific release using the \`search_errors()\` tool with the query \`release:8ce89484-0fec-4913-a2cd-e8e2d41dee36\`.
       "
     `);
   });
@@ -115,11 +178,11 @@ describe("search_errors", () => {
       "# Errors in **sentry-mcp-evals**
 
 
-      ## REMOTE-MCP-41
+      ## CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
-      **Issue ID**: REMOTE-MCP-41
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **Issue ID**: CLOUDFLARE-MCP-41
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
       **Project**: test-suite
       **Last Seen**: 2025-04-07T12:23:39+00:00
       **Occurrences**: 2
@@ -190,12 +253,12 @@ describe("get_issue_summary", () => {
       },
       {
         organizationSlug: "sentry-mcp-evals",
-        issueId: "REMOTE-MCP-41",
+        issueId: "CLOUDFLARE-MCP-41",
         issueUrl: undefined,
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# REMOTE-MCP-41
+      "# CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
@@ -205,8 +268,8 @@ describe("get_issue_summary", () => {
       **Users Impacted**: 1
       **Status**: unresolved
       **Platform**: javascript
-      **Project**: remote-mcp
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **Project**: CLOUDFLARE-MCP
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
       "
     `);
   });
@@ -226,7 +289,7 @@ describe("get_issue_summary", () => {
     );
 
     expect(result).toMatchInlineSnapshot(`
-      "# REMOTE-MCP-41
+      "# CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
@@ -236,8 +299,8 @@ describe("get_issue_summary", () => {
       **Users Impacted**: 1
       **Status**: unresolved
       **Platform**: javascript
-      **Project**: remote-mcp
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **Project**: CLOUDFLARE-MCP
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
       "
     `);
   });
@@ -253,18 +316,18 @@ describe("get_issue_details", () => {
       },
       {
         organizationSlug: "sentry-mcp-evals",
-        issueId: "REMOTE-MCP-41",
+        issueId: "CLOUDFLARE-MCP-41",
         issueUrl: undefined,
       },
     );
     expect(result).toMatchInlineSnapshot(`
-      "# REMOTE-MCP-41
+      "# CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
       **First Seen**: 2025-04-03T22:51:19.403Z
       **Last Seen**: 2025-04-12T11:34:11.000Z
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
 
       ## Event Specifics
 
@@ -283,7 +346,7 @@ describe("get_issue_details", () => {
 
       # Using this information
 
-      - You can reference the IssueID in commit messages (e.g. \`Fixes REMOTE-MCP-41\`) to automatically close the issue when the commit is merged.
+      - You can reference the IssueID in commit messages (e.g. \`Fixes CLOUDFLARE-MCP-41\`) to automatically close the issue when the commit is merged.
       - The stacktrace includes both first-party application code as well as third-party code, its important to triage to first-party code.
       "
     `);
@@ -304,13 +367,13 @@ describe("get_issue_details", () => {
     );
 
     expect(result).toMatchInlineSnapshot(`
-      "# REMOTE-MCP-41
+      "# CLOUDFLARE-MCP-41
 
       **Description**: Error: Tool list_organizations is already registered
       **Culprit**: Object.fetch(index)
       **First Seen**: 2025-04-03T22:51:19.403Z
       **Last Seen**: 2025-04-12T11:34:11.000Z
-      **URL**: https://sentry-mcp-evals.sentry.io/issues/REMOTE-MCP-41
+      **URL**: https://sentry-mcp-evals.sentry.io/issues/CLOUDFLARE-MCP-41
 
       ## Event Specifics
 

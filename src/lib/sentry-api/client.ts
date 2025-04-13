@@ -7,6 +7,7 @@ import {
   SentryIssueSchema,
   SentryOrgSchema,
   SentryProjectSchema,
+  SentryReleaseSchema,
   SentrySearchErrorsEventSchema,
   SentrySearchSpansEventSchema,
   SentryTeamSchema,
@@ -158,6 +159,23 @@ export class SentryApiService {
       logError(err);
     }
     return [project, null];
+  }
+
+  async listReleases({
+    organizationSlug,
+    projectSlug,
+  }: {
+    organizationSlug: string;
+    projectSlug?: string;
+  }): Promise<z.infer<typeof SentryReleaseSchema>[]> {
+    const response = await this.request(
+      projectSlug
+        ? `/projects/${organizationSlug}/${projectSlug}/releases/`
+        : `/organizations/${organizationSlug}/releases/`,
+    );
+
+    const releasesBody = await response.json<unknown[]>();
+    return releasesBody.map((i) => SentryReleaseSchema.parse(i));
   }
 
   async listIssues({
