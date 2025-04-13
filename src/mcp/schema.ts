@@ -27,3 +27,9 @@ export const ParamPlatform = z
   .describe(
     "The platform for the project (e.g., python, javascript, react, etc.)",
   );
+
+export const ParamTransaction = z
+  .string()
+  .describe(
+    "The transaction name (also known as the endpoint, or route name).",
+  );

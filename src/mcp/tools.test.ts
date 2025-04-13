@@ -71,6 +71,7 @@ describe("search_errors", () => {
         organizationSlug: "sentry-mcp-evals",
         projectSlug: undefined,
         filename: undefined,
+        transaction: undefined,
         query: undefined,
         sortBy: "count",
       },
@@ -91,6 +92,51 @@ describe("search_errors", () => {
 
       - You can reference the Issue ID in commit messages (e.g. \`Fixes REMOTE-MCP-41\`) to automatically close the issue when the commit is merged.
       - You can get more details about this error by using the "get_error_details" tool.
+      "
+    `);
+  });
+});
+
+describe("search_transactions", () => {
+  it("serializes", async () => {
+    const tool = TOOL_HANDLERS.search_transactions;
+    const result = await tool(
+      {
+        accessToken: "access-token",
+        organizationSlug: null,
+      },
+      {
+        organizationSlug: "sentry-mcp-evals",
+        projectSlug: undefined,
+        transaction: undefined,
+        query: undefined,
+        sortBy: "duration",
+      },
+    );
+    expect(result).toMatchInlineSnapshot(`
+      "# Search Results
+
+
+      ## http.server: GET /trpc/bottleList
+
+      - **Transaction**: GET /trpc/bottleList
+      - **Duration**: 12
+      - **Timestamp**: 2025-04-13T14:19:18+00:00
+      - **Span ID**: 07752c6aeb027c8f
+      - **Trace ID**: 6a477f5b0f31ef7b6b9b5e1dea66c91d
+      - **Project**: peated
+      - **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/6a477f5b0f31ef7b6b9b5e1dea66c91d
+
+      ## http.server: GET /trpc/bottleList
+
+      - **Transaction**: GET /trpc/bottleList
+      - **Duration**: 18
+      - **Timestamp**: 2025-04-13T14:19:17+00:00
+      - **Span ID**: 7ab5edf5b3ba42c9
+      - **Trace ID**: 54177131c7b192a446124daba3136045
+      - **Project**: peated
+      - **URL**: https://sentry-mcp-evals.sentry.io/explore/traces/trace/54177131c7b192a446124daba3136045
+
       "
     `);
   });

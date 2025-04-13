@@ -1,163 +1,16 @@
-import { z } from "zod";
-import { logError } from "./logging";
-
-export const SentryOrgSchema = z.object({
-  id: z.string(),
-  slug: z.string(),
-  name: z.string(),
-});
-
-export const SentryTeamSchema = z.object({
-  id: z.string(),
-  slug: z.string(),
-  name: z.string(),
-});
-
-export const SentryProjectSchema = z.object({
-  id: z.string(),
-  slug: z.string(),
-  name: z.string(),
-});
-
-export const SentryClientKeySchema = z.object({
-  id: z.string(),
-  dsn: z.object({
-    public: z.string(),
-  }),
-});
-
-export const SentryIssueSchema = z.object({
-  id: z.string(),
-  shortId: z.string(),
-  title: z.string(),
-  lastSeen: z.string().datetime(),
-  count: z.number(),
-  permalink: z.string().url(),
-});
-
-export const SentryFrameInterface = z
-  .object({
-    filename: z.string().nullable(),
-    function: z.string().nullable(),
-    lineNo: z.number().nullable(),
-    colNo: z.number().nullable(),
-    absPath: z.string().nullable(),
-    module: z.string().nullable(),
-    // lineno, source code
-    context: z.array(z.tuple([z.number(), z.string()])),
-  })
-  .partial();
-
-// XXX: Sentry's schema generally speaking is "assume all user input is missing"
-// so we need to handle effectively every field being optional or nullable.
-export const SentryExceptionInterface = z
-  .object({
-    mechanism: z
-      .object({
-        type: z.string().nullable(),
-        handled: z.boolean().nullable(),
-      })
-      .partial(),
-    type: z.string().nullable(),
-    value: z.string().nullable(),
-    stacktrace: z.object({
-      frames: z.array(SentryFrameInterface),
-    }),
-  })
-  .partial();
-
-export const SentryErrorEntrySchema = z.object({
-  // XXX: Sentry can return either of these. Not sure why we never normalized it.
-  values: z.array(SentryExceptionInterface.optional()),
-  value: SentryExceptionInterface.nullable().optional(),
-});
-
-export const SentryEventSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  message: z.string().nullable(),
-  dateCreated: z.string().datetime(),
-  culprit: z.string().nullable(),
-  platform: z.string().nullable(),
-  entries: z.array(
-    z.union([
-      // TODO: there are other types
-      z.object({
-        type: z.literal("exception"),
-        data: SentryErrorEntrySchema,
-      }),
-      z.object({
-        type: z.string(),
-        data: z.unknown(),
-      }),
-    ]),
-  ),
-});
-
-// https://us.sentry.io/api/0/organizations/sentry/events/?dataset=errors&field=issue&field=title&field=project&field=timestamp&field=trace&per_page=5&query=event.type%3Aerror&referrer=sentry-mcp&sort=-timestamp&statsPeriod=1w
-export const SentryDiscoverEventSchema = z.object({
-  issue: z.string(),
-  "issue.id": z.union([z.string(), z.number()]),
-  project: z.string(),
-  title: z.string(),
-  "count()": z.number(),
-  "last_seen()": z.string(),
-});
-
-/**
- * Extracts the Sentry issue ID and organization slug from a full URL
- *
- * @param url - A full Sentry issue URL
- * @returns Object containing the numeric issue ID and organization slug (if found)
- * @throws Error if the input is invalid
- */
-export function extractIssueId(url: string): {
-  issueId: string;
-  organizationSlug: string;
-} {
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    throw new Error(
-      "Invalid Sentry issue URL. Must start with http:// or https://",
-    );
-  }
-
-  const parsedUrl = new URL(url);
-
-  const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
-  if (pathParts.length < 2 || !pathParts.includes("issues")) {
-    throw new Error(
-      "Invalid Sentry issue URL. Path must contain '/issues/{issue_id}'",
-    );
-  }
-
-  const issueId = pathParts[pathParts.indexOf("issues") + 1];
-  if (!issueId || !/^\d+$/.test(issueId)) {
-    throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
-  }
-
-  // Extract organization slug from either the path or subdomain
-  let organizationSlug: string | undefined;
-  if (pathParts.includes("organizations")) {
-    organizationSlug = pathParts[pathParts.indexOf("organizations") + 1];
-  } else if (pathParts.length > 1 && pathParts[0] !== "issues") {
-    // If URL is like sentry.io/sentry/issues/123
-    organizationSlug = pathParts[0];
-  } else {
-    // Check for subdomain
-    const hostParts = parsedUrl.hostname.split(".");
-    if (hostParts.length > 2 && hostParts[0] !== "www") {
-      organizationSlug = hostParts[0];
-    }
-  }
-
-  if (!organizationSlug) {
-    throw new Error(
-      "Invalid Sentry issue URL. Could not determine organization.",
-    );
-  }
-
-  return { issueId, organizationSlug };
-}
+import type { z } from "zod";
+import { logError } from "../logging";
+import {
+  SentryClientKeySchema,
+  SentryEventSchema,
+  type SentryEventsResponseSchema,
+  SentryIssueSchema,
+  SentryOrgSchema,
+  SentryProjectSchema,
+  SentrySearchErrorsEventSchema,
+  SentrySearchSpansEventSchema,
+  SentryTeamSchema,
+} from "./schema";
 
 export class SentryApiService {
   private accessToken: string | null;
@@ -206,6 +59,12 @@ export class SentryApiService {
     return this.host !== "sentry.io"
       ? `https://${this.host}/organizations/${organizationSlug}/issues/${issueId}`
       : `https://${organizationSlug}.${this.host}/issues/${issueId}`;
+  }
+
+  getTraceUrl(organizationSlug: string, traceId: string): string {
+    return this.host !== "sentry.io"
+      ? `https://${this.host}/organizations/${organizationSlug}/explore/traces/trace/${traceId}`
+      : `https://${organizationSlug}.${this.host}/explore/traces/trace/${traceId}`;
   }
 
   async listOrganizations(): Promise<z.infer<typeof SentryOrgSchema>[]> {
@@ -301,6 +160,21 @@ export class SentryApiService {
     return [project, null];
   }
 
+  async getIssue({
+    organizationSlug,
+    issueId,
+  }: {
+    organizationSlug: string;
+    issueId: string;
+  }): Promise<z.infer<typeof SentryIssueSchema>> {
+    const response = await this.request(
+      `/organizations/${organizationSlug}/issues/${issueId}/`,
+    );
+
+    const body = await response.json();
+    return SentryIssueSchema.parse(body);
+  }
+
   async getLatestEventForIssue({
     organizationSlug,
     issueId,
@@ -316,24 +190,43 @@ export class SentryApiService {
     return SentryEventSchema.parse(body);
   }
 
-  async searchEvents({
-    dataset,
+  // TODO: Sentry is not yet exposing a reasonable API to fetch trace data
+  // async getTrace({
+  //   organizationSlug,
+  //   traceId,
+  // }: {
+  //   organizationSlug: string;
+  //   traceId: string;
+  // }): Promise<z.infer<typeof SentryIssueSchema>> {
+  //   const response = await this.request(
+  //     `/organizations/${organizationSlug}/issues/${traceId}/`,
+  //   );
+
+  //   const body = await response.json();
+  //   return SentryIssueSchema.parse(body);
+  // }
+
+  async searchErrors({
     organizationSlug,
     projectSlug,
     filename,
+    transaction,
     query,
     sortBy = "last_seen",
   }: {
-    dataset: "errors" | "transactions";
     organizationSlug: string;
     projectSlug?: string;
     filename?: string;
+    transaction?: string;
     query?: string;
     sortBy?: "last_seen" | "count";
-  }): Promise<z.infer<typeof SentryDiscoverEventSchema>[]> {
+  }): Promise<z.infer<typeof SentrySearchErrorsEventSchema>[]> {
     const sentryQuery: string[] = [];
     if (filename) {
       sentryQuery.push(`stack.filename:"*${filename.replace(/"/g, '\\"')}"`);
+    }
+    if (transaction) {
+      sentryQuery.push(`transaction:"${transaction.replace(/"/g, '\\"')}"`);
     }
     if (query) {
       sentryQuery.push(query);
@@ -343,7 +236,7 @@ export class SentryApiService {
     }
 
     const queryParams = new URLSearchParams();
-    queryParams.set("dataset", dataset);
+    queryParams.set("dataset", "errors");
     queryParams.set("per_page", "10");
     queryParams.set("referrer", "sentry-mcp");
     queryParams.set(
@@ -363,7 +256,62 @@ export class SentryApiService {
 
     const response = await this.request(apiUrl);
 
-    const listBody = await response.json<{ data: unknown[] }>();
-    return listBody.data.map((i) => SentryDiscoverEventSchema.parse(i));
+    const listBody =
+      await response.json<z.infer<typeof SentryEventsResponseSchema>>();
+    return listBody.data.map((i) => SentrySearchErrorsEventSchema.parse(i));
+  }
+
+  async searchSpans({
+    organizationSlug,
+    projectSlug,
+    transaction,
+    query,
+    sortBy = "timestamp",
+  }: {
+    organizationSlug: string;
+    projectSlug?: string;
+    transaction?: string;
+    query?: string;
+    sortBy?: "timestamp" | "duration";
+  }): Promise<z.infer<typeof SentrySearchSpansEventSchema>[]> {
+    const sentryQuery: string[] = ["is_transaction:true"];
+    if (transaction) {
+      sentryQuery.push(`transaction:"${transaction.replace(/"/g, '\\"')}"`);
+    }
+    if (query) {
+      sentryQuery.push(query);
+    }
+    if (projectSlug) {
+      sentryQuery.push(`project:${projectSlug}`);
+    }
+
+    const queryParams = new URLSearchParams();
+    queryParams.set("dataset", "spans");
+    queryParams.set("per_page", "10");
+    queryParams.set("referrer", "sentry-mcp");
+    queryParams.set(
+      "sort",
+      `-${sortBy === "timestamp" ? "timestamp" : "span.duration"}`,
+    );
+    queryParams.set("allowAggregateConditions", "0");
+    queryParams.set("useRpc", "1");
+    queryParams.append("field", "id");
+    queryParams.append("field", "trace");
+    queryParams.append("field", "span.op");
+    queryParams.append("field", "span.description");
+    queryParams.append("field", "span.duration");
+    queryParams.append("field", "transaction");
+    queryParams.append("field", "project");
+    queryParams.append("field", "timestamp");
+    queryParams.set("query", sentryQuery.join(" "));
+    // if (projectSlug) queryParams.set("project", projectSlug);
+
+    const apiUrl = `/organizations/${organizationSlug}/events/?${queryParams.toString()}`;
+
+    const response = await this.request(apiUrl);
+
+    const listBody =
+      await response.json<z.infer<typeof SentryEventsResponseSchema>>();
+    return listBody.data.map((i) => SentrySearchSpansEventSchema.parse(i));
   }
 }

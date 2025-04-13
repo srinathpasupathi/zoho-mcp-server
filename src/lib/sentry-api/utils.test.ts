@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { extractIssueId, SentryApiService } from "./sentry-api";
+import { describe, expect, it } from "vitest";
+import { extractIssueId } from "./utils";
 
 describe("extractIssueId", () => {
   it("should extract issue ID from a full Sentry URL", () => {
@@ -90,24 +90,5 @@ describe("extractIssueId", () => {
     expect(() => extractIssueId("abc")).toThrowErrorMatchingInlineSnapshot(
       `[Error: Invalid Sentry issue URL. Must start with http:// or https://]`,
     );
-  });
-});
-
-describe("SentryApiService", () => {
-  describe("getIssueUrl", () => {
-    it("should work with sentry.io", () => {
-      const apiService = new SentryApiService(null, "sentry.io");
-      const result = apiService.getIssueUrl("sentry-mcp", "123456");
-      expect(result).toMatchInlineSnapshot(
-        `"https://sentry-mcp.sentry.io/issues/123456"`,
-      );
-    });
-    it("should work with self-hosted", () => {
-      const apiService = new SentryApiService(null, "sentry.example.com");
-      const result = apiService.getIssueUrl("sentry-mcp", "123456");
-      expect(result).toMatchInlineSnapshot(
-        `"https://sentry.example.com/organizations/sentry-mcp/issues/123456"`,
-      );
-    });
   });
 });
