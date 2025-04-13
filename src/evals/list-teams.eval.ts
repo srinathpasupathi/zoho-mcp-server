@@ -1,7 +1,7 @@
 import { describeEval } from "vitest-evals";
 import { Factuality, FIXTURES, TaskRunner } from "./utils";
 
-describeEval("workflow", {
+describeEval("list-teams", {
   data: async () => {
     return [
       {
