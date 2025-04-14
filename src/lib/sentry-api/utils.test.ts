@@ -79,11 +79,14 @@ describe("extractIssueId", () => {
   });
 
   it("should throw error for non-numeric issue ID in URL", () => {
-    expect(() =>
+    expect(
       extractIssueId("https://sentry.sentry.io/issues/abc"),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Invalid Sentry issue ID. Must be a numeric value.]`,
-    );
+    ).toMatchInlineSnapshot(`
+      {
+        "issueId": "abc",
+        "organizationSlug": "sentry",
+      }
+    `);
   });
 
   it("should throw error for non-numeric standalone ID", () => {

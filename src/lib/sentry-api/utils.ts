@@ -25,8 +25,8 @@ export function extractIssueId(url: string): {
   }
 
   const issueId = pathParts[pathParts.indexOf("issues") + 1];
-  if (!issueId || !/^\d+$/.test(issueId)) {
-    throw new Error("Invalid Sentry issue ID. Must be a numeric value.");
+  if (!issueId) {
+    throw new Error("Unable to determine issue ID from URL.");
   }
 
   // Extract organization slug from either the path or subdomain
