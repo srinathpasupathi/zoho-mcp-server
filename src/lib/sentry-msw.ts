@@ -1008,6 +1008,8 @@ export const restHandlers = [
           ![
             null,
             "",
+            "error.handled:false",
+            "error.unhandled:true",
             "error.handled:false is:unresolved",
             "error.unhandled:true is:unresolved",
             "is:unresolved project:cloudflare-mcp",
