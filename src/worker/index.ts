@@ -22,7 +22,7 @@ const oAuthProvider = new OAuthProvider({
 
 export default withSentry(
   (env) => ({
-    // @ts-ignore
+    debug: true,
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1,
     environment: env.NODE_ENV === "production" ? "production" : "development",

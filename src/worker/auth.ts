@@ -36,7 +36,7 @@ export default new Hono<{
       getUpstreamAuthorizeUrl({
         upstream_url: new URL(
           SENTRY_AUTH_URL,
-          c.env.SENTRY_URL || "https://sentry.io",
+          `https://${c.env.SENTRY_HOST || "sentry.io"}`,
         ).href,
         scope: SCOPES,
         client_id: c.env.SENTRY_CLIENT_ID,
@@ -67,7 +67,7 @@ export default new Hono<{
     const [payload, errResponse] = await exchangeCodeForAccessToken({
       upstream_url: new URL(
         SENTRY_TOKEN_URL,
-        c.env.SENTRY_URL || "https://sentry.io",
+        `https://${c.env.SENTRY_HOST || "sentry.io"}`,
       ).href,
       client_id: c.env.SENTRY_CLIENT_ID,
       client_secret: c.env.SENTRY_CLIENT_SECRET,

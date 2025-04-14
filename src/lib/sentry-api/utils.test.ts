@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { extractIssueId } from "./sentry-api";
+import { describe, expect, it } from "vitest";
+import { extractIssueId } from "./utils";
 
 describe("extractIssueId", () => {
   it("should extract issue ID from a full Sentry URL", () => {

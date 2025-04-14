@@ -5,6 +5,9 @@ import {
   ParamIssueShortId,
   ParamTeamSlug,
   ParamPlatform,
+  ParamProjectSlug,
+  ParamQuery,
+  ParamTransaction,
 } from "./schema";
 import { z } from "zod";
 
@@ -43,9 +46,98 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: "get_error_details" as const,
+    name: "list_issues" as const,
     description: [
-      "Retrieve error details from Sentry for a specific Issue ID, including the stacktrace and error message. Either issueId or issueUrl MUST be provided.",
+      "List all issues in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View all issues in a Sentry organization",
+      "",
+      "If you're looking for more granular data beyond a summary of identified problems, you should use the `search_errors()` or `search_transactions()` tools instead.",
+      "<examples>",
+      "### Find the newest unresolved issues in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved', sortBy='last_seen')",
+      "```",
+      "",
+      "### Find the most frequently occurring crashes in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved error.handled:false', sortBy='count')",
+      "```",
+      "",
+      "### Find the oldest unresolved issues in the 'my-project' project",
+      "",
+      "```",
+      "list_issues(organizationSlug='my-organization', projectSlug='my-project', query='is:unresolved', sortBy='first_seen')",
+      "```",
+      "</examples>",
+      "",
+      "<query_syntax>",
+      "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      "",
+      "There are some common query parameters that are useful for searching errors:",
+      "",
+      "- `is:unresolved` - Find unresolved issues",
+      "- `release:[1.0, 2.0]` - Find issues in a specific release",
+      "- `release:latest` - Find issues in the latest release only",
+      "</query_syntax>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
+      query: ParamQuery.optional(),
+      sortBy: z
+        .enum(["last_seen", "first_seen", "count", "userCount"])
+        .describe(
+          "Sort the results either by the last time they occurred, the first time they occurred, the count of occurrences, or the number of users affected.",
+        )
+        .optional(),
+    },
+  },
+  {
+    name: "list_releases" as const,
+    description: [
+      "List all releases in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- Find recent releases in a Sentry organization",
+      "- Find the most recent version released of a specific project",
+      "- Determine when a release was deployed to an environment",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
+    },
+  },
+  {
+    name: "get_issue_summary" as const,
+    description: [
+      "Retrieve a summary of an issue in Sentry.",
+      "",
+      "Use this tool when you need to:",
+      "- View a summary of an issue in Sentry",
+      "",
+      "If the issue is an error, or you want additional information like the stacktrace, you should use `get_issue_details()` tool instead.",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      issueId: ParamIssueShortId.optional(),
+      issueUrl: z.string().url().optional(),
+    },
+  },
+  {
+    name: "get_issue_details" as const,
+    description: [
+      "Retrieve issue details from Sentry for a specific Issue ID, including the stacktrace and error message if available. Either issueId or issueUrl MUST be provided.",
       "",
       "Use this tool when you need to:",
       "- Investigate a specific production error",
@@ -64,27 +156,52 @@ export const TOOL_DEFINITIONS = [
   {
     name: "search_errors" as const,
     description: [
-      "Search for errors in Sentry.",
+      "Query Sentry for errors using advanced search syntax.",
       "",
       "Use this tool when you need to:",
-      "- Search for production errors in a specific file",
-      "- Analyze error patterns and frequencies",
+      "- Search for production errors in a specific file.",
+      "- Analyze error patterns and frequencies.",
       "- Find recent or frequently occurring errors.",
+      "",
+      "<examples>",
+      "### Find common errors within a file",
+      "",
+      "To find common errors within a file, you can use the `filename` parameter. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename. If you provide generic filenames like `index.js` you're going to end up finding errors that are might be from completely different projects.",
+      "",
+      "```",
+      "search_errors(organizationSlug='my-organization', filename='index.js', sortBy='count')",
+      "```",
+      "",
+      "### Find recent crashes from the 'peated' project",
+      "",
+      "```",
+      "search_errors(organizationSlug='my-organization', query='is:unresolved error.handled:false', projectSlug='peated', sortBy='last_seen')",
+      "```",
+      "",
+      "</examples>",
+      "",
+      "<query_syntax>",
+      "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      "",
+      "There are some common query parameters that are useful for searching errors:",
+      "",
+      "- `is:unresolved` - Find unresolved errors",
+      "- `error.handled:false` - Find errors that are not handled (otherwise known as uncaught exceptions or crashes)",
+      "</query_syntax>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you should call `list_organizations()` first.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
       filename: z
         .string()
-        .describe(
-          "The filename to search for errors in. This is a suffix based search, so only using the filename or the direct parent folder of the file. The parent folder is preferred when the filename is in a subfolder or a common filename.",
-        )
+        .describe("The filename to search for errors in.")
         .optional(),
-      query: z
-        .string()
-        .describe(
-          `The search query to apply. Use the \`help\` tool to get more information about the query syntax rather than guessing.`,
-        )
-        .optional(),
+      transaction: ParamTransaction.optional(),
+      query: ParamQuery.optional(),
       sortBy: z
         .enum(["last_seen", "count"])
         .optional()
@@ -95,12 +212,66 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
+    name: "search_transactions" as const,
+    description: [
+      "Query Sentry for transactions using advanced search syntax.",
+      "",
+      "Transactions are segments of traces that are associated with a specific route or endpoint.",
+      "",
+      "Use this tool when you need to:",
+      "- Search for production transaction data to understand performance.",
+      "- Analyze traces and latency patterns.",
+      "- Find examples of recent requests to endpoints.",
+      "",
+      "<examples>",
+      "### Find slow requests to a route",
+      "",
+      "...",
+      "",
+      "```",
+      "search_transactions(organizationSlug='my-organization', transaction='/checkout', sortBy='latency')",
+      "```",
+      "",
+      "</examples>",
+      // "",
+      // "<query_syntax>",
+      // "Use the tool `help('query_syntax')` to get more information about the query syntax.",
+      // "",
+      // "There are some common query parameters that are useful for searching errors:",
+      // "",
+      // "- `is:unresolved` - Find unresolved errors",
+      // "- `error.handled:false` - Find errors that are not handled (otherwise known as uncaught exceptions or crashes)",
+      // "</query_syntax>",
+      "",
+      "<hints>",
+      "If only one parameter is provided, and it could be either `organizationSlug` or `projectSlug`, its probably `organizationSlug`, but if you're really uncertain you might want to call `list_organizations()` first.",
+      "</hints>",
+    ].join("\n"),
+    paramsSchema: {
+      organizationSlug: ParamOrganizationSlug.optional(),
+      projectSlug: ParamProjectSlug.optional(),
+      transaction: ParamTransaction.optional(),
+      query: ParamQuery.optional(),
+      sortBy: z
+        .enum(["timestamp", "duration"])
+        .optional()
+        .default("timestamp")
+        .describe(
+          "Sort the results either by the timestamp of the request (most recent first) or the duration of the request (longest first).",
+        ),
+    },
+  },
+  {
     name: "create_team" as const,
     description: [
       "Create a new team in Sentry.",
       "",
       "Use this tool when you need to:",
       "- Create a new team in a Sentry organization",
+      "",
+      "<hints>",
+      "- If any parameter is ambiguous, you should clarify with the user what they meant.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -114,6 +285,10 @@ export const TOOL_DEFINITIONS = [
       "",
       "Use this tool when you need to:",
       "- Create a new project in a Sentry organization",
+      "",
+      "<hints>",
+      "- If any parameter is ambiguous, you should clarify with the user what they meant.",
+      "</hints>",
     ].join("\n"),
     paramsSchema: {
       organizationSlug: ParamOrganizationSlug.optional(),
@@ -133,6 +308,14 @@ export const TOOL_DEFINITIONS = [
       "",
       "Use this tool when you need to:",
       "- Understand the Sentry search syntax",
+      "",
+      "<examples>",
+      "### Get help with the Sentry search syntax",
+      "",
+      "```",
+      "help('query_syntax')",
+      "```",
+      "</examples>",
     ].join("\n"),
     paramsSchema: {
       subject: z

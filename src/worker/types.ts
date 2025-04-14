@@ -12,7 +12,7 @@ export interface Env {
   SENTRY_CLIENT_ID: string;
   SENTRY_CLIENT_SECRET: string;
   SENTRY_DSN?: string;
-  SENTRY_URL?: string;
+  SENTRY_HOST?: string;
   MCP_OBJECT: DurableObjectNamespace<SentryMCP>;
   OAUTH_PROVIDER: OAuthHelpers;
   AI: Ai;

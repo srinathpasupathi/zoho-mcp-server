@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -18,6 +19,6 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.{test,spec,eval}.ts", "src/types.ts"],
     },
-    setupFiles: ["dotenv/config"],
+    setupFiles: ["dotenv/config", "src/test-setup.ts"],
   },
 });

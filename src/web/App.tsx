@@ -15,6 +15,21 @@ export default function App() {
     undefined,
     2,
   );
+  const zedInstructions = JSON.stringify(
+    {
+      context_servers: {
+        sentry: {
+          command: {
+            command: "npx",
+            args: ["-y", "mcp-remote", sseUrl],
+          },
+        },
+        settings: {},
+      },
+    },
+    undefined,
+    2,
+  );
 
   return (
     <div className="container sm:p-8 p-4">
@@ -132,6 +147,23 @@ export default function App() {
             <p>
               <small>Note: MCP is supported in VSCode 1.99 and above.</small>
             </p>
+          </section>
+
+          <section className="setup-guide">
+            <h3 id="with-zed">With Zed</h3>
+            <ol>
+              <li>
+                <strong>CMD + ,</strong> to open Zed settings.
+              </li>
+              <li>
+                <div className="snippet">
+                  <button type="button" data-copy={zedInstructions}>
+                    Copy
+                  </button>
+                  <pre>{zedInstructions}</pre>
+                </div>
+              </li>
+            </ol>
           </section>
 
           <section className="workflows" id="workflows">

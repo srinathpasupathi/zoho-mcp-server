@@ -1,9 +1,5 @@
-import type { z } from "zod";
-import type {
-  SentryErrorEntrySchema,
-  SentryEventSchema,
-} from "../lib/sentry-api";
 import { SentryApiService, extractIssueId } from "../lib/sentry-api";
+import { formatEventOutput } from "./formatting";
 import type { ToolHandlers } from "./types";
 
 const QUERY_SYNTAX = [
@@ -105,46 +101,18 @@ const QUERY_SYNTAX = [
   "In the above example, the search query returns results which do not have message values like `ConnectionTimeout`, `ReadTimeout`, etc.",
 ].join("\n");
 
-function formatEventOutput(event: z.infer<typeof SentryEventSchema>) {
-  let output = "";
-  for (const entry of event.entries) {
-    if (entry.type === "exception") {
-      const data = entry.data as z.infer<typeof SentryErrorEntrySchema>;
-      const firstError = data.value ?? data.values[0];
-      if (!firstError) {
-        continue;
-      }
-      output += `**Error:**\n${"```"}\n${firstError.type}: ${
-        firstError.value
-      }\n${"```"}\n\n`;
-      if (!firstError.stacktrace || !firstError.stacktrace.frames) {
-        continue;
-      }
-      output += `**Stacktrace:**\n${"```"}\n${firstError.stacktrace.frames
-        .map((frame) => {
-          const context = frame.context?.length
-            ? `:${frame.context
-                .filter(([lineno, _]) => lineno === frame.lineNo)
-                .map(([_, code]) => `\n${code}`)
-                .join("")}`
-            : "";
-
-          return `in "${frame.filename || frame.module}"${
-            frame.lineNo ? ` at line ${frame.lineNo}` : ""
-          }${context}`;
-        })
-        .join("\n")}\n${"```"}\n\n`;
-    }
-  }
-  return output;
-}
-
 export const TOOL_HANDLERS = {
   list_organizations: async (context) => {
     const apiService = new SentryApiService(context.accessToken);
     const organizations = await apiService.listOrganizations();
 
     let output = "# Organizations\n\n";
+
+    if (organizations.length === 0) {
+      output += "You don't appear to be a member of any organizations.\n";
+      return output;
+    }
+
     output += organizations.map((org) => `- ${org.slug}\n`).join("");
 
     return output;
@@ -163,6 +131,12 @@ export const TOOL_HANDLERS = {
     const teams = await apiService.listTeams(organizationSlug);
 
     let output = `# Teams in **${organizationSlug}**\n\n`;
+
+    if (teams.length === 0) {
+      output += "No teams found.\n";
+      return output;
+    }
+
     output += teams.map((team) => `- ${team.slug}\n`).join("");
 
     return output;
@@ -181,11 +155,169 @@ export const TOOL_HANDLERS = {
     const projects = await apiService.listProjects(organizationSlug);
 
     let output = `# Projects in **${organizationSlug}**\n\n`;
+
+    if (projects.length === 0) {
+      output += "No projects found.\n";
+      return output;
+    }
+
     output += projects.map((project) => `- ${project.slug}\n`).join("");
 
     return output;
   },
-  get_error_details: async (
+  list_issues: async (
+    context,
+    { organizationSlug, projectSlug, query, sortBy },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const sortByMap = {
+      last_seen: "date" as const,
+      first_seen: "new" as const,
+      count: "freq" as const,
+      userCount: "user" as const,
+    };
+
+    const issues = await apiService.listIssues({
+      organizationSlug,
+      projectSlug,
+      query,
+      sortBy: sortByMap[sortBy as keyof typeof sortByMap],
+    });
+
+    let output = `# Issues in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+
+    if (issues.length === 0) {
+      output += "No issues found.\n";
+      return output;
+    }
+    output += issues
+      .map((issue) =>
+        [
+          `## ${issue.shortId}`,
+          "",
+          `**Description**: ${issue.title}`,
+          `**Culprit**: ${issue.culprit}`,
+          `**First Seen**: ${new Date(issue.firstSeen).toISOString()}`,
+          `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}`,
+          `**URL**: ${apiService.getIssueUrl(organizationSlug, issue.shortId)}`,
+        ].join("\n"),
+      )
+      .join("\n");
+    output += "\n\n";
+
+    output += "# Using this information\n\n";
+    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can get more details about a specific issue by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
+
+    return output;
+  },
+  list_releases: async (context, { organizationSlug, projectSlug }) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const releases = await apiService.listReleases({
+      organizationSlug,
+      projectSlug,
+    });
+
+    let output = `# Releases in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+
+    if (releases.length === 0) {
+      output += "No releases found.\n";
+      return output;
+    }
+
+    output += releases
+      .map((release) => {
+        const releaseInfo = [
+          `## ${release.shortVersion}`,
+          "",
+          `**Created**: ${new Date(release.dateCreated).toISOString()}`,
+        ];
+
+        if (release.dateReleased) {
+          releaseInfo.push(
+            `**Released**: ${new Date(release.dateReleased).toISOString()}`,
+          );
+        }
+
+        if (release.firstEvent) {
+          releaseInfo.push(
+            `**First Event**: ${new Date(release.firstEvent).toISOString()}`,
+          );
+        }
+
+        if (release.lastEvent) {
+          releaseInfo.push(
+            `**Last Event**: ${new Date(release.lastEvent).toISOString()}`,
+          );
+        }
+
+        if (release.newGroups !== undefined) {
+          releaseInfo.push(`**New Issues**: ${release.newGroups}`);
+        }
+
+        if (release.lastCommit) {
+          releaseInfo.push(`**Last Commit**: ${release.lastCommit.message}`);
+          releaseInfo.push(
+            `**Commit Author**: ${release.lastCommit.author.name}`,
+          );
+          releaseInfo.push(
+            `**Commit Date**: ${new Date(release.lastCommit.dateCreated).toISOString()}`,
+          );
+        }
+
+        if (release.lastDeploy) {
+          releaseInfo.push(
+            `**Last Deploy**: ${release.lastDeploy.environment}`,
+          );
+          if (release.lastDeploy.dateStarted) {
+            releaseInfo.push(
+              `**Deploy Started**: ${new Date(release.lastDeploy.dateStarted).toISOString()}`,
+            );
+          }
+          if (release.lastDeploy.dateFinished) {
+            releaseInfo.push(
+              `**Deploy Finished**: ${new Date(release.lastDeploy.dateFinished).toISOString()}`,
+            );
+          }
+        }
+
+        if (release.projects && release.projects.length > 0) {
+          releaseInfo.push(
+            `**Projects**: ${release.projects.map((p) => p.name).join(", ")}`,
+          );
+        }
+
+        return releaseInfo.join("\n");
+      })
+      .join("\n\n");
+
+    output += "\n\n";
+
+    output += "# Using this information\n\n";
+    output += `- You can reference the Release version in commit messages or documentation.\n`;
+    output += `- You can search for issues in a specific release using the \`search_errors()\` tool with the query \`release:${releases[0].version}\`.\n`;
+
+    return output;
+  },
+  get_issue_summary: async (
     context,
     { issueId, issueUrl, organizationSlug },
   ) => {
@@ -212,18 +344,83 @@ export const TOOL_HANDLERS = {
       throw new Error("Organization slug is required");
     }
 
-    const event = await apiService.getLatestEventForIssue({
+    const issue = await apiService.getIssue({
       organizationSlug,
-      issueId: issueId,
+      issueId,
     });
 
-    let output = `# ${issueId}: ${event.title}\n\n`;
-    output += `**Issue ID**:\n${issueId}\n`;
-    if (event.message) output += `**Message**:\n${event.message}\n`;
-    if (event.culprit) output += `**Culprit**:\n${event.culprit}\n`;
-    output += `**Occurred At**:\n${new Date(
-      event.dateCreated,
-    ).toISOString()}\n\n`;
+    let output = `# ${issue.shortId}\n\n`;
+    output += `**Description**: ${issue.title}\n`;
+    output += `**Culprit**: ${issue.culprit}\n`;
+    output += `**First Seen**: ${new Date(issue.firstSeen).toISOString()}\n`;
+    output += `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}\n`;
+    output += `**Occurrences**: ${issue.count}\n`;
+    output += `**Users Impacted**: ${issue.userCount}\n`;
+    output += `**Status**: ${issue.status}\n`;
+    output += `**Platform**: ${issue.platform}\n`;
+    output += `**Project**: ${issue.project.name}\n`;
+    output += `**URL**: ${apiService.getIssueUrl(
+      organizationSlug,
+      issue.shortId,
+    )}\n`;
+
+    return output;
+  },
+  get_issue_details: async (
+    context,
+    { issueId, issueUrl, organizationSlug },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (issueUrl) {
+      const resolved = extractIssueId(issueUrl);
+      if (!resolved) {
+        throw new Error(
+          "Invalid Sentry issue URL. Path should contain '/issues/{issue_id}'",
+        );
+      }
+      organizationSlug = resolved.organizationSlug;
+      issueId = resolved.issueId;
+    } else if (!issueId) {
+      throw new Error("Either issueId or issueUrl must be provided");
+    }
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const [issue, event] = await Promise.all([
+      apiService.getIssue({
+        organizationSlug,
+        issueId: issueId!,
+      }),
+      apiService.getLatestEventForIssue({
+        organizationSlug,
+        issueId: issueId!,
+      }),
+    ]);
+
+    let output = `# ${issue.shortId}\n\n`;
+    output += `**Description**: ${issue.title}\n`;
+    output += `**Culprit**: ${issue.culprit}\n`;
+    output += `**First Seen**: ${new Date(issue.firstSeen).toISOString()}\n`;
+    output += `**Last Seen**: ${new Date(issue.lastSeen).toISOString()}\n`;
+    output += `**URL**: ${apiService.getIssueUrl(
+      organizationSlug,
+      issue.shortId,
+    )}\n`;
+
+    output += "\n";
+
+    output += "## Event Specifics\n\n";
+    output += `**Occurred At**: ${new Date(event.dateCreated).toISOString()}\n`;
+    if (event.message) {
+      output += `**Message**:\n${event.message}\n`;
+    }
 
     output += formatEventOutput(event);
 
@@ -237,7 +434,7 @@ export const TOOL_HANDLERS = {
 
   search_errors: async (
     context,
-    { filename, query, sortBy, organizationSlug },
+    { filename, transaction, query, sortBy, organizationSlug, projectSlug },
   ) => {
     const apiService = new SentryApiService(context.accessToken);
 
@@ -251,12 +448,14 @@ export const TOOL_HANDLERS = {
 
     const eventList = await apiService.searchErrors({
       organizationSlug,
+      projectSlug,
       filename,
       query,
+      transaction,
       sortBy,
     });
 
-    let output = `# Search Results\n\n`;
+    let output = `# Errors in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
     if (query) output += `These errors match the query \`${query}\`\n`;
     if (filename)
       output += `These errors are limited to the file suffix \`${filename}\`\n`;
@@ -270,16 +469,77 @@ export const TOOL_HANDLERS = {
     }
 
     for (const eventSummary of eventList) {
-      output += `## ${eventSummary.issue}: ${eventSummary.title}\n\n`;
-      output += `- **Issue ID**: ${eventSummary.issue}\n`;
-      output += `- **Project**: ${eventSummary.project}\n`;
-      output += `- **Last Seen**: ${eventSummary["last_seen()"]}\n`;
-      output += `- **Occurrences**: ${eventSummary["count()"]}\n\n`;
+      output += `## ${eventSummary.issue}\n\n`;
+      output += `**Description**: ${eventSummary.title}\n`;
+      output += `**Issue ID**: ${eventSummary.issue}\n`;
+      output += `**URL**: ${apiService.getIssueUrl(
+        organizationSlug,
+        eventSummary.issue,
+      )}\n`;
+      output += `**Project**: ${eventSummary.project}\n`;
+      output += `**Last Seen**: ${eventSummary["last_seen()"]}\n`;
+      output += `**Occurrences**: ${eventSummary["count()"]}\n\n`;
     }
 
     output += "# Using this information\n\n";
-    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes ${eventList[0].issue}\`) to automatically close the issue when the commit is merged.\n`;
-    output += `- You can get more details about this error by using the "get_error_details" tool.\n`;
+    output += `- You can reference the Issue ID in commit messages (e.g. \`Fixes <issueID>\`) to automatically close the issue when the commit is merged.\n`;
+    output += `- You can get more details about an error by using the tool: \`get_issue_details(${organizationSlug}, <issueID>)\`\n`;
+
+    return output;
+  },
+
+  search_transactions: async (
+    context,
+    { transaction, query, sortBy, organizationSlug, projectSlug },
+  ) => {
+    const apiService = new SentryApiService(context.accessToken);
+
+    if (!organizationSlug && context.organizationSlug) {
+      organizationSlug = context.organizationSlug;
+    }
+
+    if (!organizationSlug) {
+      throw new Error("Organization slug is required");
+    }
+
+    const eventList = await apiService.searchSpans({
+      organizationSlug,
+      projectSlug,
+      transaction,
+      query,
+      sortBy,
+    });
+
+    let output = `# Transactions in **${organizationSlug}${projectSlug ? `/${projectSlug}` : ""}**\n\n`;
+    if (query) output += `These spans match the query \`${query}\`\n`;
+    if (transaction)
+      output += `These spans are limited to the transaction \`${transaction}\`\n`;
+    output += "\n";
+
+    if (eventList.length === 0) {
+      output += `No results found\n\n`;
+      output += `We searched within the ${organizationSlug} organization.\n\n`;
+      output += `You may want to consult the \`help\` tool if you think your search syntax might be wrong.\n`;
+      return output;
+    }
+
+    for (const eventSummary of eventList) {
+      output += `## ${eventSummary.transaction}\n\n`;
+      output += `**Span ID**: ${eventSummary.id}\n`;
+      output += `**Trace ID**: ${eventSummary.trace}\n`;
+      output += `**Span Operation**: ${eventSummary["span.op"]}\n`;
+      output += `**Span Description**: ${eventSummary["span.description"]}\n`;
+      output += `**Duration**: ${eventSummary["span.duration"]}\n`;
+      output += `**Timestamp**: ${eventSummary.timestamp}\n`;
+      output += `**Project**: ${eventSummary.project}\n`;
+      output += `**URL**: ${apiService.getTraceUrl(
+        organizationSlug,
+        eventSummary.trace,
+      )}\n\n`;
+    }
+
+    // output += "# Using this information\n\n";
+    // output += `- You can get more details about this error by using the "get_trace_details" tool.\n`;
 
     return output;
   },
@@ -301,9 +561,9 @@ export const TOOL_HANDLERS = {
     });
 
     let output = "# New Team\n\n";
-    output += `- **ID**: ${team.id}\n`;
-    output += `- **Slug**: ${team.slug}\n`;
-    output += `- **Name**: ${team.name}\n`;
+    output += `**ID**: ${team.id}\n`;
+    output += `**Slug**: ${team.slug}\n`;
+    output += `**Name**: ${team.name}\n`;
 
     output += "# Using this information\n\n";
     output += `- You should always inform the user of the Team Slug value.\n`;
@@ -332,14 +592,14 @@ export const TOOL_HANDLERS = {
     });
 
     let output = "# New Project\n\n";
-    output += `- **ID**: ${project.id}\n`;
-    output += `- **Slug**: ${project.slug}\n`;
-    output += `- **Name**: ${project.name}\n`;
+    output += `**ID**: ${project.id}\n`;
+    output += `**Slug**: ${project.slug}\n`;
+    output += `**Name**: ${project.name}\n`;
 
     if (clientKey) {
-      output += `- **SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
+      output += `**SENTRY_DSN**: ${clientKey?.dsn.public}\n\n`;
     } else {
-      output += "- **SENTRY_DSN**: There was an error fetching this value.\n\n";
+      output += "**SENTRY_DSN**: There was an error fetching this value.\n\n";
     }
 
     output += "# Using this information\n\n";
@@ -349,7 +609,7 @@ export const TOOL_HANDLERS = {
     return output;
   },
 
-  help: async (context, { subject }) => {
+  help: async (_context, { subject }) => {
     if (subject === "query_syntax") {
       return QUERY_SYNTAX;
     }
