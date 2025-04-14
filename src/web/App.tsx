@@ -157,7 +157,11 @@ export default function App() {
               </li>
               <li>
                 <div className="snippet">
-                  <button type="button" data-copy={zedInstructions}>
+                  <button
+                    className="btn"
+                    type="button"
+                    data-copy={zedInstructions}
+                  >
                     Copy
                   </button>
                   <pre>{zedInstructions}</pre>
