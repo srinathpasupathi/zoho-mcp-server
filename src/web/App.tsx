@@ -15,6 +15,11 @@ export default function App() {
     undefined,
     2,
   );
+  const vsCodeHandler = `vscode:mcp/install?${new URLSearchParams({
+    name: "Sentry",
+    type: "sse",
+    url: sseUrl,
+  }).toString()}`;
   const zedInstructions = JSON.stringify(
     {
       context_servers: {
@@ -115,33 +120,7 @@ export default function App() {
             <h3 id="with-vscode">With VSCode</h3>
             <ol>
               <li>
-                <strong>CMD + P</strong>
-              </li>
-              <li>
-                Select <strong>MCP: Add Server...</strong>
-              </li>
-              <li>
-                Select <strong>Command (stdio)</strong>.
-              </li>
-              <li>
-                Enter <code>npx mcp-remote {sseUrl}</code>{" "}
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => {
-                    navigator.clipboard.writeText(`npx mcp-remote ${sseUrl}`);
-                  }}
-                >
-                  Copy
-                </button>
-              </li>
-              <li>
-                Enter <code>Sentry</code>
-              </li>
-              <li>
-                Select <strong>User settings</strong> or{" "}
-                <strong>Workspace settings</strong> (to limit to specific
-                project)
+                <a href={vsCodeHandler}>Install the MCP extension</a>
               </li>
             </ol>
             <p>
