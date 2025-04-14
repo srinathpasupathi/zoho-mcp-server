@@ -8,6 +8,7 @@ export type WorkerProps = ServerContext & {
 };
 
 export interface Env {
+  ASSETS: Fetcher;
   OAUTH_KV: KVNamespace;
   SENTRY_CLIENT_ID: string;
   SENTRY_CLIENT_SECRET: string;
