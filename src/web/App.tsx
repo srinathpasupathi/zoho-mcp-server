@@ -258,6 +258,9 @@ export default function App() {
                 <li>
                   <a href="#with-vscode">With VSCode</a>
                 </li>
+                <li>
+                  <a href="#with-zed">With Zed</a>
+                </li>
               </ul>
             </li>
             <li>
