@@ -20,7 +20,7 @@ export class SentryApiService {
 
   constructor(
     accessToken: string | null = null,
-    host = import.meta.env.SENTRY_HOST,
+    host = process.env.SENTRY_HOST,
   ) {
     this.accessToken = accessToken;
     this.host = host || "sentry.io";
