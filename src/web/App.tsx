@@ -160,7 +160,9 @@ export default function App() {
                   <button
                     className="btn"
                     type="button"
-                    data-copy={zedInstructions}
+                    onClick={() => {
+                      navigator.clipboard.writeText(zedInstructions);
+                    }}
                   >
                     Copy
                   </button>
