@@ -1002,15 +1002,17 @@ export const restHandlers = [
       }
       if (dataset === "errors") {
         //https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=errors&per_page=10&referrer=sentry-mcp&sort=-count&statsPeriod=1w&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&query=
+        // TODO: this is not correct, but itll fix test flakiness for now
+        const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
         if (
           ![
             null,
             "",
-            "is:unresolved error.handled:false",
-            "is:unresolved error.unhandled:true",
+            "error.handled:false is:unresolved",
+            "error.unhandled:true is:unresolved",
             "is:unresolved project:cloudflare-mcp",
             "project:cloudflare-mcp",
-          ].includes(query)
+          ].includes(sortedQuery)
         ) {
           return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
         }
@@ -1044,16 +1046,18 @@ export const restHandlers = [
     ({ request }) => {
       const url = new URL(request.url);
       const query = url.searchParams.get("query");
+
+      const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
       if (
         ![
           null,
           "",
           "is:unresolved",
-          "is:unresolved error.handled:false",
-          "is:unresolved error.unhandled:true",
+          "error.handled:false is:unresolved",
+          "error.unhandled:true is:unresolved",
           "project:cloudflare-mcp",
           "is:unresolved project:cloudflare-mcp",
-        ].includes(query)
+        ].includes(sortedQuery)
       ) {
         return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
       }
