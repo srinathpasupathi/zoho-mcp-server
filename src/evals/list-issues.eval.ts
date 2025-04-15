@@ -13,7 +13,7 @@ describeEval("list-issues", {
           "- **Issue ID**: CLOUDFLARE-MCP-41",
           "- **Stacktrace**:",
           "```",
-          "index.js at line 7809:27",
+          '"index.js" at line 7809:27',
           '"index.js" at line 8029:24',
           '"index.js" at line 19631:28',
           "```",
