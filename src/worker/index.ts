@@ -34,6 +34,7 @@ export default withSentry(
     debug: true,
     dsn: env.SENTRY_DSN,
     tracesSampleRate: 1,
+    sendDefaultPii: true,
     environment: env.NODE_ENV === "production" ? "production" : "development",
   }),
   worker,
