@@ -22,7 +22,6 @@ const oAuthProvider = new OAuthProvider({
 
 const worker = {
   fetch: (request, env, ctx) => {
-    console.log(request.headers.get("cf-connecting-ip"));
     setUser({
       ip: request.headers.get("cf-connecting-ip"),
     });
