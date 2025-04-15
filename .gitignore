@@ -172,3 +172,6 @@ dist
 .wrangler/
 
 *.junit.xml
+
+# Sentry Config File
+.env.sentry-build-plugin
