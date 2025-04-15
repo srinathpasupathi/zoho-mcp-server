@@ -1,4 +1,4 @@
-import { withSentry, setUser } from "@sentry/cloudflare";
+import { withSentry } from "@sentry/cloudflare";
 import OAuthProvider from "@cloudflare/workers-oauth-provider";
 import SentryMCP from "../mcp/transports/cloudflare-worker";
 import { SCOPES } from "./auth";
