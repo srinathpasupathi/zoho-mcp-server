@@ -20,15 +20,6 @@ const oAuthProvider = new OAuthProvider({
   scopesSupported: SCOPES.split(" "),
 });
 
-const worker = {
-  fetch: (request, env, ctx) => {
-    setUser({
-      ip: request.headers.get("cf-connecting-ip"),
-    });
-    return oAuthProvider.fetch(request, env, ctx);
-  },
-} satisfies ExportedHandler<Env>;
-
 export default withSentry(
   (env) => ({
     debug: true,
@@ -37,5 +28,5 @@ export default withSentry(
     sendDefaultPii: true,
     environment: env.NODE_ENV === "production" ? "production" : "development",
   }),
-  worker,
+  oAuthProvider,
 ) satisfies ExportedHandler<Env>;
