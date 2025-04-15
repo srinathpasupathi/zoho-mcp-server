@@ -15,10 +15,6 @@ export default defineConfig({
     }),
   ],
 
-  define: {
-    "import.meta.env.SENTRY_DSN": JSON.stringify(process.env.SENTRY_DSN),
-  },
-
   build: {
     sourcemap: true,
   },
