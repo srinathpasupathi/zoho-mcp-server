@@ -566,6 +566,7 @@ const EmptyEventsErrorsPayload = {
   data: [],
   meta: EventsErrorsMeta,
 };
+
 const EventsErrorsPayload = {
   data: [
     {
@@ -578,6 +579,76 @@ const EventsErrorsPayload = {
     },
   ],
   meta: EventsErrorsMeta,
+};
+
+const EventsSpansMeta = {
+  fields: {
+    id: "string",
+    "span.op": "string",
+    "span.description": "string",
+    "span.duration": "duration",
+    transaction: "string",
+    timestamp: "string",
+    is_transaction: "boolean",
+    project: "string",
+    trace: "string",
+    "transaction.span_id": "string",
+    "project.name": "string",
+  },
+  units: {
+    id: null,
+    "span.op": null,
+    "span.description": null,
+    "span.duration": "millisecond",
+    transaction: null,
+    timestamp: null,
+    is_transaction: null,
+    project: null,
+    trace: null,
+    "transaction.span_id": null,
+    "project.name": null,
+  },
+  isMetricsData: false,
+  isMetricsExtractedData: false,
+  tips: {},
+  datasetReason: "unchanged",
+  dataset: "spans",
+  dataScanned: "full",
+  accuracy: {
+    confidence: [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+    ],
+  },
+};
+
+const EmptyEventsSpansPayload = {
+  data: [],
+  meta: EventsSpansMeta,
 };
 
 const EventsSpansPayload = {
@@ -609,70 +680,7 @@ const EventsSpansPayload = {
       "project.name": "peated",
     },
   ],
-  meta: {
-    fields: {
-      id: "string",
-      "span.op": "string",
-      "span.description": "string",
-      "span.duration": "duration",
-      transaction: "string",
-      timestamp: "string",
-      is_transaction: "boolean",
-      project: "string",
-      trace: "string",
-      "transaction.span_id": "string",
-      "project.name": "string",
-    },
-    units: {
-      id: null,
-      "span.op": null,
-      "span.description": null,
-      "span.duration": "millisecond",
-      transaction: null,
-      timestamp: null,
-      is_transaction: null,
-      project: null,
-      trace: null,
-      "transaction.span_id": null,
-      "project.name": null,
-    },
-    isMetricsData: false,
-    isMetricsExtractedData: false,
-    tips: {},
-    datasetReason: "unchanged",
-    dataset: "spans",
-    dataScanned: "full",
-    accuracy: {
-      confidence: [
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
-    },
-  },
+  meta: EventsSpansMeta,
   confidence: [
     {},
     {},
@@ -988,7 +996,7 @@ export const restHandlers = [
       if (dataset === "spans") {
         //[sentryApi] GET https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=spans&per_page=10&referrer=sentry-mcp&sort=-span.duration&allowAggregateConditions=0&useRpc=1&field=id&field=trace&field=span.op&field=span.description&field=span.duration&field=transaction&field=project&field=timestamp&query=is_transaction%3Atrue
         if (query !== "is_transaction:true") {
-          return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
+          return HttpResponse.json(EmptyEventsSpansPayload);
         }
 
         if (url.searchParams.get("useRpc") !== "1") {
@@ -1090,7 +1098,7 @@ export const restHandlers = [
           "user.email:david@sentry.io",
         ].includes(sortedQuery)
       ) {
-        return HttpResponse.json([IssuePayload]);
+        return HttpResponse.json([]);
       }
 
       return HttpResponse.json([IssuePayload]);
