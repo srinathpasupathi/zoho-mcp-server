@@ -80,6 +80,9 @@
       "sharp",
       "simple-git-hooks",
       "workerd"
-    ]
+    ],
+    "overrides": {
+      "vitest-evals": "link:../vitest-evals"
+    }
   }
 }

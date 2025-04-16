@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  vitest-evals: link:../vitest-evals
+
 importers:
 
   .:
@@ -112,8 +115,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(msw@2.7.4(@types/node@22.14.1)(typescript@5.8.3))(tsx@4.19.3)(yaml@2.7.1)
       vitest-evals:
-        specifier: ^0.1.4
-        version: 0.1.4(vitest@3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(msw@2.7.4(@types/node@22.14.1)(typescript@5.8.3))(tsx@4.19.3)(yaml@2.7.1))
+        specifier: link:../vitest-evals
+        version: link:../vitest-evals
       wrangler:
         specifier: ^4.10.0
         version: 4.10.0(@cloudflare/workers-types@4.20250414.0)
@@ -2966,11 +2969,6 @@ packages:
         optional: true
       yaml:
         optional: true
-
-  vitest-evals@0.1.4:
-    resolution: {integrity: sha512-hsid14fRwsTme/50TmdWNw7klXfRGuBXyFOxFb8MvEjKx16CCrjL0T26fD7GThEzdn3WH/kDVOYb9Gtd6AvFTA==}
-    peerDependencies:
-      vitest: '*'
 
   vitest@3.1.1:
     resolution: {integrity: sha512-kiZc/IYmKICeBAZr9DQ5rT7/6bD9G7uqQEki4fxazi1jdVl2mWGzedtBs5s6llz59yQhVb7FFY2MbHzHCnT79Q==}
@@ -5830,10 +5828,6 @@ snapshots:
       lightningcss: 1.29.2
       tsx: 4.19.3
       yaml: 2.7.1
-
-  vitest-evals@0.1.4(vitest@3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(msw@2.7.4(@types/node@22.14.1)(typescript@5.8.3))(tsx@4.19.3)(yaml@2.7.1)):
-    dependencies:
-      vitest: 3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(msw@2.7.4(@types/node@22.14.1)(typescript@5.8.3))(tsx@4.19.3)(yaml@2.7.1)
 
   vitest@3.1.1(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(msw@2.7.4(@types/node@22.14.1)(typescript@5.8.3))(tsx@4.19.3)(yaml@2.7.1):
     dependencies:
