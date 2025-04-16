@@ -1077,6 +1077,13 @@ export const restHandlers = [
         );
       }
 
+      const collapse = url.searchParams.getAll("collapse");
+      if (collapse.includes("stats")) {
+        return HttpResponse.json(`Invalid collapse: ${collapse.join(",")}`, {
+          status: 400,
+        });
+      }
+
       return HttpResponse.json([IssuePayload]);
     },
   ),
