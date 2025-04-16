@@ -36,8 +36,8 @@ export function configureServer(server: McpServer, context: ServerContext) {
             content: [
               {
                 type: "text",
-                text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API.\n\nPlease give the following information to the Sentry team:\n**Event ID**: ${eventId}\n\n${
-                  process.env.NODE_ENV === "development"
+                text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API.\n\nPlease give the following information to the Sentry team:\n\n**Event ID**: ${eventId}\n\n${
+                  process.env.NODE_ENV !== "production"
                     ? error instanceof Error
                       ? error.message
                       : String(error)
