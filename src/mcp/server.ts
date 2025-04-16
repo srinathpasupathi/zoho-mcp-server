@@ -31,13 +31,17 @@ export function configureServer(server: McpServer, context: ServerContext) {
             ],
           };
         } catch (error) {
-          logError(error);
+          const eventId = logError(error);
           return {
             content: [
               {
                 type: "text",
-                text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API:\n\n${
-                  error instanceof Error ? error.message : String(error)
+                text: `**Error**\n\nIt looks like there was a problem communicating with the Sentry API.\n\nPlease give the following information to the Sentry team:\n**Event ID**: ${eventId}\n\n${
+                  process.env.NODE_ENV === "development"
+                    ? error instanceof Error
+                      ? error.message
+                      : String(error)
+                    : ""
                 }`,
               },
             ],
