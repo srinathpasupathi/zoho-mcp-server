@@ -1,12 +1,14 @@
 import { Fragment } from "react/jsx-runtime";
 import { TOOL_DEFINITIONS } from "../mcp/toolDefinitions";
 
+const mcpServerName = import.meta.env.DEV ? "sentry-dev" : "sentry";
+
 export default function App() {
   const sseUrl = new URL("/sse", window.location.href).href;
   const mcpSnippet = JSON.stringify(
     {
       mcpServers: {
-        sentry: {
+        [mcpServerName]: {
           command: "npx",
           args: ["-y", "mcp-remote", sseUrl],
         },
@@ -15,19 +17,20 @@ export default function App() {
     undefined,
     2,
   );
-  const vsCodeHandler = `vscode:mcp/install?${new URLSearchParams({
-    name: "Sentry",
-    type: "sse",
-    url: sseUrl,
-  }).toString()}`;
+  // https://code.visualstudio.com/docs/copilot/chat/mcp-servers
+  const vsCodeHandler = `code:mcp/install?${encodeURIComponent(
+    JSON.stringify({
+      name: mcpServerName,
+      command: "npx",
+      args: ["-y", "mcp-remote", sseUrl],
+    }),
+  )}`;
   const zedInstructions = JSON.stringify(
     {
       context_servers: {
-        sentry: {
-          command: {
-            command: "npx",
-            args: ["-y", "mcp-remote", sseUrl],
-          },
+        [mcpServerName]: {
+          command: "npx",
+          args: ["-y", "mcp-remote", sseUrl],
         },
         settings: {},
       },
