@@ -273,8 +273,13 @@ export const TOOL_HANDLERS = {
           releaseInfo.push(`**New Issues**: ${release.newGroups}`);
         }
 
+        if (release.projects && release.projects.length > 0) {
+          releaseInfo.push(
+            `**Projects**: ${release.projects.map((p) => p.name).join(", ")}`,
+          );
+        }
         if (release.lastCommit) {
-          releaseInfo.push(`### Last Commit`);
+          releaseInfo.push(`### Last Commit`, "");
           releaseInfo.push(`**Commit ID**: ${release.lastCommit.id}`);
           releaseInfo.push(`**Commit Message**: ${release.lastCommit.message}`);
           releaseInfo.push(
@@ -286,8 +291,10 @@ export const TOOL_HANDLERS = {
         }
 
         if (release.lastDeploy) {
+          releaseInfo.push(`### Last Deploy`, "");
+          releaseInfo.push(`**Deploy ID**: ${release.lastDeploy.id}`);
           releaseInfo.push(
-            `**Last Deploy**: ${release.lastDeploy.environment}`,
+            `**Environment**: ${release.lastDeploy.environment}`,
           );
           if (release.lastDeploy.dateStarted) {
             releaseInfo.push(
@@ -299,12 +306,6 @@ export const TOOL_HANDLERS = {
               `**Deploy Finished**: ${new Date(release.lastDeploy.dateFinished).toISOString()}`,
             );
           }
-        }
-
-        if (release.projects && release.projects.length > 0) {
-          releaseInfo.push(
-            `**Projects**: ${release.projects.map((p) => p.name).join(", ")}`,
-          );
         }
 
         return releaseInfo.join("\n");
