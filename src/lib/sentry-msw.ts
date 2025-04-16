@@ -540,6 +540,33 @@ const IssueLatestEventPayload = {
   previousEventID: "b7ed18493f4f4817a217b03839d4c017",
 };
 
+const EventsErrorsMeta = {
+  fields: {
+    "issue.id": "integer",
+    title: "string",
+    project: "string",
+    "count()": "integer",
+    "last_seen()": "date",
+  },
+  units: {
+    "issue.id": null,
+    title: null,
+    project: null,
+    "count()": null,
+    "last_seen()": null,
+  },
+  isMetricsData: false,
+  isMetricsExtractedData: false,
+  tips: { query: null, columns: null },
+  datasetReason: "unchanged",
+  dataset: "errors",
+};
+
+const EmptyEventsErrorsPayload = {
+  data: [],
+  meta: EventsErrorsMeta,
+};
+
 const EventsErrorsPayload = {
   data: [
     {
@@ -551,27 +578,77 @@ const EventsErrorsPayload = {
       issue: "CLOUDFLARE-MCP-41",
     },
   ],
-  meta: {
-    fields: {
-      "issue.id": "integer",
-      title: "string",
-      project: "string",
-      "count()": "integer",
-      "last_seen()": "date",
-    },
-    units: {
-      "issue.id": null,
-      title: null,
-      project: null,
-      "count()": null,
-      "last_seen()": null,
-    },
-    isMetricsData: false,
-    isMetricsExtractedData: false,
-    tips: { query: null, columns: null },
-    datasetReason: "unchanged",
-    dataset: "errors",
+  meta: EventsErrorsMeta,
+};
+
+const EventsSpansMeta = {
+  fields: {
+    id: "string",
+    "span.op": "string",
+    "span.description": "string",
+    "span.duration": "duration",
+    transaction: "string",
+    timestamp: "string",
+    is_transaction: "boolean",
+    project: "string",
+    trace: "string",
+    "transaction.span_id": "string",
+    "project.name": "string",
   },
+  units: {
+    id: null,
+    "span.op": null,
+    "span.description": null,
+    "span.duration": "millisecond",
+    transaction: null,
+    timestamp: null,
+    is_transaction: null,
+    project: null,
+    trace: null,
+    "transaction.span_id": null,
+    "project.name": null,
+  },
+  isMetricsData: false,
+  isMetricsExtractedData: false,
+  tips: {},
+  datasetReason: "unchanged",
+  dataset: "spans",
+  dataScanned: "full",
+  accuracy: {
+    confidence: [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+      {},
+    ],
+  },
+};
+
+const EmptyEventsSpansPayload = {
+  data: [],
+  meta: EventsSpansMeta,
 };
 
 const EventsSpansPayload = {
@@ -603,70 +680,7 @@ const EventsSpansPayload = {
       "project.name": "peated",
     },
   ],
-  meta: {
-    fields: {
-      id: "string",
-      "span.op": "string",
-      "span.description": "string",
-      "span.duration": "duration",
-      transaction: "string",
-      timestamp: "string",
-      is_transaction: "boolean",
-      project: "string",
-      trace: "string",
-      "transaction.span_id": "string",
-      "project.name": "string",
-    },
-    units: {
-      id: null,
-      "span.op": null,
-      "span.description": null,
-      "span.duration": "millisecond",
-      transaction: null,
-      timestamp: null,
-      is_transaction: null,
-      project: null,
-      trace: null,
-      "transaction.span_id": null,
-      "project.name": null,
-    },
-    isMetricsData: false,
-    isMetricsExtractedData: false,
-    tips: {},
-    datasetReason: "unchanged",
-    dataset: "spans",
-    dataScanned: "full",
-    accuracy: {
-      confidence: [
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-      ],
-    },
-  },
+  meta: EventsSpansMeta,
   confidence: [
     {},
     {},
@@ -982,7 +996,7 @@ export const restHandlers = [
       if (dataset === "spans") {
         //[sentryApi] GET https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=spans&per_page=10&referrer=sentry-mcp&sort=-span.duration&allowAggregateConditions=0&useRpc=1&field=id&field=trace&field=span.op&field=span.description&field=span.duration&field=transaction&field=project&field=timestamp&query=is_transaction%3Atrue
         if (query !== "is_transaction:true") {
-          return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
+          return HttpResponse.json(EmptyEventsSpansPayload);
         }
 
         if (url.searchParams.get("useRpc") !== "1") {
@@ -1002,22 +1016,6 @@ export const restHandlers = [
       }
       if (dataset === "errors") {
         //https://sentry.io/api/0/organizations/sentry-mcp-evals/events/?dataset=errors&per_page=10&referrer=sentry-mcp&sort=-count&statsPeriod=1w&field=issue&field=title&field=project&field=last_seen%28%29&field=count%28%29&query=
-        // TODO: this is not correct, but itll fix test flakiness for now
-        const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
-        if (
-          ![
-            null,
-            "",
-            "error.handled:false",
-            "error.unhandled:true",
-            "error.handled:false is:unresolved",
-            "error.unhandled:true is:unresolved",
-            "is:unresolved project:cloudflare-mcp",
-            "project:cloudflare-mcp",
-          ].includes(sortedQuery)
-        ) {
-          return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
-        }
 
         if (
           !fields.includes("issue") ||
@@ -1037,6 +1035,24 @@ export const restHandlers = [
           return HttpResponse.json("Invalid sort", { status: 400 });
         }
 
+        // TODO: this is not correct, but itll fix test flakiness for now
+        const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
+        if (
+          ![
+            null,
+            "",
+            "error.handled:false",
+            "error.unhandled:true",
+            "error.handled:false is:unresolved",
+            "error.unhandled:true is:unresolved",
+            "is:unresolved project:cloudflare-mcp",
+            "project:cloudflare-mcp",
+            "user.email:david@sentry.io",
+          ].includes(sortedQuery)
+        ) {
+          return HttpResponse.json(EmptyEventsErrorsPayload);
+        }
+
         return HttpResponse.json(EventsErrorsPayload);
       }
 
@@ -1047,25 +1063,9 @@ export const restHandlers = [
     "https://sentry.io/api/0/organizations/sentry-mcp-evals/issues/",
     ({ request }) => {
       const url = new URL(request.url);
-      const query = url.searchParams.get("query");
-
-      const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
-      if (
-        ![
-          null,
-          "",
-          "is:unresolved",
-          "error.handled:false is:unresolved",
-          "error.unhandled:true is:unresolved",
-          "project:cloudflare-mcp",
-          "is:unresolved project:cloudflare-mcp",
-        ].includes(sortedQuery)
-      ) {
-        return HttpResponse.json(`Invalid query: ${query}`, { status: 400 });
-      }
 
       if (
-        !["user", "freq", "date", "new"].includes(
+        !["user", "freq", "date", "new", null].includes(
           url.searchParams.get("sort") as string,
         )
       ) {
@@ -1082,6 +1082,23 @@ export const restHandlers = [
         return HttpResponse.json(`Invalid collapse: ${collapse.join(",")}`, {
           status: 400,
         });
+      }
+
+      const query = url.searchParams.get("query");
+      const sortedQuery = query ? query?.split(" ").sort().join(" ") : null;
+      if (
+        ![
+          null,
+          "",
+          "is:unresolved",
+          "error.handled:false is:unresolved",
+          "error.unhandled:true is:unresolved",
+          "project:cloudflare-mcp",
+          "is:unresolved project:cloudflare-mcp",
+          "user.email:david@sentry.io",
+        ].includes(sortedQuery)
+      ) {
+        return HttpResponse.json([]);
       }
 
       return HttpResponse.json([IssuePayload]);

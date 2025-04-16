@@ -29,12 +29,24 @@ describeEval("list-issues", {
         ].join("\n"),
       },
       {
-        input: `Find the most recent production errors in ${FIXTURES.organizationSlug}`,
+        input: `Find the most recent production issues in ${FIXTURES.organizationSlug}`,
         expected: [
           "## CLOUDFLARE-MCP-41",
           "- **Issue ID**: CLOUDFLARE-MCP-41",
           `- **URL**: https://${FIXTURES.organizationSlug}.sentry.io/issues/CLOUDFLARE-MCP-41`,
         ].join("\n"),
+      },
+      {
+        input: `What issues are affecting david@sentry.io in ${FIXTURES.organizationSlug}?`,
+        expected: [
+          "## CLOUDFLARE-MCP-41",
+          "- **Issue ID**: CLOUDFLARE-MCP-41",
+          `- **URL**: https://${FIXTURES.organizationSlug}.sentry.io/issues/CLOUDFLARE-MCP-41`,
+        ].join("\n"),
+      },
+      {
+        input: `What issues are affecting jane@sentry.io in ${FIXTURES.organizationSlug}?`,
+        expected: "No issues found",
       },
     ];
   },
