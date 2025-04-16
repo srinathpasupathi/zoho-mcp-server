@@ -204,7 +204,6 @@ export class SentryApiService {
     queryParams.set("statsPeriod", "1w");
     queryParams.set("query", sentryQuery.join(" "));
 
-    queryParams.append("collapse", "stats");
     queryParams.append("collapse", "unhandled");
 
     const apiUrl = `/organizations/${organizationSlug}/issues/?${queryParams.toString()}`;
