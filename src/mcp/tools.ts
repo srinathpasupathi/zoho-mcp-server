@@ -274,7 +274,9 @@ export const TOOL_HANDLERS = {
         }
 
         if (release.lastCommit) {
-          releaseInfo.push(`**Last Commit**: ${release.lastCommit.message}`);
+          releaseInfo.push(`### Last Commit`);
+          releaseInfo.push(`**Commit ID**: ${release.lastCommit.id}`);
+          releaseInfo.push(`**Commit Message**: ${release.lastCommit.message}`);
           releaseInfo.push(
             `**Commit Author**: ${release.lastCommit.author.name}`,
           );
