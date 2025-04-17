@@ -22,7 +22,7 @@
   "vars": {
     "SENTRY_DSN": "https://7f7bbaad9504b727cdf8edc378c6d1de@o1.ingest.us.sentry.io/4509062593708032",
     "VITE_SENTRY_DSN": "https://7f7bbaad9504b727cdf8edc378c6d1de@o1.ingest.us.sentry.io/4509062593708032",
-    "SENTRY_CLIENT_ID": "32d744a577ea363284b996867923fa4eb0bfdfcfe6b46399f078f753b7bb84f1",
+    "SENTRY_CLIENT_ID": "ec74c418573d97180133871d67f531fce0709c03e8a2b77f1ada7e9227a40c29",
     "SENTRY_HOST": "sentry.io"
   },
   "durable_objects": {
@@ -36,7 +36,7 @@
   "kv_namespaces": [
     {
       "binding": "OAUTH_KV",
-      "id": "8dd5e9bafe1945298e2d5ca3b408a553"
+      "id": "41342c359fba49549a719708af08135b"
     }
   ],
   "ai": {
